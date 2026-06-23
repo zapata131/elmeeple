@@ -45,6 +45,8 @@ describe('Quick View Card Integration', () => {
     expect(screen.getByTestId('mock-marker-19.4165--99.162')).toBeInTheDocument()
     // "El Duende" (CDMX Coyoacán): 19.3750, -99.1780
     expect(screen.getByTestId('mock-marker-19.375--99.178')).toBeInTheDocument()
+    // "Ravenfolks" (CDMX Roma Norte): 19.4184, -99.1627
+    expect(screen.getByTestId('mock-marker-19.4184--99.1627')).toBeInTheDocument()
   })
 
   it('opens the Quick View Card with correct details when a marker is clicked', async () => {

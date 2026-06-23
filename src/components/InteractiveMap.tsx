@@ -25,6 +25,16 @@ const MOCK_VENUES: Venue[] = [
     schedule: 'Lun - Dom: 11:00 - 21:00',
     address: 'Coyoacán, CDMX',
     description: 'El punto de encuentro para torneos de cartas coleccionables y comunidad de juegos de mesa.'
+  },
+  {
+    id: '3',
+    name: 'Ravenfolks',
+    lat: 19.4184,
+    lng: -99.1627,
+    tags: ['Eurogames', 'Café', 'Ludoteca'],
+    schedule: 'Mar - Dom: 14:00 - 22:00',
+    address: 'Roma Norte, CDMX',
+    description: 'El primer board game café de la Ciudad de México. Cientos de juegos de mesa, comida deliciosa y excelente café de especialidad.'
   }
 ]
 
