@@ -158,6 +158,13 @@ async function run() {
     } catch (err) {
       console.error(`Error during walkthrough on ${vp.name}:`, err);
       report.errors.push(`[${vp.name}] Error: ${err.message}`);
+      try {
+        const errorPath = path.join(screenshotDir, `error-${vp.name}.png`);
+        await page.screenshot({ path: errorPath, fullPage: true });
+        console.log(`[${vp.name}] Saved error screenshot to ${errorPath}`);
+      } catch (e) {
+        console.error(`Failed to capture error screenshot:`, e);
+      }
     } finally {
       await context.close();
     }

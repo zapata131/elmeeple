@@ -193,8 +193,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
                 fill="currentColor"
                 className="w-6 h-6"
               >
-                <circle cx="12" cy="4.5" r="2.75" />
-                <path d="M12,8.5 c-2.5,0 -4.5,1.2 -5.5,3.5 L4.3,16.8 c-0.4,0.8 0.2,1.7 1.1,1.7 h2.1 v4.3 c0,0.7 0.6,1.2 1.3,1.2 h1.7 l1.5,-4.5 1.5,4.5 h1.7 c0.7,0,1.3,-0.5 1.3,-1.2 v-4.3 h2.1 c0.9,0 1.5,-0.9 1.1,-1.7 l-2.2,-4.8 c-1,-2.3 -3,-3.5 -5.5,-3.5 z" />
+                <path d="M12 2c-1.66 0-3 1.34-3 3 0 1.13.62 2.1 1.54 2.61C9.62 8.1 8.8 8.8 8 9.5L5.5 12A1 1 0 0 0 5 13.5h2v6.5A1 1 0 0 0 8 21h3.5l1-3.5 1 3.5H17a1 1 0 0 0 1-1v-6.5h2a1 1 0 0 0-.5-1.5L17 9.5c-.8-.7-1.62-1.4-2.54-1.89C15.38 7.1 16 6.13 16 5c0-1.66-1.34-3-3-3h-1z" />
               </svg>
             </div>
           )}
@@ -365,13 +364,13 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         )}
 
         {/* Premium Full Profile Link CTA */}
-        <Link
+        <a
           href={`/venue/${venue.slug || venue.id}`}
           className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm flex items-center justify-center gap-1.5 group"
         >
           <span>Ver Perfil y Ludoteca</span>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
-        </Link>
+        </a>
       </div>
     </div>
   )

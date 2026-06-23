@@ -31,6 +31,9 @@ export const authOptions: NextAuthOptions = {
 
           if (profile) {
             const hashedPassword = await hashPassword(credentials.password || '')
+            console.log('[NextAuth Debug] Profile found:', profile.email)
+            console.log('[NextAuth Debug] DB Password:', profile.password)
+            console.log('[NextAuth Debug] Form Hashed Password:', hashedPassword)
             if (profile.password === hashedPassword) {
               return {
                 id: profile.email,
@@ -39,6 +42,7 @@ export const authOptions: NextAuthOptions = {
                 role: profile.role,
               }
             }
+            console.log('[NextAuth Debug] Password mismatch!')
             return null
           }
         } catch (err) {

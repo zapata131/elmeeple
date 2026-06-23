@@ -143,6 +143,17 @@ let venue_games = [
     max_players: 5,
     playing_time: 120,
     created_at: new Date().toISOString()
+  },
+  {
+    id: "g-init-2",
+    venue_id: "1",
+    bgg_id: 169786,
+    name: "Scythe",
+    thumbnail: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop",
+    min_players: 1,
+    max_players: 5,
+    playing_time: 115,
+    created_at: new Date().toISOString()
   }
 ];
 
@@ -437,7 +448,13 @@ const server = http.createServer((req, res) => {
         }
 
         const preferHeader = req.headers['prefer'] || '';
-        if (preferHeader.includes('handling=strict') || preferHeader.includes('count=') || req.url.includes('single')) {
+        const acceptHeader = req.headers['accept'] || '';
+        if (
+          preferHeader.includes('handling=strict') ||
+          preferHeader.includes('count=') ||
+          req.url.includes('single') ||
+          acceptHeader.includes('vnd.pgrst.object')
+        ) {
           if (filtered.length === 0) {
             res.writeHead(406, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }));
