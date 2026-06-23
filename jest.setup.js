@@ -8,9 +8,14 @@ jest.mock('next/dynamic', () => ({
   default: () => {
     // Create a mock component that will render the dynamic component synchronously
     const DynamicComponent = (props) => {
-      // In tests, we can just render a placeholder or a div.
-      // We'll give it a default testid so tests can verify dynamic components.
-      return React.createElement('div', { 'data-testid': 'mock-map-container', ...props })
+      // Filter out non-DOM props to prevent React warnings in test logs
+      const domProps = {}
+      for (const [key, value] of Object.entries(props)) {
+        if (typeof value !== 'function' && key !== 'venues') {
+          domProps[key] = value
+        }
+      }
+      return React.createElement('div', { 'data-testid': 'mock-map-container', ...domProps })
     }
     
     DynamicComponent.displayName = 'DynamicComponent'

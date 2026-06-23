@@ -1,6 +1,31 @@
 'use client'
 
+import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import QuickViewCard, { Venue } from '@/components/QuickViewCard'
+
+const MOCK_VENUES: Venue[] = [
+  {
+    id: '1',
+    name: 'Orcs Stories',
+    lat: 19.4165,
+    lng: -99.1620,
+    tags: ['Eurogames', 'TCGs', 'Café'],
+    schedule: 'Mar - Dom: 14:00 - 22:00',
+    address: 'Roma Norte, CDMX',
+    description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.'
+  },
+  {
+    id: '2',
+    name: 'El Duende',
+    lat: 19.3750,
+    lng: -99.1780,
+    tags: ['TCGs', 'Magic: The Gathering', 'Torneos'],
+    schedule: 'Lun - Dom: 11:00 - 21:00',
+    address: 'Coyoacán, CDMX',
+    description: 'El punto de encuentro para torneos de cartas coleccionables y comunidad de juegos de mesa.'
+  }
+]
 
 // Dynamically import the Map component with SSR disabled
 const Map = dynamic(() => import('@/components/Map'), {
@@ -15,11 +40,13 @@ const Map = dynamic(() => import('@/components/Map'), {
 })
 
 export default function InteractiveMap() {
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#F5F0E9]">
       {/* Full screen Map Background */}
       <div className="absolute inset-0 w-full h-full z-0">
-        <Map />
+        <Map venues={MOCK_VENUES} onSelectVenue={setSelectedVenue} />
       </div>
 
       {/* Floating Brand Card */}
@@ -55,6 +82,16 @@ export default function InteractiveMap() {
           </div>
         </div>
       </div>
+
+      {/* Floating Quick View Card Overlay */}
+      {selectedVenue && (
+        <div className="absolute bottom-6 left-4 right-4 md:left-auto md:right-4 md:w-96 z-10">
+          <QuickViewCard
+            venue={selectedVenue}
+            onClose={() => setSelectedVenue(null)}
+          />
+        </div>
+      )}
     </div>
   )
 }
