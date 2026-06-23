@@ -30,6 +30,7 @@ let venues = [
     verification_proof: "data:image/jpeg;base64,mockcroppedlogo",
     contact_email: "owner@example.com",
     contact_phone: "+525512345678",
+    bgg_username: "mybgguser",
     venue_tags: [
       { tags: { name: "Eurogames" } },
       { tags: { name: "TCGs" } },
@@ -87,10 +88,26 @@ let reviews = [
   {
     id: "rev-1",
     user_email: "player@example.com",
-    content: "Excelente ambiente y gran variedad de juegos.",
+    venue_id: "1",
+    comment: "Excelente ambiente y gran variedad de juegos.",
     rating: 5,
-    created_at: new Date().toISOString(),
+    vibe_tags: ["Café", "Eurogames"],
+    created_at: new Date(Date.now() - 3600000).toISOString(),
     venues: { name: "Orcs Stories" }
+  }
+];
+
+let venue_games = [
+  {
+    id: "g-init-1",
+    venue_id: "1",
+    bgg_id: 167791,
+    name: "Terraforming Mars",
+    thumbnail: "https://cf.geekdo-images.com/thumb/tfm.jpg",
+    min_players: 1,
+    max_players: 5,
+    playing_time: 120,
+    created_at: new Date().toISOString()
   }
 ];
 
@@ -116,7 +133,7 @@ const server = http.createServer((req, res) => {
 
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, apikey, x-client-info, Prefer, accept-profile, x-retry-count, prefer-role');
 
   if (method === 'OPTIONS') {
@@ -152,8 +169,19 @@ const server = http.createServer((req, res) => {
           filtered = filtered.filter(v => v.verification_status === statusFilter);
         }
 
+        // Dynamically embed venue_games and reviews
+        const mapped = filtered.map(v => {
+          const games = venue_games.filter(g => g.venue_id === v.id);
+          const revs = reviews.filter(r => r.venue_id === v.id);
+          return {
+            ...v,
+            venue_games: games,
+            reviews: revs
+          };
+        });
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(filtered));
+        res.end(JSON.stringify(mapped));
       } else if (method === 'POST') {
         try {
           const payload = JSON.parse(body);
@@ -170,6 +198,28 @@ const server = http.createServer((req, res) => {
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: e.message }));
+        }
+      } else if (method === 'PATCH') {
+        const idFilter = getFilterValue(parsedUrl.query, 'id');
+        if (idFilter) {
+          try {
+            const payload = JSON.parse(body);
+            const idx = venues.findIndex(v => v.id === idFilter);
+            if (idx !== -1) {
+              venues[idx] = { ...venues[idx], ...payload };
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify([venues[idx]]));
+            } else {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Venue not found' }));
+            }
+          } catch (e) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+          }
+        } else {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing id parameter' }));
         }
       }
       return;
@@ -218,7 +268,7 @@ const server = http.createServer((req, res) => {
           filtered = filtered.filter(f => f.venue_id === venueIdFilter);
         }
 
-        // If .single() is expected and no rows found, we return 406 for PGRST116 (no rows)
+        // If .single() is expected and no rows found, we return 406 for PGRST116
         const preferHeader = req.headers['prefer'] || '';
         if (preferHeader.includes('handling=strict') || preferHeader.includes('count=') || req.url.includes('single')) {
           if (filtered.length === 0) {
@@ -232,7 +282,6 @@ const server = http.createServer((req, res) => {
           }
         }
 
-        // In the profile page, we select venues. So we map favorites to have a nested venue object.
         const mapped = filtered.map(f => {
           const v = venues.find(ven => ven.id === f.venue_id);
           return {
@@ -261,9 +310,7 @@ const server = http.createServer((req, res) => {
         const emailFilter = getFilterValue(parsedUrl.query, 'user_email');
         const venueIdFilter = getFilterValue(parsedUrl.query, 'venue_id');
 
-        const initialLength = favorites.length;
         favorites = favorites.filter(f => !(f.user_email === emailFilter && f.venue_id === venueIdFilter));
-        
         res.writeHead(204);
         res.end();
       }
@@ -274,12 +321,70 @@ const server = http.createServer((req, res) => {
     if (path.startsWith('/rest/v1/reviews')) {
       if (method === 'GET') {
         const emailFilter = getFilterValue(parsedUrl.query, 'user_email');
+        const venueIdFilter = getFilterValue(parsedUrl.query, 'venue_id');
         let filtered = [...reviews];
         if (emailFilter) {
           filtered = filtered.filter(r => r.user_email === emailFilter);
         }
+        if (venueIdFilter) {
+          filtered = filtered.filter(r => r.venue_id === venueIdFilter);
+        }
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(filtered));
+      } else if (method === 'POST') {
+        try {
+          const payload = JSON.parse(body);
+          const newReview = {
+            id: `rev-${Date.now()}`,
+            created_at: new Date().toISOString(),
+            ...payload
+          };
+          reviews.push(newReview);
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify([newReview]));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+      return;
+    }
+
+    // Venue Games endpoint
+    if (path.startsWith('/rest/v1/venue_games')) {
+      if (method === 'GET') {
+        const venueIdFilter = getFilterValue(parsedUrl.query, 'venue_id');
+        let filtered = [...venue_games];
+        if (venueIdFilter) {
+          filtered = filtered.filter(g => g.venue_id === venueIdFilter);
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(filtered));
+      } else if (method === 'POST') {
+        try {
+          const payload = JSON.parse(body);
+          const items = Array.isArray(payload) ? payload : [payload];
+          items.forEach(item => {
+            const existingIdx = venue_games.findIndex(g => g.venue_id === item.venue_id && g.bgg_id === item.bgg_id);
+            if (existingIdx !== -1) {
+              venue_games[existingIdx] = { ...venue_games[existingIdx], ...item };
+            } else {
+              venue_games.push({
+                id: `game-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                created_at: new Date().toISOString(),
+                ...item
+              });
+            }
+          });
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(items));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
       } else {
         res.writeHead(404);
         res.end();
