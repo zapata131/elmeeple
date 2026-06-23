@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import QuickViewCard, { Venue } from '@/components/QuickViewCard'
 
 const MOCK_VENUES: Venue[] = [
@@ -76,9 +77,9 @@ export default function InteractiveMap() {
             <button className="w-full py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center">
               Explorar Locales Cercanos
             </button>
-            <button className="w-full py-3 bg-[#F5F0E9] hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl border border-[#3A3A3A]/20 transition-all duration-200 cursor-pointer text-center">
+            <Link href="/onboarding" className="w-full py-3 bg-[#F5F0E9] hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl border border-[#3A3A3A]/20 transition-all duration-200 cursor-pointer text-center">
               Registrar mi Local
-            </button>
+            </Link>
           </div>
         </div>
       </div>
