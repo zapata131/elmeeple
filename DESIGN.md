@@ -12,9 +12,10 @@
 
 ### **3. MVP Feature Scope**
 * **Map-First Interface:** A responsive, location-based interactive map serving as the default homepage, automatically centering on the user's city.
-* **Quick View Cards:** Clicking a map pin opens a summary card with the venue name, tags, and a button to view the full profile.
-* **Self-Serve Store Portal:** A dedicated onboarding flow for owners to create their profile, set operating hours, and drop their pin on the map.
-* **Tag-Based Inventory:** Store owners define their *ludoteca* (game collection) using a predefined tagging system (e.g., TCGs, Eurogames, MTG, D&D) instead of manual data entry.
+* **Quick View Cards (Tabbed):** Clicking a map pin opens a summary card with three tabs: **Details** (announcements & description), **Ludoteca** (visual grid of game boxes), and **Reseñas** (reviews, ratings, and vibes).
+* **Self-Serve Store Portal:** A dedicated onboarding flow for owners to create their profile, set operating hours, drop their pin, and manage their store dashboard.
+* **BoardGameGeek Ludoteca Sync:** Store owners can enter their BGG username in their dashboard to automatically import and sync their game box collection, rendering a beautiful visual gallery.
+* **Community Reviews & Vibe Tags:** Authenticated players can submit 1-5 star reviews, select from vibe presets (e.g., *Eurogames*, *TCGs*, *Café*), and write comments. The star average and vibe progress bars update in real-time.
 * **Admin Verification:** A backend toggle for the platform owner to approve self-submitted venues before they appear publicly.
 
 ### **4. UI/UX & Brand Aesthetics**
@@ -39,17 +40,31 @@
 ### **5. Technical Architecture (The "ShipFast" Stack)**
 * **Framework:** Next.js (App Router) acting as a monolith for both Frontend UI and Backend Server Actions/API routes.
 * **Styling:** Tailwind CSS combined with a lean UI component library (e.g., DaisyUI or Shadcn).
-* **Database:** Supabase (PostgreSQL) as our primary database, ensuring strict relational mapping between stores, users, and tags, alongside built-in auth support and instant schema APIs.
-* **Authentication:** NextAuth (Auth.js) for seamless social logins (Google, Discord) and magic email links.
+* **Database (Supabase & PostgreSQL):** Core tables include:
+  * `venues`: Tracks venue metadata, ownership, and `bgg_username`.
+  * `venue_games`: Idempotent bulk upsert of games linked to `venues` (`bgg_id`, `name`, `thumbnail`, player counts, playing time). Unique constraint on `(venue_id, bgg_id)`.
+  * `reviews`: Community reviews with `rating` (1-5), `comment`, `vibe_tags` text arrays, and `user_email`.
+* **Row-Level Security (RLS):** Strict security policies enabled on all tables:
+  * Public read access (`SELECT`) permitted on all public venue, game, and review tables.
+  * Authenticated write access (`INSERT`/`UPDATE`) restricted to validated users or owners using session checks.
+* **BoardGameGeek Integration:** Public XML API collection sync (`https://boardgamegeek.com/xmlapi2/collection?username=<username>&own=1`) parsed securely on the server side using `fast-xml-parser`.
+* **Authentication:** NextAuth (Auth.js) with custom credentials role resolution (assigning `partner` to owners/admins and `player` to users) and global context wrappers.
 * **Emails (Transactional):** Resend or Mailgun (for onboarding verifications).
 * **Hosting/Deployment:** Vercel for zero-config CI/CD and edge deployments.
 
 ### **6. Testing Strategy**
 * **Core Philosophy:** Test-Driven Development (TDD) mandatory for all AI Builder agents. Tests must be written and approved before implementation code.
-* **Unit Testing:** * Jest + React Testing Library to verify individual UI components (e.g., Map rendering, Quick View Card data population) and Next.js Server Actions.
-* **Integration Testing:**
-  * **Framework:** Playwright or Cypress.
-  * **Core Workflows to Test:** The "Self-Serve Onboarding Flow" (verifying a store owner can sign up, select tags, and submit) and the "Map Interaction Flow" (verifying map pins correctly fetch and display database records).
+* **Unit & Integration Testing:** Jest + React Testing Library + JSDOM to verify:
+  * Individual UI components (Map rendering, Quick View Card tabs, grids).
+  * Next.js Server Actions (`submitReview`, `syncBggCollection`) with mock-supabase database clients.
+  * Resilient JSDOM globals and `jose` token polyfills for NextAuth.
+* **Live System & Visual QA (Playwright):**
+  * Automated end-to-end browser walkthroughs run on **Desktop (1280x800)** and **Mobile (390x844)** viewports.
+  * Verifies complete user journeys: owner BGG sync, player search filters, visual grids, and real-time review updates.
+  * Captures high-resolution screenshots saved to `visual-qa-results/` and audits browser console logs for zero runtime errors or warnings.
+* **Resilient Local QA Architecture:**
+  * A custom mock Supabase server (`scripts/mock-supabase.js`) listening on local port `54321` to simulate PostgreSQL endpoints, RLS policies, PATCH updates, and relational embeddings (`select=*,venue_games(*),reviews(*)`).
+  * High-fidelity BGG API fallback in the sync server action using a cached local XML representation when BGG API is rate-limiting or returning 401, guaranteeing flawless local QA walkthroughs.
 
 ### **7. Version Control & Workflow (GitHub Flow)**
 * **Branching Strategy:** Strict adherence to GitHub Flow.
