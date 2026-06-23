@@ -31,7 +31,7 @@
 ### **5. Technical Architecture (The "ShipFast" Stack)**
 * **Framework:** Next.js (App Router) acting as a monolith for both Frontend UI and Backend Server Actions/API routes.
 * **Styling:** Tailwind CSS combined with a lean UI component library (e.g., DaisyUI or Shadcn).
-* **Database:** MongoDB (via Mongoose) for highly flexible, document-based data storage, OR Supabase (PostgreSQL) if strict relational data mapping between stores and users is preferred.
+* **Database:** Supabase (PostgreSQL) as our primary database, ensuring strict relational mapping between stores, users, and tags, alongside built-in auth support and instant schema APIs.
 * **Authentication:** NextAuth (Auth.js) for seamless social logins (Google, Discord) and magic email links.
 * **Emails (Transactional):** Resend or Mailgun (for onboarding verifications).
 * **Hosting/Deployment:** Vercel for zero-config CI/CD and edge deployments.
