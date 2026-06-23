@@ -12,10 +12,12 @@
 
 ### **3. MVP Feature Scope**
 * **Map-First Interface:** A responsive, location-based interactive map serving as the default homepage, automatically centering on the user's city.
-* **Quick View Cards (Tabbed):** Clicking a map pin opens a summary card with three tabs: **Details** (announcements & description), **Ludoteca** (visual grid of game boxes), and **Reseñas** (reviews, ratings, and vibes).
+* **Quick View Cards (Lightweight Summary):** Clicking a map pin opens a lightweight, fast-loading summary card displaying verified status, brand badges, opening hours, announcements, and a prominent brand-purple CTA link: **"Ver Perfil y Ludoteca ➔"** that redirects players to the dedicated store profile page.
+* **Dedicated Yelp-style Storefronts (`/venue/[slug]`):** Dynamic storefront profile pages resolving clean, SEO-friendly slugs (e.g. `/venue/orcs-stories`). Features a high-fidelity dual-column layout on desktop (60% catalog grid, 40% reviews & vibe hub) and a stacked single-column layout on mobile, optimized for 100+ games.
+* **Advanced Catalog Search & Filters:** Within the storefront page, players can filter the store's game catalog via a text search bar, player count filter chips (`Solo`, `2`, `3-4`, `5+`), and play duration category chips in real-time.
 * **Self-Serve Store Portal:** A dedicated onboarding flow for owners to create their profile, set operating hours, drop their pin, and manage their store dashboard.
 * **BoardGameGeek Ludoteca Sync:** Store owners can enter their BGG username in their dashboard to automatically import and sync their game box collection, rendering a beautiful visual gallery.
-* **Community Reviews & Vibe Tags:** Authenticated players can submit 1-5 star reviews, select from vibe presets (e.g., *Eurogames*, *TCGs*, *Café*), and write comments. The star average and vibe progress bars update in real-time.
+* **Community Reviews & Vibe Hub:** Authenticated players can submit reviews (1-5 stars), select from vibe presets, and write comments. The community average rating, visual vibe tag progress bars, and comments feed update in real-time.
 * **Admin Verification:** A backend toggle for the platform owner to approve self-submitted venues before they appear publicly.
 
 ### **4. UI/UX & Brand Aesthetics**
@@ -34,6 +36,7 @@
 * **Custom Purple Map Pins:** The map uses custom vector-based SVG markers styled in `#8367C7` (Malva suave) instead of Leaflet's default blue pins, ensuring brand cohesion.
 * **Zoom Controls Positioning:** Leaflet's default zoom control is disabled in the top-left, and a custom `ZoomControl` is added at `topright` to prevent overlap with the floating brand card.
 * **Mobile Overlap Prevention:** To keep the map visible on mobile devices, the top brand card is automatically hidden (`hidden md:block`) whenever a venue's Quick View Card is active.
+* **Hard Page Navigation for Map Transitions:** To bypass client-side Leaflet unmount coordinate crashes (`_leaflet_pos` undefined) in headless browser contexts (where external map tiles fail to load due to sandboxed connection limits), the Quick View Card CTA uses a standard HTML `<a>` anchor tag instead of Next.js SPA client-side `<Link>` components, forcing a clean hard page reload when transitioning to the store profile.
 * **Owner Logo Upload & Canvas Auto-Cropping:** To avoid heavy image storage requirements for the B2B MVP, the Onboarding page features a Client-side File Input. When an image is uploaded, an invisible HTML5 Canvas crops and resizes it to a perfect `150x150px` square, compressing it into a highly lightweight Base64 JPEG string (5-10 KB) stored directly in the database.
 * **Mandatory Visual Review Loop:** As defined in `AGENTS.md`, the AI Reviewer must use Chrome DevTools MCP tools (via the `chrome-devtools` server) to perform live browser walkthroughs, capturing and verifying screenshots for both desktop and mobile viewports to ensure no visual regressions (overlapping text, clipping, or blocked controls) or console errors exist before approving a PR.
 * **Minimalist Iconography & No Emojis (Visual Premium Rule):** To maintain a high-end, premium aesthetic, raw emojis (e.g., `🎲`, `🕒`, `👤`, `🏪`, `🛡️`, `🚪`, `🏆`, `✍️`, `💬`, `➔`, `📍`) are strictly prohibited in headers, buttons, lists, cards, and banners. They must always be replaced with clean typography, minimalist layouts, or custom inline vector SVG icons styled in our brand colors (e.g., Malva, Carbón, or Gold). Star glyphs (`★`, `☆`) are allowed exclusively as clean typographic characters in ratings feeds.
@@ -43,14 +46,14 @@
 * **Framework:** Next.js (App Router) acting as a monolith for both Frontend UI and Backend Server Actions/API routes.
 * **Styling:** Tailwind CSS combined with a lean UI component library (e.g., DaisyUI or Shadcn).
 * **Database (Supabase & PostgreSQL):** Core tables include:
-  * `venues`: Tracks venue metadata, ownership, and `bgg_username`.
+  * `venues`: Tracks venue metadata, ownership, unique url `slug` column, and `bgg_username`.
   * `venue_games`: Idempotent bulk upsert of games linked to `venues` (`bgg_id`, `name`, `thumbnail`, player counts, playing time). Unique constraint on `(venue_id, bgg_id)`.
   * `reviews`: Community reviews with `rating` (1-5), `comment`, `vibe_tags` text arrays, and `user_email`.
 * **Row-Level Security (RLS):** Strict security policies enabled on all tables:
   * Public read access (`SELECT`) permitted on all public venue, game, and review tables.
   * Authenticated write access (`INSERT`/`UPDATE`) restricted to validated users or owners using session checks.
 * **BoardGameGeek Integration:** Public XML API collection sync (`https://boardgamegeek.com/xmlapi2/collection?username=<username>&own=1`) parsed securely on the server side using `fast-xml-parser`.
-* **Authentication:** NextAuth (Auth.js) with custom credentials role resolution (assigning `partner` to owners/admins and `player` to users) and global context wrappers.
+* **Authentication:** NextAuth (Auth.js) with custom credentials role resolution, dynamic SHA-256 database password hashing, and global context wrappers.
 * **Emails (Transactional):** Resend or Mailgun (for onboarding verifications).
 * **Hosting/Deployment:** Vercel for zero-config CI/CD and edge deployments.
 
@@ -65,7 +68,8 @@
   * Verifies complete user journeys: owner BGG sync, player search filters, visual grids, and real-time review updates.
   * Captures high-resolution screenshots saved to `visual-qa-results/` and audits browser console logs for zero runtime errors or warnings.
 * **Resilient Local QA Architecture:**
-  * A custom mock Supabase server (`scripts/mock-supabase.js`) listening on local port `54321` to simulate PostgreSQL endpoints, RLS policies, PATCH updates, and relational embeddings (`select=*,venue_games(*),reviews(*)`).
+  * A custom mock Supabase server (`scripts/mock-supabase.js`) listening on local port `54321` to simulate PostgreSQL endpoints, RLS policies, PATCH updates, and complex relational embeddings (`select=*,venue_games(*),reviews(*)`).
+  * Implemented robust mock database support for unique `slug` query filtering, dynamic SHA-256 password validation matching NextAuth, and `vnd.pgrst.object` Accept header checking to return single JSON objects (supporting `.single()` queries) instead of arrays.
   * High-fidelity BGG API fallback in the sync server action using a cached local XML representation when BGG API is rate-limiting or returning 401, guaranteeing flawless local QA walkthroughs.
 
 ### **7. Version Control & Workflow (GitHub Flow)**

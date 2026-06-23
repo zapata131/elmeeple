@@ -203,6 +203,7 @@ const server = http.createServer((req, res) => {
         const idFilter = getFilterValue(parsedUrl.query, 'id');
         const ownerFilter = getFilterValue(parsedUrl.query, 'owner_email');
         const statusFilter = getFilterValue(parsedUrl.query, 'verification_status');
+        const slugFilter = getFilterValue(parsedUrl.query, 'slug');
 
         let filtered = [...venues];
         if (idFilter) {
@@ -213,6 +214,9 @@ const server = http.createServer((req, res) => {
         }
         if (statusFilter) {
           filtered = filtered.filter(v => v.verification_status === statusFilter);
+        }
+        if (slugFilter) {
+          filtered = filtered.filter(v => v.slug === slugFilter);
         }
 
         // Dynamically embed venue_games and reviews
@@ -225,6 +229,26 @@ const server = http.createServer((req, res) => {
             reviews: revs
           };
         });
+
+        // Handle single object request (.single())
+        const preferHeader = req.headers['prefer'] || '';
+        const acceptHeader = req.headers['accept'] || '';
+        if (
+          preferHeader.includes('handling=strict') ||
+          preferHeader.includes('count=') ||
+          req.url.includes('single') ||
+          acceptHeader.includes('vnd.pgrst.object')
+        ) {
+          if (mapped.length === 0) {
+            res.writeHead(406, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }));
+            return;
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(mapped[0]));
+            return;
+          }
+        }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(mapped));
