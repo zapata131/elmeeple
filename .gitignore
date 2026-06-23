@@ -13,3 +13,7 @@ node_modules/
 out/
 .env*.local
 .vercel
+
+# Test and QA outputs
+test-results/
+visual-qa-results/

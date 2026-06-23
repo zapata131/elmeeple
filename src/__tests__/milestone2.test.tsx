@@ -8,7 +8,7 @@ import OnboardingPage from '@/app/onboarding/page'
 import PlayerProfilePage from '@/app/profile/page'
 import OwnerDashboard from '@/app/dashboard/page'
 import AdminDashboardClient from '@/app/admin/AdminDashboardClient'
-import QuickViewCard from '@/components/QuickViewCard'
+import QuickViewCard, { Venue } from '@/components/QuickViewCard'
 
 // Mock next/navigation
 const mockPush = jest.fn()
@@ -54,7 +54,6 @@ jest.mock('next-auth/jwt', () => ({
 
 
 // Define a local chainable mock Supabase client and store it globally to override the global mock instances
-let currentTable = ''
 const mockQueryBuilder = {
   select: jest.fn().mockReturnThis(),
   eq: jest.fn().mockReturnThis(),
@@ -66,15 +65,14 @@ const mockQueryBuilder = {
 }
 
 const mockSupabase = {
-  from: jest.fn().mockImplementation((table) => {
-    currentTable = table
+  from: jest.fn().mockImplementation(() => {
     return mockQueryBuilder
   }),
   insert: jest.fn().mockResolvedValue({ error: null }),
   delete: jest.fn().mockResolvedValue({ error: null })
 }
-;(global as any).mockSupabaseInstance = mockSupabase
-;(global as any).mockSupabaseServerInstance = mockSupabase
+;(global as unknown as { mockSupabaseInstance: typeof mockSupabase }).mockSupabaseInstance = mockSupabase
+;(global as unknown as { mockSupabaseServerInstance: typeof mockSupabase }).mockSupabaseServerInstance = mockSupabase
 
 
 
@@ -99,12 +97,12 @@ jest.mock('next/dynamic', () => ({
 // Mock Server Actions
 const mockCreateVenue = jest.fn().mockResolvedValue({ success: true, venueId: 'venue-123' })
 jest.mock('@/app/actions/venue', () => ({
-  createVenue: (data: any) => mockCreateVenue(data),
+  createVenue: (data: unknown) => mockCreateVenue(data),
 }))
 
 const mockCreateAnnouncement = jest.fn().mockResolvedValue({ success: true })
 jest.mock('@/app/actions/announcement', () => ({
-  createAnnouncement: (data: any) => mockCreateAnnouncement(data),
+  createAnnouncement: (data: unknown) => mockCreateAnnouncement(data),
 }))
 
 
@@ -234,7 +232,7 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
               ],
               error: null,
             }),
-          } as any
+          } as unknown
         }
         if (table === 'reviews' || table === 'venue_reviews') {
           return {
@@ -251,7 +249,7 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
               ],
               error: null,
             }),
-          } as any
+          } as unknown
         }
         return mockQueryBuilder
       })
@@ -277,11 +275,6 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
   // 4. Owner Dashboard & Announcements Bulletin
   describe('Owner Dashboard & Announcements', () => {
     it('allows posting announcements and shows them in the store Quick View Card', async () => {
-      // Mock session for owner
-      const mockSession = {
-        user: { name: 'Owner User', email: 'owner@example.com', role: 'partner' }
-      }
-      
       // Render dashboard
       // Fetch venues owned by owner
       mockSupabase.from.mockImplementation((table: string) => {
@@ -293,7 +286,7 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
               error: null,
             }),
 
-          } as any
+          } as unknown
         }
         return mockQueryBuilder
       })
@@ -353,12 +346,12 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
               ],
               error: null,
             }),
-          } as any
+          } as unknown
         }
         return mockQueryBuilder
       })
 
-      render(<QuickViewCard venue={mockVenue as any} onClose={jest.fn()} />)
+      render(<QuickViewCard venue={mockVenue as unknown as Venue} onClose={jest.fn()} />)
 
       await screen.findByText('Torneo Especial Lorcana')
       expect(screen.getByText('Este sábado a las 16:00 tendremos torneo de Lorcana con pool extra.')).toBeInTheDocument()

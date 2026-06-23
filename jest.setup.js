@@ -4,24 +4,26 @@ import React from 'react'
 
 // Polyfill Request, Response, Headers in JSDOM
 if (typeof global.TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TextEncoder, TextDecoder } = require('util')
   global.TextEncoder = TextEncoder
   global.TextDecoder = TextDecoder
 }
 
 if (typeof global.ReadableStream === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ReadableStream } = require('node:stream/web')
   global.ReadableStream = ReadableStream
 }
 
 if (typeof global.MessagePort === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { MessagePort } = require('node:worker_threads')
   global.MessagePort = MessagePort
 }
 
-
-
 if (typeof global.Request === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Request, Response, Headers } = require('undici')
   global.Request = Request
   global.Response = Response

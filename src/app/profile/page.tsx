@@ -53,7 +53,7 @@ export default async function PlayerProfilePage() {
             <h1 className="text-2xl font-extrabold text-[#3A3A3A]">{user.name || 'Usuario'}</h1>
             <p className="text-sm text-[#3A3A3A]/75 mt-1">{user.email}</p>
             <span className="inline-block bg-[#8367C7]/15 text-[#8367C7] text-xs font-bold px-2.5 py-1 rounded-md mt-3 uppercase tracking-wider">
-              Rol: {(user as any).role || 'player'}
+              Rol: {(user as unknown as { role?: string }).role || 'player'}
             </span>
           </div>
         </div>
@@ -73,8 +73,9 @@ export default async function PlayerProfilePage() {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {favList.map((fav: any) => {
-                  const venue = fav.venues
+                {favList.map((fav: unknown) => {
+                  const item = fav as { venues?: { id: string; name: string; type: string; logo_url?: string } | null }
+                  const venue = item.venues
                   if (!venue) return null
                   return (
                     <Link
@@ -111,24 +112,27 @@ export default async function PlayerProfilePage() {
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                {reviewList.map((review: any) => (
-                  <div key={review.id} className="p-4 border border-[#3A3A3A]/5 bg-[#3A3A3A]/5 rounded-xl flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-extrabold text-[#3A3A3A]">
-                        {review.venues?.name || 'Local'}
-                      </span>
-                      <span className="text-xs font-bold text-[#8367C7] bg-[#8367C7]/10 px-2 py-0.5 rounded">
-                        ⭐ {review.rating}/5
+                {reviewList.map((review: unknown) => {
+                  const item = review as { id: string; content: string; rating: number; created_at: string; venues?: { name: string } | null }
+                  return (
+                    <div key={item.id} className="p-4 border border-[#3A3A3A]/5 bg-[#3A3A3A]/5 rounded-xl flex flex-col gap-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-extrabold text-[#3A3A3A]">
+                          {item.venues?.name || 'Local'}
+                        </span>
+                        <span className="text-xs font-bold text-[#8367C7] bg-[#8367C7]/10 px-2 py-0.5 rounded">
+                          ⭐ {item.rating}/5
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#3A3A3A]/85 italic leading-relaxed">
+                        &ldquo;{item.content}&rdquo;
+                      </p>
+                      <span className="text-[9px] text-[#3A3A3A]/40 self-end">
+                        {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-xs text-[#3A3A3A]/85 italic leading-relaxed">
-                      "{review.content}"
-                    </p>
-                    <span className="text-[9px] text-[#3A3A3A]/40 self-end">
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

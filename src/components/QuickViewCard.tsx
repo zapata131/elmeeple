@@ -93,10 +93,18 @@ export function formatSchedule(schedule: StructuredSchedule | string): string {
   return groups.length > 0 ? groups.join(' | ') : 'Cerrado todos los días'
 }
 
+interface Announcement {
+  id: string
+  title: string
+  content: string
+  created_at: string
+  venue_id: string
+}
+
 export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
   const { data: session } = useSession()
   const [isFavorite, setIsFavorite] = useState(false)
-  const [announcements, setAnnouncements] = useState<any[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loadingFavorite, setLoadingFavorite] = useState(false)
 
   const formattedSchedule = formatSchedule(venue.schedule)

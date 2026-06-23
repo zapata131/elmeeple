@@ -28,7 +28,7 @@ export default function AnnouncementForm({ venueId }: AnnouncementFormProps) {
       } else {
         setMessage(`Error: ${res.error}`)
       }
-    } catch (err) {
+    } catch {
       setMessage('Error de conexión al publicar el anuncio.')
     } finally {
       setLoading(false)
