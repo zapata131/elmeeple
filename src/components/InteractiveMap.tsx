@@ -60,14 +60,14 @@ export default function InteractiveMap() {
             instagram,
             discord,
             logo_url,
-            verified,
+            verification_status,
             venue_tags (
               tags (
                 name
               )
             )
           `)
-          .eq('verified', true)
+          .eq('verification_status', 'approved')
 
         if (error) {
           console.error('Error fetching venues:', error)

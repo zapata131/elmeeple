@@ -74,7 +74,9 @@ export default function Onboarding() {
     },
     lat: undefined as unknown as number,
     lng: undefined as unknown as number,
-    tags: []
+    tags: [],
+    businessTaxId: '',
+    verificationProof: ''
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -170,6 +172,51 @@ export default function Onboarding() {
         setFormData((prev) => ({
           ...prev,
           logoUrl: base64
+        }))
+      }
+      img.src = event.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Client-side canvas compressor for permit file upload (max width 400px, height 300px, 15 KB)
+  const handlePermitUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+
+        let width = img.width
+        let height = img.height
+        const maxWidth = 400
+        const maxHeight = 300
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width)
+          width = maxWidth
+        }
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height)
+          height = maxHeight
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Compress as low/medium quality JPEG to keep file size under 15 KB
+        const base64 = canvas.toDataURL('image/jpeg', 0.5)
+        
+        setFormData((prev) => ({
+          ...prev,
+          verificationProof: base64
         }))
       }
       img.src = event.target?.result as string
@@ -307,7 +354,7 @@ export default function Onboarding() {
 
       {/* Stepper Progress */}
       <div className="max-w-lg w-full mb-8 flex justify-between items-center px-2 animate-in fade-in duration-300">
-        {[1, 2, 3, 4, 5].map((s) => (
+        {[1, 2, 3, 4, 5, 6].map((s) => (
           <React.Fragment key={s}>
             <div className="flex flex-col items-center">
               <div
@@ -320,7 +367,7 @@ export default function Onboarding() {
                 {s}
               </div>
             </div>
-            {s < 5 && (
+            {s < 6 && (
               <div
                 className={`flex-1 h-0.5 mx-2 rounded transition-all duration-300 ${
                   step > s ? 'bg-[#8367C7]' : 'bg-[#3A3A3A]/10'
@@ -708,9 +755,9 @@ export default function Onboarding() {
           </form>
         )}
 
-        {/* STEP 5: Summary & Submit */}
+        {/* STEP 5: Summary & Next */}
         {step === 5 && (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
               <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 5: Confirmar Datos</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Revisa que toda tu información sea correcta antes de enviar.</p>
@@ -784,7 +831,84 @@ export default function Onboarding() {
               <button type="button" disabled={loading} onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm disabled:opacity-50">
                 Atrás
               </button>
-              <button type="submit" disabled={loading} className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+              <button type="submit" className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+                Siguiente
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* STEP 6: Ownership Verification */}
+        {step === 6 && (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 6: Verificación de Propiedad</h2>
+              <p className="text-xs text-[#3A3A3A]/60 mt-1">Sube la documentación requerida para verificar la propiedad del establecimiento.</p>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="businessTaxId" className="text-xs font-bold text-[#3A3A3A]/85">Identificación Fiscal (RFC / Tax ID)</label>
+              <input
+                id="businessTaxId"
+                name="businessTaxId"
+                type="text"
+                required
+                value={formData.businessTaxId || ''}
+                onChange={handleChange}
+                placeholder="Ej. RFC-ZAPJ900101-1A1"
+                className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors"
+              />
+            </div>
+
+            {/* Operating Permit File Upload & Canvas Compressor */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-bold text-[#3A3A3A]/85">Permiso de Operación (Comprobante)</span>
+              {formData.verificationProof ? (
+                <div className="flex items-center gap-4 p-3.5 border border-[#3A3A3A]/10 bg-[#3A3A3A]/5 rounded-xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={formData.verificationProof}
+                    alt="Permit Preview"
+                    className="w-20 h-15 rounded-lg object-cover border border-[#3A3A3A]/10 bg-white"
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-extrabold text-[#3A3A3A] text-success">Documento cargado y comprimido</span>
+                    <span className="text-[10px] text-[#3A3A3A]/50">Optimizado para auditoría (máx 400x300px, &lt; 15 KB)</span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, verificationProof: '' }))}
+                      className="text-[11px] font-extrabold text-[#FF9E8A] hover:underline text-left cursor-pointer mt-0.5"
+                    >
+                      Quitar documento
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <label 
+                    htmlFor="permit-upload" 
+                    className="flex flex-col items-center justify-center border-2 border-dashed border-[#3A3A3A]/20 hover:border-[#8367C7] bg-[#3A3A3A]/5 p-6 rounded-xl cursor-pointer transition-all duration-200 text-center select-none"
+                  >
+                    <span className="text-2xl mb-1">📄</span>
+                    <span className="text-xs font-extrabold text-[#3A3A3A]">Subir Permiso de Operación</span>
+                    <span className="text-[10px] text-[#3A3A3A]/50 mt-0.5">Se comprimirá a JPEG (máx 400x300px)</span>
+                    <input
+                      id="permit-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePermitUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-2">
+              <button type="button" disabled={loading} onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm disabled:opacity-50">
+                Atrás
+              </button>
+              <button type="submit" disabled={loading || !formData.verificationProof || !formData.businessTaxId} className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
                 {loading ? 'Registrando...' : 'Confirmar y Registrar'}
               </button>
             </div>

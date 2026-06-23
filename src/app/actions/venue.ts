@@ -16,6 +16,8 @@ export interface OnboardingData {
   instagram?: string
   discord?: string
   logoUrl?: string
+  businessTaxId?: string
+  verificationProof?: string
 }
 
 export async function createVenue(data: OnboardingData) {
@@ -54,6 +56,9 @@ export async function createVenue(data: OnboardingData) {
         instagram: data.instagram,
         discord: data.discord,
         logo_url: data.logoUrl,
+        business_tax_id: data.businessTaxId,
+        verification_proof: data.verificationProof,
+        verification_status: 'pending',
         verified: false // Default to false (requires admin approval)
       })
       .select()

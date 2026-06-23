@@ -229,6 +229,23 @@ describe('Enhanced Owner Onboarding Flow', () => {
     expect(screen.getByText('Eurogames')).toBeInTheDocument()
     expect(screen.getByText('TCGs')).toBeInTheDocument()
 
+    // Click Siguiente to go to Step 6
+    const nextBtn = screen.getByRole('button', { name: /Siguiente/i })
+    await user.click(nextBtn)
+
+    // --- STEP 6: Ownership Verification ---
+    expect(screen.getByRole('heading', { name: /Paso 6: Verificación de Propiedad/i })).toBeInTheDocument()
+    
+    // Fill Tax ID and upload file
+    await user.type(screen.getByLabelText(/Identificación Fiscal/i), 'RFC-ZAPJ900101-1A1')
+    
+    const permitFile = new File(['permit-content'], 'permit.png', { type: 'image/png' })
+    const permitInput = screen.getByLabelText(/Permiso de Operación/i)
+    await user.upload(permitInput, permitFile)
+
+    // Wait for canvas compressor simulation
+    await screen.findByText(/Documento cargado y comprimido/i)
+
     // Click submit
     const submitBtn = screen.getByRole('button', { name: /Confirmar y Registrar/i })
     await user.click(submitBtn)
@@ -254,7 +271,9 @@ describe('Enhanced Owner Onboarding Flow', () => {
       },
       lat: 19.4155,
       lng: -99.1622,
-      tags: ['Eurogames', 'TCGs']
+      tags: ['Eurogames', 'TCGs'],
+      businessTaxId: 'RFC-ZAPJ900101-1A1',
+      verificationProof: 'data:image/jpeg;base64,mockcroppedlogo'
     })
 
     // Verify success state renders
