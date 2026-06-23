@@ -28,6 +28,21 @@ test.describe('El Meeple Visual QA Spec', () => {
     // Take Desktop Homepage Screenshot
     await page.screenshot({ path: path.join(RESULTS_DIR, '01-desktop-homepage.png') })
 
+    // Test Location Geocoder
+    const geoInput = page.locator('input[placeholder*="Buscar dirección o zona"]')
+    await expect(geoInput).toBeVisible()
+    await geoInput.fill('Roma')
+    await page.waitForTimeout(600) // Wait for debounce (500ms) + buffer
+
+    // Verify and click suggestion
+    const suggestion = page.locator('text=Chihuahua 142, Roma Nte, CDMX')
+    await expect(suggestion).toBeVisible()
+    await suggestion.click()
+    await page.waitForTimeout(2000) // Wait for map flyTo animation to complete (1.5s duration)
+
+    // Take Screenshot after geocoding and panning
+    await page.screenshot({ path: path.join(RESULTS_DIR, '01b-desktop-homepage-geocoded.png') })
+
     // 2. Click a map marker icon to open the Quick View Card
     // Leaflet markers are rendered as SVG/image icons with class 'leaflet-marker-icon'
     const marker = page.locator('.leaflet-marker-icon').first()

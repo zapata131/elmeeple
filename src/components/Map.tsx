@@ -49,9 +49,24 @@ interface MapProps {
 const DEFAULT_CENTER: [number, number] = [19.432608, -99.133209] // Mexico City (CDMX) as default center
 const DEFAULT_ZOOM = 13
 
-// Component to programmatically pan and center the map on the selected venue
-function MapController({ selectedVenue }: { selectedVenue: Venue | null }) {
+// Component to programmatically pan and center the map on the selected venue or searched location
+function MapController({ 
+  selectedVenue, 
+  center 
+}: { 
+  selectedVenue: Venue | null
+  center?: [number, number]
+}) {
   const map = useMap()
+
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, 13, {
+        animate: true,
+        duration: 1.5,
+      })
+    }
+  }, [center, map])
 
   useEffect(() => {
     if (selectedVenue) {
@@ -66,16 +81,18 @@ function MapController({ selectedVenue }: { selectedVenue: Venue | null }) {
 }
 
 export default function Map({ 
-  center = DEFAULT_CENTER, 
+  center, 
   zoom = DEFAULT_ZOOM, 
   venues = [], 
   onSelectVenue,
   selectedVenue = null
 }: MapProps) {
+  const initialCenter = center || DEFAULT_CENTER
+
   return (
     <div className="w-full h-full relative z-0" data-testid="map-container">
       <MapContainer
-        center={center}
+        center={initialCenter}
         zoom={zoom}
         scrollWheelZoom={true}
         zoomControl={false} // Disable default top-left zoom controls
@@ -88,8 +105,8 @@ export default function Map({
         />
         <ZoomControl position="topright" /> {/* Re-add zoom controls in top-right */}
         
-        {/* Helper component to animate camera pan when a venue is selected */}
-        <MapController selectedVenue={selectedVenue} />
+        {/* Helper component to animate camera pan when a venue is selected or center changes */}
+        <MapController selectedVenue={selectedVenue} center={center} />
 
         {venues.map((venue) => (
           <Marker
