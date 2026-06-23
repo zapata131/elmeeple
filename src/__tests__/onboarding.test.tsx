@@ -2,6 +2,18 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OnboardingPage from '@/app/onboarding/page'
 import React from 'react'
+import { useSession } from 'next-auth/react'
+
+const mockPush = jest.fn()
+const mockReplace = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+    replace: mockReplace,
+    refresh: jest.fn()
+  }),
+  usePathname: () => '/'
+}))
 
 // Mock Leaflet and map events since they rely on browser window APIs
 jest.mock('react-leaflet', () => ({
@@ -105,6 +117,20 @@ describe('Enhanced Owner Onboarding Flow', () => {
     mockCreateVenue.mockClear()
     mockGetCurrentPosition.mockClear()
     mockFetch.mockClear()
+    mockPush.mockClear()
+    mockReplace.mockClear()
+    
+    // Reset useSession mock to authenticated for each test by default
+    ;(useSession as jest.Mock).mockReturnValue({
+      data: {
+        user: {
+          name: 'Jose Zapata',
+          email: 'jose@elmeeple.com',
+          role: 'partner'
+        }
+      },
+      status: 'authenticated'
+    })
     
     // Setup globals
     Object.defineProperty(global.navigator, 'geolocation', {
@@ -117,12 +143,19 @@ describe('Enhanced Owner Onboarding Flow', () => {
     global.fetch = mockFetch
   })
 
-  it('renders Step 1 (Owner Account) initially', () => {
+  it('renders Step 1 (Owner Account confirmation) initially', () => {
     render(<OnboardingPage />)
     
-    expect(screen.getByRole('heading', { name: /Paso 1: Tu Cuenta/i })).toBeInTheDocument()
-    expect(screen.getByLabelText(/Nombre del Propietario/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Correo Electrónico/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Paso 1: tu cuenta/i })).toBeInTheDocument()
+    // Inputs should NOT be in the document
+    expect(screen.queryByLabelText(/Nombre del propietario/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Correo electrónico/i)).not.toBeInTheDocument()
+
+    // Confirmation card elements should be visible
+    expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
+    expect(screen.getByText('jose@elmeeple.com')).toBeInTheDocument()
+    expect(screen.getByText(/Registrarás y vincularás este local bajo tu cuenta de El Meeple/i)).toBeInTheDocument()
+    expect(screen.getByText('Cuenta vinculada')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Siguiente/i })).toBeInTheDocument()
   })
 
@@ -130,9 +163,9 @@ describe('Enhanced Owner Onboarding Flow', () => {
     render(<OnboardingPage />)
     const user = userEvent.setup()
 
-    // --- STEP 1: Owner Details ---
-    await user.type(screen.getByLabelText(/Nombre del Propietario/i), 'Jose Zapata')
-    await user.type(screen.getByLabelText(/Correo Electrónico/i), 'jose@elmeeple.com')
+    // --- STEP 1: Owner Details (Authenticated Confirmation) ---
+    expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
+    expect(screen.getByText('jose@elmeeple.com')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
     // --- STEP 2: Venue Details ---
@@ -278,5 +311,16 @@ describe('Enhanced Owner Onboarding Flow', () => {
 
     // Verify success state renders
     expect(screen.getByText(/¡Registro Completado con Éxito!/i)).toBeInTheDocument()
+  })
+
+  it('redirects to login page if the user is unauthenticated', () => {
+    ;(useSession as jest.Mock).mockReturnValue({
+      data: null,
+      status: 'unauthenticated'
+    })
+
+    render(<OnboardingPage />)
+
+    expect(mockReplace).toHaveBeenCalledWith('/login?callbackUrl=/onboarding')
   })
 })

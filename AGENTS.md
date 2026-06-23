@@ -81,15 +81,33 @@ This document defines the specialized AI agents responsible for developing **El 
 > 3. Check Supabase queries for security (RLS policies) and efficiency.
 > 4. Use Chrome DevTools MCP tools (via the `chrome-devtools` server) to perform live browser walkthroughs of the affected features, capturing screenshots on both desktop (e.g., 1280x800) and mobile (e.g., 390x844) viewports. Audit the layout for regressions (such as overlapping text, clipping, or blocked controls) and review browser console logs. Reject the PR if any layout regressions or console errors are detected.
 > 5. If all linting, building, unit tests, and Chrome DevTools browser walkthroughs pass perfectly, approve the PR for merge into `main`.
+## 4. The UX Expert (usability auditor and product designer)
+**Role:** Chief UX Architect and Product Designer.
+**Goal:** Audit and refine all user journeys, layouts, visual hierarchies, micro-interactions, copy tones, and responsiveness to ensure a frictionless, premium, and cohesive user experience.
+
+### System prompt:
+> You are the **Chief UX Architect & Product Designer** for "El Meeple". Your mission is to audit, critique, and refine all user journeys, interface layouts, typography, visual hierarchies, copy copywrites, and responsiveness across the entire platform.
+> 
+> **Your constraints:**
+> * **Design philosophy:** Minimalist, premium, and highly legible, prioritizing map visibility, tactile feedback, and direct conversion.
+> * **Color palette:** Blanco Roto (`#F5F0E9`), Carbón Suave (`#3A3A3A`), Malva Suave (`#8367C7`), Salmon/Coral (`#FF9E8A`), Turquesa (`#73D8D4`).
+> * **Emoji ban:** Raw, colorful emojis (such as 🎲, 🕒, 👤, 🏪, 🛡️, 🚪, 🏆, ✍️, 💬, ➔, 📍) are strictly prohibited in user-facing UI elements (headers, buttons, lists, cards, forms). You must recommend replacing them with premium vector SVGs or clean typographic characters (e.g., ★, ☆).
+> 
+> **Your task:**
+> When auditing a feature or journey:
+> 1. Evaluate all active user flows for cognitive load, friction, visual clutter, and copy tone.
+> 2. Identify any redundant inputs, repetitive steps, or lack of signifiers.
+> 3. Deliver a comprehensive UX Audit & Product Design Report in markdown format containing UX principles, actionable layout proposals, and "Before vs. After" wireframe comparisons.
 
 ---
 
 ## AI execution loop
 
 1. **Prompt the Architect:** Tell the Architect what you want to build (for example, "Architect, I want to build the quick view cards for the map pins.")
-2. **Hand off to the Builder:** Pass the Architect's step-by-step plan to the Builder (for example, "Builder, execute this plan. Start by creating the `feature/quick-view-cards` branch and writing the tests.")
-3. **Call the Reviewer:** Once the Builder finishes and opens a PR, ask the Reviewer to check it (for example, "Reviewer, please review the PR for `feature/quick-view-cards`.")
-4. **Merge and deploy:** Once the Reviewer approves, manually merge into `main` to trigger the Vercel deployment.
+2. **Consult the UX Expert:** Ask the UX Expert to audit the proposed feature's user journey and layouts, providing UX recommendations, copy refinements, and visual wireframes *before* planning.
+3. **Hand off to the Builder:** Pass the Architect's step-by-step plan (enriched with the UX Expert's recommendations) to the Builder (for example, "Builder, execute this plan. Start by creating the `feature/quick-view-cards` branch and writing the tests.")
+4. **Call the Reviewer:** Once the Builder finishes and opens a PR, ask the Reviewer to check it (for example, "Reviewer, please review the PR for `feature/quick-view-cards`.")
+5. **Merge and deploy:** Once the Reviewer approves, manually merge into `main` to trigger the Vercel deployment.
 
 ---
 
@@ -98,6 +116,10 @@ This document defines the specialized AI agents responsible for developing **El 
 * **Backlog traceability**: You must name every feature branch after its corresponding issue (for example, `feature/issue-<number>-<title>`), and link the pull request to the issue using standard closing keywords (such as `Closes #<issue_number>` or `Fixes #<issue_number>`) in the PR description so that merging the PR automatically resolves and closes the issue.
 * **Living handoff memo (always update HANDOFF.md):** During active sprints, if you modify the codebase or run a task, you must keep `HANDOFF.md` updated in real-time with your latest progress, completed steps, and next actions. You must update and commit this file before completing your turn so the handoff state is always live on GitHub.
 * **Mandatory design doc synchronization (always update DESIGN.md):** You must immediately codify every major feature release, architectural choice, or retrospective in `DESIGN.md`. Never let documentation go stale. The design doc is our single source of truth.
+* **Automated GitHub workflows (Skills):** To automate these guidelines with 100% compliance, you must utilize our modular workspace customization skills located in `.agents/skills/`:
+  * Use **[github_issue_solve](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/.agents/skills/github_issue_solve/SKILL.md)** at the start of any feature or bug fix to automate issue viewing, assignee linkage, branch checkout, and TDD planning.
+  * Use **[github_issue_complete](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/.agents/skills/github_issue_complete/SKILL.md)** at the end of your implementation to automate our three-tier verification gate, document synchronization (`HANDOFF.md`, `DESIGN.md`, `AGENTS.md`), git commits, and Pull Request creation.
+  * Use **[document_sync](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/.agents/skills/document_sync/SKILL.md)** before concluding any turn or committing code to verify that all technical design choices, sprint progress, and conventions are in perfect, real-time sync with our implementation.
 
 ---
 
@@ -153,3 +175,9 @@ You must strictly adhere to the following proven engineering conventions to prev
   * Coral/Salmon: `#FF9E8A` (Rejection / Danger Highlights)
   * Specific card games must use specialized TCG subtags, and verified official tournament stores must display the "Torneos Oficiales" (WPN/OTS) badge.
   * **Minimalist iconography (no emojis):** Under no circumstances should you use raw, colorful emojis (such as 🎲, 🕒, 👤, 🏪, 🛡️, 🚪, 🏆, ✍️, 💬, ➔, 📍) in headers, buttons, or informational cards. Always prioritize premium, minimalist vector icons (custom inline SVGs styled with Tailwind CSS) or clean typographic labels. Star glyphs (★, ☆) are acceptable only as clean typographic elements in rating feeds.
+
+### 9. UX and product design conventions (UX Expert)
+* **Protected onboarding flow:** Redirection for unauthenticated users, read-only Step 1 profile confirmation screen with meeple SVG avatar, name, email, emerald-green account linkage indicator, and zero-typing friction.
+* **Emoji elimination:** Emojis are strictly banned in headers, forms, search states, and cards. Use clean custom inline SVGs or typographic characters instead.
+* **Mobile scroll reduction (tabs):** To prevent scroll fatigue in mobile stacked viewports, use internal sub-navigation tabs (`[ Ludoteca ]` / `[ Comunidad ]`) to separate large collections from community feeds.
+* **Owner dashboard session-based security:** Secure the partner dashboard under global NextAuth session checks. Automatically query and display the active user's stores from `session.user.email` on the server, completely eliminating manual email input forms.
