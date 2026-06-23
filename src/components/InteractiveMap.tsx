@@ -404,7 +404,20 @@ export default function InteractiveMap() {
               ))}
               {filteredVenues.length === 0 && (
                 <div className="text-center py-8">
-                  <span className="text-2xl block mb-2" role="img" aria-label="sad-face">🔍</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2.5}
+                    stroke="currentColor"
+                    className="w-8 h-8 text-[#3A3A3A] opacity-40 mx-auto mb-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
                   <p className="text-xs font-semibold text-[#3A3A3A]/50">No se encontraron locales.</p>
                 </div>
               )}

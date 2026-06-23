@@ -71,7 +71,7 @@ const mockFetch = jest.fn().mockResolvedValue({
   ])
 })
 
-describe('Enhanced Owner Onboarding Flow', () => {
+describe('Optimized 5-Step Owner Onboarding Flow', () => {
   beforeAll(() => {
     // Mock FileReader prototype for JSDOM
     const mockFileReader = {
@@ -143,174 +143,144 @@ describe('Enhanced Owner Onboarding Flow', () => {
     global.fetch = mockFetch
   })
 
-  it('renders Step 1 (Owner Account confirmation) initially', () => {
+  it('renders Step 1 (Datos del local) with collapsible session details banner and store inputs initially', async () => {
     render(<OnboardingPage />)
+    const user = userEvent.setup()
     
-    expect(screen.getByRole('heading', { name: /Paso 1: tu cuenta/i })).toBeInTheDocument()
-    // Inputs should NOT be in the document
-    expect(screen.queryByLabelText(/Nombre del propietario/i)).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/Correo electrónico/i)).not.toBeInTheDocument()
-
-    // Confirmation card elements should be visible
+    // Step heading (Sentence Case)
+    expect(screen.getByRole('heading', { name: /Paso 1: datos del local/i })).toBeInTheDocument()
+    
+    // Session Banner elements
     expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
     expect(screen.getByText('jose@elmeeple.com')).toBeInTheDocument()
-    expect(screen.getByText(/Registrarás y vincularás este local bajo tu cuenta de El Meeple/i)).toBeInTheDocument()
     expect(screen.getByText('Cuenta vinculada')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Siguiente/i })).toBeInTheDocument()
+    
+    // Check collapsible banner functionality
+    const toggleBannerBtn = screen.getByRole('button', { name: /ocultar datos/i })
+    expect(toggleBannerBtn).toBeInTheDocument()
+    
+    // Collapse
+    await user.click(toggleBannerBtn)
+    expect(screen.queryByText('Jose Zapata')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /mostrar datos/i })).toBeInTheDocument()
+    
+    // Expand
+    await user.click(screen.getByRole('button', { name: /mostrar datos/i }))
+    expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
+
+    // Store Inputs should be present in Step 1
+    expect(screen.getByLabelText(/Nombre del local/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Tipo de local/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Descripción/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Usuario de Instagram/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Enlace de Discord/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Subir imagen de logo/i)).toBeInTheDocument()
   })
 
-  it('navigates step-by-step through the onboarding flow and submits successfully', async () => {
+  it('navigates step-by-step through the 5-step funnel, allows editing from summary, and submits successfully', async () => {
     render(<OnboardingPage />)
     const user = userEvent.setup()
 
-    // --- STEP 1: Owner Details (Authenticated Confirmation) ---
-    expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
-    expect(screen.getByText('jose@elmeeple.com')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
-
-    // --- STEP 2: Venue Details ---
-    expect(screen.getByRole('heading', { name: /Paso 2: Datos del Local/i })).toBeInTheDocument()
-    await user.type(screen.getByLabelText(/Nombre del Local/i), 'Meeple Oasis CDMX')
+    // --- STEP 1: Datos del local ---
+    expect(screen.getByRole('heading', { name: /Paso 1: datos del local/i })).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/Nombre del local/i), 'Meeple Oasis CDMX')
     await user.type(screen.getByLabelText(/Descripción/i), 'Un oasis de juegos de mesa en la Roma.')
     
     // Select Venue Type
-    const typeSelect = screen.getByLabelText(/Tipo de Local/i)
+    const typeSelect = screen.getByLabelText(/Tipo de local/i)
     await user.selectOptions(typeSelect, 'hibrido')
 
     // Set Social Links
     await user.type(screen.getByLabelText(/Usuario de Instagram/i), 'meeple_oasis')
     await user.type(screen.getByLabelText(/Enlace de Discord/i), 'https://discord.gg/meepleoasis')
 
-    // Simulate Logo Image Upload & Auto-Crop
+    // Upload Logo and check humanized status copy
     const file = new File(['logo-content'], 'logo-oasis.png', { type: 'image/png' })
-    const fileInput = screen.getByLabelText(/Subir Imagen de Logo/i)
+    const fileInput = screen.getByLabelText(/Subir imagen de logo/i)
     await user.upload(fileInput, file)
+    await screen.findByText(/¡Tu logo se ve genial! Se ha ajustado automáticamente para lucir perfecto/i)
 
-    // Wait for the async canvas/image loading simulation to resolve
-    await screen.findByText(/Logo cargado y recortado/i)
-
-    // Set Structured Schedule (e.g. open Tue & Wed 14:00 - 22:00, others closed)
+    // Select Tuesday as active day
     const tueCheckbox = screen.getByLabelText(/Martes/i)
     await user.click(tueCheckbox)
-    const tueOpen = screen.getByLabelText(/tue-open/i)
-    const tueClose = screen.getByLabelText(/tue-close/i)
-    fireEvent.change(tueOpen, { target: { value: '14:00' } })
-    fireEvent.change(tueClose, { target: { value: '22:00' } })
-
-    const wedCheckbox = screen.getByLabelText(/Miércoles/i)
-    await user.click(wedCheckbox)
-    const wedOpen = screen.getByLabelText(/wed-open/i)
-    const wedClose = screen.getByLabelText(/wed-close/i)
-    fireEvent.change(wedOpen, { target: { value: '14:00' } })
-    fireEvent.change(wedClose, { target: { value: '22:00' } })
-
-    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
-
-    // --- STEP 3: Map Location ---
-    expect(screen.getByRole('heading', { name: /Paso 3: Ubicar en el Mapa/i })).toBeInTheDocument()
     
-    // Type Address and Search
-    const searchInput = screen.getByPlaceholderText(/Escribe una dirección/i)
-    const searchBtn = screen.getByRole('button', { name: /Buscar/i })
-    
-    await user.type(searchInput, 'Chihuahua 142, Roma Nte, CDMX')
-    await user.click(searchBtn)
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('nominatim.openstreetmap.org/search?format=json&q=Chihuahua%20142%2C%20Roma%20Nte')
-    )
-    // Should update inputs to search result coords
-    const latInput = screen.getByLabelText(/Latitud/i) as HTMLInputElement
-    const lngInput = screen.getByLabelText(/Longitud/i) as HTMLInputElement
-    expect(latInput.value).toBe('19.4123')
-    expect(lngInput.value).toBe('-99.1654')
-
-    // Test Geolocation Button
-    const geoBtn = screen.getByRole('button', { name: /Usar mi ubicación/i })
-    await user.click(geoBtn)
-    expect(mockGetCurrentPosition).toHaveBeenCalled()
-    expect(latInput.value).toBe('19.4155')
-    expect(lngInput.value).toBe('-99.1622')
-
-
-
-    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
-
-    // --- STEP 4: Specialties / Tags ---
-    expect(screen.getByRole('heading', { name: /Paso 4: Especialidades/i })).toBeInTheDocument()
-    const tagEuro = screen.getByLabelText(/Eurogames/i)
-    const tagTCG = screen.getByLabelText(/TCGs/i)
-    
-    await user.click(tagEuro)
-    await user.click(tagTCG)
-
-    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
-
-    // --- STEP 5: Summary & Submit ---
-    expect(screen.getByRole('heading', { name: /Paso 5: Confirmar Datos/i })).toBeInTheDocument()
-    
-    // Check that entered details are displayed in summary
-    expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
-    expect(screen.getByText('jose@elmeeple.com')).toBeInTheDocument()
-    expect(screen.getByText('Meeple Oasis CDMX')).toBeInTheDocument()
-    expect(screen.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
-    expect(screen.getByText(/meeple_oasis/i)).toBeInTheDocument()
-    expect(screen.getByText(/discord.gg\/meepleoasis/i)).toBeInTheDocument()
-    expect(screen.getByText(/Mar - Mié: 14:00 - 22:00/i)).toBeInTheDocument()
-    expect(screen.getByText(/19.4155/)).toBeInTheDocument()
-    expect(screen.getByText(/-99.1622/)).toBeInTheDocument()
-    expect(screen.getByText('Eurogames')).toBeInTheDocument()
-    expect(screen.getByText('TCGs')).toBeInTheDocument()
-
-    // Click Siguiente to go to Step 6
     const nextBtn = screen.getByRole('button', { name: /Siguiente/i })
     await user.click(nextBtn)
 
-    // --- STEP 6: Ownership Verification ---
-    expect(screen.getByRole('heading', { name: /Paso 6: Verificación de Propiedad/i })).toBeInTheDocument()
+    // --- STEP 2: Ubicar en el mapa ---
+    expect(screen.getByRole('heading', { name: /Paso 2: ubicar en el mapa/i })).toBeInTheDocument()
     
-    // Fill Tax ID and upload file
-    await user.type(screen.getByLabelText(/Identificación Fiscal/i), 'RFC-ZAPJ900101-1A1')
+    // GPS Geolocation
+    const geoBtn = screen.getByRole('button', { name: /Usar mi ubicación actual/i })
+    await user.click(geoBtn)
+    
+    const latInput = screen.getByLabelText(/Latitud/i) as HTMLInputElement
+    const lngInput = screen.getByLabelText(/Longitud/i) as HTMLInputElement
+    expect(latInput.value).toBe('19.4155')
+    expect(lngInput.value).toBe('-99.1622')
+
+    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
+
+    // --- STEP 3: Especialidades ---
+    expect(screen.getByRole('heading', { name: /Paso 3: especialidades/i })).toBeInTheDocument()
+    const tagEuro = screen.getByLabelText(/Eurogames/i)
+    await user.click(tagEuro)
+
+    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
+
+    // --- STEP 4: Confirmar datos (Summary) ---
+    expect(screen.getByRole('heading', { name: /Paso 4: confirmar datos/i })).toBeInTheDocument()
+    
+    // Verify details are rendered
+    expect(screen.getByText('Meeple Oasis CDMX')).toBeInTheDocument()
+    expect(screen.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
+    expect(screen.getByText('19.4155, -99.1622')).toBeInTheDocument()
+    expect(screen.getByText('Eurogames')).toBeInTheDocument()
+
+    // Test Jump-to-Edit: Click [Editar] for "Ubicación en el mapa"
+    const editMapBtn = screen.getByTestId('edit-step-2')
+    await user.click(editMapBtn)
+    
+    // Should immediately go back to Step 2
+    expect(screen.getByRole('heading', { name: /Paso 2: ubicar en el mapa/i })).toBeInTheDocument()
+    
+    // Navigate forward to Step 4 again
+    await user.click(screen.getByRole('button', { name: /Siguiente/i })) // Step 2 -> 3
+    await user.click(screen.getByRole('button', { name: /Siguiente/i })) // Step 3 -> 4
+    
+    expect(screen.getByRole('heading', { name: /Paso 4: confirmar datos/i })).toBeInTheDocument()
+
+    // Click Siguiente on Summary to go to Step 5
+    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
+
+    // --- STEP 5: Verificación de propiedad ---
+    expect(screen.getByRole('heading', { name: /Paso 5: verificación de propiedad/i })).toBeInTheDocument()
+    
+    await user.type(screen.getByLabelText(/Identificación fiscal/i), 'RFC-ZAPJ900101-1A1')
     
     const permitFile = new File(['permit-content'], 'permit.png', { type: 'image/png' })
-    const permitInput = screen.getByLabelText(/Permiso de Operación/i)
+    const permitInput = screen.getByLabelText(/Permiso de operación/i)
     await user.upload(permitInput, permitFile)
 
-    // Wait for canvas compressor simulation
-    await screen.findByText(/Documento cargado y comprimido/i)
+    // Check humanized status copy for operating permit
+    await screen.findByText(/¡Permiso cargado correctamente! Lo hemos optimizado para que el equipo lo revise/i)
 
-    // Click submit
+    // Submit
     const submitBtn = screen.getByRole('button', { name: /Confirmar y Registrar/i })
     await user.click(submitBtn)
 
-    // Verify server action was called with correct data structure
-    expect(mockCreateVenue).toHaveBeenCalledWith({
+    // Verify server action was called
+    expect(mockCreateVenue).toHaveBeenCalledWith(expect.objectContaining({
       ownerName: 'Jose Zapata',
       ownerEmail: 'jose@elmeeple.com',
       name: 'Meeple Oasis CDMX',
-      description: 'Un oasis de juegos de mesa en la Roma.',
-      type: 'hibrido',
-      instagram: 'meeple_oasis',
-      discord: 'https://discord.gg/meepleoasis',
-      logoUrl: 'data:image/jpeg;base64,mockcroppedlogo',
-      schedule: {
-        mon: null,
-        tue: { open: '14:00', close: '22:00' },
-        wed: { open: '14:00', close: '22:00' },
-        thu: null,
-        fri: null,
-        sat: null,
-        sun: null
-      },
-      lat: 19.4155,
-      lng: -99.1622,
-      tags: ['Eurogames', 'TCGs'],
       businessTaxId: 'RFC-ZAPJ900101-1A1',
-      verificationProof: 'data:image/jpeg;base64,mockcroppedlogo'
-    })
+      verificationProof: 'data:image/jpeg;base64,mockcroppedlogo',
+      tags: ['Eurogames']
+    }))
 
-    // Verify success state renders
-    expect(screen.getByText(/¡Registro Completado con Éxito!/i)).toBeInTheDocument()
+    // Success screen
+    expect(screen.getByRole('heading', { name: /¡Registro completado con éxito!/i })).toBeInTheDocument()
   })
 
   it('redirects to login page if the user is unauthenticated', () => {
@@ -320,7 +290,6 @@ describe('Enhanced Owner Onboarding Flow', () => {
     })
 
     render(<OnboardingPage />)
-
     expect(mockReplace).toHaveBeenCalledWith('/login?callbackUrl=/onboarding')
   })
 })

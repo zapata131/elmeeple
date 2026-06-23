@@ -32,16 +32,6 @@ jest.mock('react-leaflet', () => ({
   useMapEvents: () => null,
 }))
 
-// Mock next-auth
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn().mockResolvedValue({
-    user: {
-      name: 'Player One',
-      email: 'player@example.com',
-      role: 'player',
-    },
-  }),
-}))
 
 const COMPLIANT_EMPTY_SCHEDULE = {
   mon: null,

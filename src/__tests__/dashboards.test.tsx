@@ -2,6 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
+import { getServerSession } from 'next-auth'
 
 // 1. Mock React Leaflet and Map components
 jest.mock('react-leaflet', () => ({
@@ -19,8 +20,9 @@ jest.mock('react-leaflet', () => ({
   useMapEvents: () => null
 }))
 
-// Mock next/navigation
+// Mock next/navigation including redirect
 const mockPush = jest.fn()
+const mockRedirect = jest.fn()
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
@@ -29,6 +31,22 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => ({
     get: jest.fn().mockReturnValue(null),
   }),
+  redirect: (url: string) => mockRedirect(url)
+}))
+
+
+// Mock next-auth/react
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({
+    data: {
+      user: {
+        name: 'Jose Zapata',
+        email: 'jose@elmeeple.com',
+        role: 'partner'
+      }
+    },
+    status: 'authenticated'
+  }))
 }))
 
 // 2. Mock Server Actions for UI tests
@@ -58,7 +76,7 @@ jest.mock('../utils/supabase/server', () => ({
   createClient: jest.fn().mockImplementation(() => Promise.resolve((global as any).mockSupabaseClient))
 }))
 
-// Import components and actions
+// Import components and pages
 import OnboardingPage from '@/app/onboarding/page'
 import OwnerDashboard from '@/app/dashboard/page'
 import PlatformAdminDashboard from '@/app/admin/page'
@@ -73,7 +91,7 @@ const mockGetCurrentPosition = jest.fn().mockImplementation((success) =>
   })
 )
 
-describe('Owner Onboarding - Step 6 Ownership Verification', () => {
+describe('Owner Onboarding - Step 5 Ownership Verification', () => {
   beforeAll(() => {
     // Mock FileReader
     const mockFileReader = {
@@ -125,45 +143,40 @@ describe('Owner Onboarding - Step 6 Ownership Verification', () => {
     })
   })
 
-  it('navigates to step 6, renders Tax ID and file upload inputs, validates them, and submits successfully', async () => {
+  it('navigates to step 5, renders Tax ID and file upload inputs, validates them, and submits successfully', async () => {
     render(<OnboardingPage />)
     const user = userEvent.setup()
 
-    // Step 1 -> Step 2
-    await user.type(screen.getByLabelText(/Nombre del Propietario/i), 'Jose Zapata')
-    await user.type(screen.getByLabelText(/Correo Electrónico/i), 'jose@elmeeple.com')
-    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
-
-    // Step 2 -> Step 3
-    await user.type(screen.getByLabelText(/Nombre del Local/i), 'Meeple Oasis CDMX')
+    // Step 1: Datos del local -> Step 2
+    await user.type(screen.getByLabelText(/Nombre del local/i), 'Meeple Oasis CDMX')
     await user.type(screen.getByLabelText(/Descripción/i), 'Un oasis de juegos de mesa en la Roma.')
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-    // Step 3 -> Step 4
-    const gpsBtn = screen.getByRole('button', { name: /Usar mi ubicación/i })
+    // Step 2: Ubicar en el mapa -> Step 3
+    const gpsBtn = screen.getByRole('button', { name: /Usar mi ubicación actual/i })
     await user.click(gpsBtn)
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-    // Step 4 -> Step 5
+    // Step 3: Especialidades -> Step 4
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-    // Step 5 -> Step 6 (Summary page has next button)
-    expect(screen.getByRole('heading', { name: /Paso 5: Confirmar Datos/i })).toBeInTheDocument()
+    // Step 4: Confirmar datos (Summary page) -> Step 5
+    expect(screen.getByRole('heading', { name: /Paso 4: confirmar datos/i })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-    // Step 6: Ownership Verification
-    expect(screen.getByRole('heading', { name: /Paso 6: Verificación de Propiedad/i })).toBeInTheDocument()
-    expect(screen.getByLabelText(/Identificación Fiscal/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Permiso de Operación/i)).toBeInTheDocument()
+    // Step 5: Ownership Verification
+    expect(screen.getByRole('heading', { name: /Paso 5: verificación de propiedad/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/Identificación fiscal/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Permiso de operación/i)).toBeInTheDocument()
 
     // Fill Tax ID and upload file
-    await user.type(screen.getByLabelText(/Identificación Fiscal/i), 'RFC-ZAPJ900101-1A1')
+    await user.type(screen.getByLabelText(/Identificación fiscal/i), 'RFC-ZAPJ900101-1A1')
     
     const file = new File(['permit-content'], 'permit.png', { type: 'image/png' })
-    const fileInput = screen.getByLabelText(/Permiso de Operación/i)
+    const fileInput = screen.getByLabelText(/Permiso de operación/i)
     await user.upload(fileInput, file)
 
-    await screen.findByText(/Documento cargado y comprimido/i)
+    await screen.findByText(/¡Permiso cargado correctamente!/i)
 
     // Click final submit
     const submitBtn = screen.getByRole('button', { name: /Confirmar y Registrar/i })
@@ -205,7 +218,22 @@ describe('Owner Dashboard (/dashboard)', () => {
     }
   ]
 
-  it('renders owner profile, quick action button, and list of venues with status badges', async () => {
+  beforeEach(() => {
+    mockRedirect.mockClear()
+    ;(getServerSession as jest.Mock).mockReset()
+  })
+
+  it('renders owner profile, quick action button, and list of venues with status badges for authorized partners', async () => {
+    // 1. Mock session on the server side
+    ;(getServerSession as jest.Mock).mockResolvedValue({
+      user: {
+        name: 'Jose Zapata',
+        email: 'jose@elmeeple.com',
+        role: 'partner'
+      }
+    })
+
+    // 2. Mock Supabase queries
     let currentTable = ''
     mockSupabaseClient.from.mockImplementation((table: string) => {
       currentTable = table
@@ -219,11 +247,11 @@ describe('Owner Dashboard (/dashboard)', () => {
       return Promise.resolve({ data: [], error: null })
     })
 
-    // Await the Server Component as a function to resolve async data fetching
-    const dashboardJSX = await OwnerDashboard({ searchParams: { email: 'jose@elmeeple.com' } })
+    // Render server component
+    const dashboardJSX = await OwnerDashboard({ searchParams: {} })
     render(dashboardJSX)
 
-    // Verify profile section
+    // Verify profile section has resolved from session
     expect(screen.getByText(/jose@elmeeple.com/i)).toBeInTheDocument()
     expect(screen.getByText(/Portal del Propietario/i)).toBeInTheDocument()
 
@@ -235,11 +263,35 @@ describe('Owner Dashboard (/dashboard)', () => {
     expect(screen.getByText('Meeple Oasis Condesa')).toBeInTheDocument()
     expect(screen.getByText('Meeple Oasis Centro')).toBeInTheDocument()
 
-    // Verify status badges
-    expect(screen.getByText('Aprobado')).toBeInTheDocument()
-    expect(screen.getByText('Pendiente')).toBeInTheDocument()
-    expect(screen.getByText('Rechazado')).toBeInTheDocument()
-    expect(screen.getByText(/Motivo: Documentación ilegible/i)).toBeInTheDocument()
+    // Verify no manual email input form is shown (frictionless)
+    expect(screen.queryByPlaceholderText(/jose@elmeeple.com/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Ingresar al Dashboard/i })).not.toBeInTheDocument()
+  })
+
+  it('redirects to login if session does not exist', async () => {
+    // 1. Mock session to null
+    ;(getServerSession as jest.Mock).mockResolvedValue(null)
+
+    await OwnerDashboard({ searchParams: {} })
+
+    // 2. Verify redirect is called immediately
+    expect(mockRedirect).toHaveBeenCalledWith('/login?callbackUrl=/dashboard')
+  })
+
+  it('redirects to login if user role is not partner or admin', async () => {
+    // 1. Mock session with player role
+    ;(getServerSession as jest.Mock).mockResolvedValue({
+      user: {
+        name: 'Jose Player',
+        email: 'player@elmeeple.com',
+        role: 'player'
+      }
+    })
+
+    await OwnerDashboard({ searchParams: {} })
+
+    // 2. Verify redirect is called immediately
+    expect(mockRedirect).toHaveBeenCalledWith('/login?callbackUrl=/dashboard')
   })
 })
 
@@ -275,7 +327,6 @@ describe('Platform Admin Dashboard (/admin)', () => {
     // Verify stats
     expect(screen.getByText(/Panel de Control/i)).toBeInTheDocument()
 
-    
     // Verify audit table shows the pending venue
     expect(screen.getByText('Ludoteca Secreta')).toBeInTheDocument()
     expect(screen.getByText('Ana Gómez')).toBeInTheDocument()

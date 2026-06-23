@@ -257,15 +257,23 @@ jest.mock('@/utils/supabase/server', () => {
 })
 
 // Mock next-auth globally to prevent ESM import syntax issues with the jose package
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn().mockResolvedValue({
-    user: {
-      name: 'Player One',
-      email: 'player@example.com',
-      role: 'player'
-    }
+jest.mock('next-auth', () => {
+  const mockNextAuth = jest.fn().mockReturnValue({
+    GET: jest.fn(),
+    POST: jest.fn(),
   })
-}))
+  return {
+    __esModule: true,
+    default: mockNextAuth,
+    getServerSession: jest.fn().mockResolvedValue({
+      user: {
+        name: 'Player One',
+        email: 'player@example.com',
+        role: 'player'
+      }
+    })
+  }
+})
 
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({

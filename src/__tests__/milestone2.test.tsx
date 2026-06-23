@@ -38,15 +38,6 @@ jest.mock('next-auth/react', () => ({
   SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn().mockResolvedValue({
-    user: {
-      name: 'Player One',
-      email: 'player@example.com',
-      role: 'player',
-    },
-  }),
-}))
 
 jest.mock('next-auth/jwt', () => ({
   getToken: jest.fn(),

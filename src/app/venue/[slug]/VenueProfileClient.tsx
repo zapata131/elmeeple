@@ -27,6 +27,9 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [loadingFavorite, setLoadingFavorite] = useState(false)
 
+  // Mobile active tab state
+  const [activeMobileTab, setActiveMobileTab] = useState<'catalog' | 'reviews'>('catalog')
+
   // Catalog state
   const [games, setGames] = useState<any[]>(venue.venue_games)
   const [searchQuery, setSearchQuery] = useState('')
@@ -274,13 +277,39 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
         </div>
       </div>
 
+      {/* Tabbed Mobile Navigation Bar */}
+      <div className="block lg:hidden border-b border-[#3A3A3A]/10 bg-white">
+        <div className="flex max-w-7xl mx-auto px-4">
+          <button
+            onClick={() => setActiveMobileTab('catalog')}
+            className={`flex-1 py-4 text-center text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeMobileTab === 'catalog'
+                ? 'border-[#8367C7] text-[#8367C7]'
+                : 'border-transparent text-[#3A3A3A]/60'
+            }`}
+          >
+            Ludoteca
+          </button>
+          <button
+            onClick={() => setActiveMobileTab('reviews')}
+            className={`flex-1 py-4 text-center text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeMobileTab === 'reviews'
+                ? 'border-[#8367C7] text-[#8367C7]'
+                : 'border-transparent text-[#3A3A3A]/60'
+            }`}
+          >
+            Comunidad
+          </button>
+        </div>
+      </div>
+
       {/* Main Body Grid */}
       <div className="max-w-7xl mx-auto py-8 px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* =======================================================
             LEFT COLUMN (60% / 7 Cols): Rich, Searchable Ludoteca Catalog
            ======================================================= */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
+        <div className={`lg:col-span-7 flex flex-col gap-6 ${activeMobileTab === 'catalog' ? 'flex' : 'hidden lg:flex'}`}>
           
           {/* Header Info details card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-3">
@@ -449,7 +478,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
         {/* =======================================================
             RIGHT COLUMN (40% / 5 Cols): Rich Reviews & Vibe Hub
            ======================================================= */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className={`lg:col-span-5 flex flex-col gap-6 ${activeMobileTab === 'reviews' ? 'flex' : 'hidden lg:flex'}`}>
           
           {/* Ratings Summary Card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-4">

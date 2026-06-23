@@ -182,4 +182,27 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     // Verify new review is immediately appended to the UI comments list
     expect(screen.getByText('Excelente café y gran atención.')).toBeInTheDocument()
   })
+
+  it('renders mobile tabbed navigation bar and switches tabs on mobile viewports', async () => {
+    render(<VenueProfileClient venue={mockVenue} />)
+    const user = userEvent.setup()
+
+    // Query mobile tab buttons
+    const catalogTabBtn = screen.getByRole('button', { name: /Ludoteca/i })
+    const reviewsTabBtn = screen.getByRole('button', { name: /Comunidad/i })
+
+    expect(catalogTabBtn).toBeInTheDocument()
+    expect(reviewsTabBtn).toBeInTheDocument()
+
+    // Catalog tab should be active initially, and Community inactive
+    expect(catalogTabBtn).toHaveClass('border-[#8367C7]')
+    expect(reviewsTabBtn).toHaveClass('border-transparent')
+
+    // Click on Comunidad tab
+    await user.click(reviewsTabBtn)
+
+    // Active classes should swap
+    expect(catalogTabBtn).toHaveClass('border-transparent')
+    expect(reviewsTabBtn).toHaveClass('border-[#8367C7]')
+  })
 })

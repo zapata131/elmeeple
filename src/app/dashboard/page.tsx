@@ -1,43 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import React from 'react'
 import AnnouncementForm from './AnnouncementForm'
 import BggSyncForm from './BggSyncForm'
 
-interface PageProps {
-  searchParams: Promise<{ email?: string }> | { email?: string }
-}
+export default async function OwnerDashboard() {
+  const session = await getServerSession(authOptions)
 
-export default async function OwnerDashboard({ searchParams }: PageProps) {
-  // Safe resolution of searchParams for both Next.js async prop and Jest sync rendering
-  const resolvedParams = searchParams instanceof Promise ? await searchParams : searchParams
-  const email = resolvedParams?.email
+  // Server-side authentication and authorization check
+  if (!session?.user) {
+    redirect('/login?callbackUrl=/dashboard')
+  }
 
+  const role = (session.user as any).role
+  if (role !== 'partner' && role !== 'admin') {
+    redirect('/login?callbackUrl=/dashboard')
+  }
+
+  const email = session.user.email
   if (!email) {
-    return (
-      <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 flex flex-col items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#3A3A3A]/10 max-w-md w-full text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-[#8367C7] mx-auto mb-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25z" /></svg>
-          <h1 className="text-2xl font-extrabold text-[#3A3A3A] mb-2">Portal del Propietario</h1>
-          <p className="text-sm text-[#3A3A3A]/70 mb-6">
-            Ingresa tu correo electrónico para ver el estado de tus locales registrados y publicar anuncios.
-          </p>
-          <form method="GET" className="flex flex-col gap-4">
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="Ej. jose@elmeeple.com"
-              className="w-full p-3 border border-[#3A3A3A]/20 rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
-            />
-            <button type="submit" className="py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all cursor-pointer text-sm">
-              Ingresar al Dashboard
-            </button>
-          </form>
-        </div>
-      </div>
-    )
+    redirect('/login?callbackUrl=/dashboard')
   }
 
   const supabase = await createClient()
@@ -199,7 +185,7 @@ export default async function OwnerDashboard({ searchParams }: PageProps) {
 
                     {/* Status Box */}
                     <div className={`p-4 rounded-xl border text-xs leading-relaxed ${
-                      status === 'approved' ? 'bg-green-50 text-green-800 border-green-200' :
+                      status === 'approved' ? 'bg-green-55 text-green-800 border-green-200' :
                       status === 'rejected' ? 'bg-red-50 text-red-800 border-red-200' :
                       'bg-yellow-50 text-yellow-800 border-yellow-200'
                     }`}>

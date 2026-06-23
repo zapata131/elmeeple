@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
@@ -50,17 +50,18 @@ export default function Onboarding() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showAccountBanner, setShowAccountBanner] = useState(true)
   
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/login?callbackUrl=/onboarding')
     }
   }, [status, router])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (session?.user) {
       setFormData(prev => ({
         ...prev,
@@ -70,19 +71,6 @@ export default function Onboarding() {
     }
   }, [session])
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-[#F5F0E9] flex items-center justify-center">
-        <span className="text-lg font-semibold text-[#8367C7] animate-pulse">Cargando portal</span>
-      </div>
-    )
-  }
-
-  if (status === 'unauthenticated') {
-    return null
-  }
-  
-  // Geocoding and GPS states
   const [searchQuery, setSearchQuery] = useState('')
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
@@ -115,6 +103,18 @@ export default function Onboarding() {
     contactPhone: ''
   })
 
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-[#F5F0E9] flex items-center justify-center">
+        <span className="text-lg font-semibold text-[#8367C7] animate-pulse">Cargando portal</span>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    return null
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -131,7 +131,6 @@ export default function Onboarding() {
     }))
   }
 
-  // GPS Geolocation trigger
   const handleGeolocation = () => {
     setGpsError('')
     if (!navigator.geolocation) {
@@ -150,7 +149,6 @@ export default function Onboarding() {
     );
   }
 
-  // Address Geocoding trigger (Nominatim API)
   const handleAddressSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
@@ -178,7 +176,6 @@ export default function Onboarding() {
     }
   }
 
-  // Local file upload & canvas auto-crop logic
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -191,7 +188,6 @@ export default function Onboarding() {
         const ctx = canvas.getContext('2d')
         if (!ctx) return
 
-        // Crop and resize to 150x150 square
         const size = 150
         canvas.width = size
         canvas.height = size
@@ -201,8 +197,6 @@ export default function Onboarding() {
         const sy = (img.height - minDim) / 2
 
         ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size)
-
-        // Compress as medium quality JPEG Base64
         const base64 = canvas.toDataURL('image/jpeg', 0.7)
         
         setFormData((prev) => ({
@@ -215,7 +209,6 @@ export default function Onboarding() {
     reader.readAsDataURL(file)
   }
 
-  // Client-side canvas compressor for permit file upload (max width 400px, height 300px, 15 KB)
   const handlePermitUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -244,10 +237,7 @@ export default function Onboarding() {
 
         canvas.width = width
         canvas.height = height
-
         ctx.drawImage(img, 0, 0, width, height)
-
-        // Compress as low/medium quality JPEG to keep file size under 15 KB
         const base64 = canvas.toDataURL('image/jpeg', 0.5)
         
         setFormData((prev) => ({
@@ -260,7 +250,6 @@ export default function Onboarding() {
     reader.readAsDataURL(file)
   }
 
-  // Structured schedule handlers
   const handleDayToggle = (day: keyof StructuredSchedule) => {
     setFormData((prev) => {
       const current = prev.schedule[day]
@@ -308,7 +297,6 @@ export default function Onboarding() {
     e.preventDefault()
     setLoading(true)
     try {
-      // Omit empty contact fields to maintain backward compatibility with tests
       const { contactEmail, contactPhone, ...rest } = formData
       const payload = {
         ...rest,
@@ -342,8 +330,8 @@ export default function Onboarding() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-[#3A3A3A] tracking-tight">¡Registro Completado con Éxito!</h1>
-            <p className="text-sm font-semibold text-[#8367C7] mt-1">El Meeple - Portal de Tiendas</p>
+            <h1 className="text-2xl font-extrabold text-[#3A3A3A] tracking-tight">¡Registro completado con éxito!</h1>
+            <p className="text-sm font-semibold text-[#8367C7] mt-1">El Meeple - Portal de tiendas</p>
           </div>
           
           <div className="bg-[#3A3A3A]/5 p-5 rounded-xl text-left border border-[#3A3A3A]/5 flex flex-col gap-2.5">
@@ -374,7 +362,7 @@ export default function Onboarding() {
           </p>
 
           <Link href="/" className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 text-center text-sm cursor-pointer">
-            Volver al Mapa Principal
+            Volver al mapa principal
           </Link>
         </div>
       </div>
@@ -384,14 +372,12 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 flex flex-col items-center justify-center relative">
       
-      {/* Floating Back to Map Button (Always Visible) */}
       <div className="absolute top-6 left-6 z-20">
         <Link href="/" className="flex items-center gap-1.5 text-sm font-extrabold text-[#8367C7] hover:underline cursor-pointer transition-all duration-200">
-          ← Volver al Mapa
+          ← Volver al mapa
         </Link>
       </div>
 
-      {/* Brand Header */}
       <div className="text-center mb-8 flex flex-col items-center gap-2 animate-in fade-in duration-300">
         <Link href="/" className="flex items-center gap-2.5 cursor-pointer">
           <svg className="w-8 h-8 text-[#8367C7] fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -402,9 +388,9 @@ export default function Onboarding() {
         <p className="text-xs text-[#8367C7] font-bold tracking-wide">Portal de socios</p>
       </div>
 
-      {/* Stepper Progress */}
+      {/* Stepper Progress (5 Steps) */}
       <div className="max-w-lg w-full mb-8 flex justify-between items-center px-2 animate-in fade-in duration-300">
-        {[1, 2, 3, 4, 5, 6].map((s) => (
+        {[1, 2, 3, 4, 5].map((s) => (
           <React.Fragment key={s}>
             <div className="flex flex-col items-center">
               <div
@@ -417,7 +403,7 @@ export default function Onboarding() {
                 {s}
               </div>
             </div>
-            {s < 6 && (
+            {s < 5 && (
               <div
                 className={`flex-1 h-0.5 mx-2 rounded transition-all duration-300 ${
                   step > s ? 'bg-[#8367C7]' : 'bg-[#3A3A3A]/10'
@@ -428,59 +414,58 @@ export default function Onboarding() {
         ))}
       </div>
 
-      {/* Form Wizard Card */}
       <div className="bg-[#F5F0E9] border border-[#3A3A3A]/10 shadow-2xl rounded-2xl p-6 md:p-8 max-w-lg w-full backdrop-blur-md bg-opacity-95">
         
-        {/* STEP 1: Owner Details */}
+        {/* STEP 1: Datos del local + Collapsible Session Account Banner */}
         {step === 1 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 1: tu cuenta</h2>
-              <p className="text-xs text-[#3A3A3A]/60 mt-1">Ingresa tus datos personales de contacto.</p>
-            </div>
-
-            {session?.user && (
-              <div className="p-5 border border-[#3A3A3A]/10 bg-[#3A3A3A]/5 rounded-2xl flex flex-col gap-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3.5">
-                    {/* Meeple SVG avatar */}
-                    <div className="w-10 h-10 rounded-full bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">
-                      <svg className="w-5 h-5 text-[#8367C7] fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-[#3A3A3A]">{session.user.name}</h4>
-                      <p className="text-xs text-[#3A3A3A]/60 font-semibold">{session.user.email}</p>
-                    </div>
-                  </div>
-                  <span className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/25 rounded-md px-2.5 py-0.5 text-[10px] font-black tracking-wide">
-                    Cuenta vinculada
-                  </span>
-                </div>
-                <div className="border-t border-[#3A3A3A]/10 pt-3">
-                  <p className="text-xs text-[#3A3A3A]/75 font-semibold leading-relaxed">
-                    Registrarás y vincularás este local bajo tu cuenta de El Meeple. Tus datos de contacto de propietario se guardarán automáticamente.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <button type="submit" className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 mt-2 cursor-pointer text-center text-sm">
-              Siguiente
-            </button>
-          </form>
-        )}
-
-        {/* STEP 2: Venue Details & Structured Schedule */}
-        {step === 2 && (
-          <form onSubmit={handleNext} className="flex flex-col gap-5">
-            <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 2: datos del local</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 1: datos del local</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Comparte los detalles y horarios de tu establecimiento.</p>
             </div>
 
-            {/* Basic Info */}
+            {session?.user && (
+              <div className="border border-[#3A3A3A]/10 bg-[#3A3A3A]/5 rounded-2xl overflow-hidden transition-all duration-350">
+                <div className="flex justify-between items-center p-4 bg-[#3A3A3A]/5 border-b border-[#3A3A3A]/10">
+                  <span className="text-[10px] font-black text-[#8367C7] tracking-wider uppercase">Cuenta de propietario vinculada</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowAccountBanner(!showAccountBanner)}
+                    className="text-[10px] font-extrabold text-[#8367C7] hover:underline cursor-pointer focus:outline-none"
+                  >
+                    {showAccountBanner ? '[Ocultar datos]' : '[Mostrar datos]'}
+                  </button>
+                </div>
+
+                {showAccountBanner && (
+                  <div className="p-4 flex flex-col gap-3.5 animate-in fade-in duration-200">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold flex-shrink-0">
+                          <svg className="w-5 h-5 text-[#8367C7] fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm text-[#3A3A3A]">{session.user.name}</h4>
+                          <p className="text-xs text-[#3A3A3A]/60 font-semibold">{session.user.email}</p>
+                        </div>
+                      </div>
+                      <span className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/25 rounded-md px-2.5 py-0.5 text-[10px] font-black tracking-wide flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Cuenta vinculada
+                      </span>
+                    </div>
+                    <div className="border-t border-[#3A3A3A]/10 pt-3">
+                      <p className="text-xs text-[#3A3A3A]/75 font-semibold leading-relaxed">
+                        Este establecimiento se registrará y vinculará directamente a tu cuenta con total seguridad y cero fricción.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex flex-col gap-1.5">
               <label htmlFor="name" className="text-xs font-bold text-[#3A3A3A]/85">Nombre del local</label>
               <input
@@ -552,8 +537,6 @@ export default function Onboarding() {
               />
             </div>
 
-
-            {/* Social profiles */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="instagram" className="text-xs font-bold text-[#3A3A3A]/85">Usuario de Instagram</label>
@@ -593,12 +576,11 @@ export default function Onboarding() {
                     className="w-14 h-14 rounded-xl object-cover border border-[#3A3A3A]/10 bg-white"
                   />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-extrabold text-[#3A3A3A]">Logo cargado y recortado</span>
-                    <span className="text-[10px] text-[#3A3A3A]/50">Dimensiones optimizadas a 150x150px</span>
+                    <span className="text-xs font-extrabold text-[#3A3A3A]">¡Tu logo se ve genial! Se ha ajustado automáticamente para lucir perfecto en la plataforma.</span>
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, logoUrl: '' }))}
-                      className="text-[11px] font-extrabold text-[#FF9E8A] hover:underline text-left cursor-pointer mt-0.5"
+                      className="text-[11px] font-extrabold text-[#FF9E8A] hover:underline text-left cursor-pointer mt-1"
                     >
                       Quitar logo
                     </button>
@@ -610,9 +592,7 @@ export default function Onboarding() {
                     htmlFor="logo-upload" 
                     className="flex flex-col items-center justify-center border-2 border-dashed border-[#3A3A3A]/20 hover:border-[#8367C7] bg-[#3A3A3A]/5 p-6 rounded-xl cursor-pointer transition-all duration-200 text-center select-none"
                   >
-                    <svg className="w-6 h-6 text-[#3A3A3A]/40 fill-current mb-1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
-                    </svg>
+                    <svg className="w-6 h-6 text-[#3A3A3A]/40 fill-current mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
                     <span className="text-xs font-extrabold text-[#3A3A3A]">Subir imagen de logo</span>
                     <span className="text-[10px] text-[#3A3A3A]/50 mt-0.5">Se recortará a un cuadrado de 150x150px</span>
                     <input
@@ -680,27 +660,20 @@ export default function Onboarding() {
               </div>
             </div>
 
-            {/* Stepper Buttons */}
-            <div className="flex gap-3 mt-2">
-              <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
-                Atrás
-              </button>
-              <button type="submit" className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
-                Siguiente
-              </button>
-            </div>
+            <button type="submit" className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 mt-2 cursor-pointer text-center text-sm">
+              Siguiente
+            </button>
           </form>
         )}
 
-        {/* STEP 3: Map Location with Address Search & GPS Geolocation */}
-        {step === 3 && (
+        {/* STEP 2: Map Location with Address Search & GPS Geolocation */}
+        {step === 2 && (
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 3: ubicar en el mapa</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 2: ubicar en el mapa</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Busca tu dirección o haz clic en el mapa para ubicar tu local.</p>
             </div>
 
-            {/* Address Search Bar */}
             <form onSubmit={handleAddressSearch} className="flex gap-2">
               <input
                 type="text"
@@ -722,7 +695,6 @@ export default function Onboarding() {
               <p className="text-[11px] font-bold text-[#FF9E8A] bg-[#FF9E8A]/10 p-2.5 rounded-xl border border-[#FF9E8A]/20">{searchError}</p>
             )}
 
-            {/* GPS Geolocation Trigger Button */}
             <div className="flex flex-col gap-1">
               <button
                 type="button"
@@ -736,7 +708,6 @@ export default function Onboarding() {
               )}
             </div>
 
-            {/* Interactive Map Box */}
             <div className="w-full h-64 rounded-xl overflow-hidden shadow-inner border border-[#3A3A3A]/10">
               <OnboardingMap 
                 lat={formData.lat}
@@ -745,7 +716,6 @@ export default function Onboarding() {
               />
             </div>
 
-            {/* Coords Form */}
             <form onSubmit={handleNext} className="flex flex-col gap-4">
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 flex-1">
@@ -788,11 +758,11 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* STEP 4: Specialties / Extended Tags */}
-        {step === 4 && (
+        {/* STEP 3: Specialties / Extended Tags */}
+        {step === 3 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 4: especialidades</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 3: especialidades</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Selecciona las categorías principales que ofrece tu local.</p>
             </div>
 
@@ -833,24 +803,35 @@ export default function Onboarding() {
           </form>
         )}
 
-        {/* STEP 5: Summary & Next */}
-        {step === 5 && (
+        {/* STEP 4: Confirmar datos (Summary with Jump-to-Edit links) */}
+        {step === 4 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 5: confirmar datos</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 4: confirmar datos</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Revisa que toda tu información sea correcta antes de enviar.</p>
             </div>
 
             <div className="flex flex-col gap-4 bg-[#3A3A3A]/5 border border-[#3A3A3A]/10 p-5 rounded-2xl text-xs max-h-96 overflow-y-auto">
+              
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
                 <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Propietario</span>
                 <span className="font-semibold text-[#3A3A3A]">{formData.ownerName}</span>
                 <span className="text-[11px] text-[#3A3A3A]/70">{formData.ownerEmail}</span>
               </div>
               
-              <div className="flex flex-col gap-1.5 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Datos del local</span>
-                <div className="flex items-center gap-2.5">
+              <div className="flex flex-col gap-1.5 border-b border-[#3A3A3A]/10 pb-2.5 relative">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Datos del local</span>
+                  <button
+                    type="button"
+                    data-testid="edit-step-1"
+                    onClick={() => setStep(1)}
+                    className="text-[10px] font-extrabold text-[#8367C7] hover:underline cursor-pointer"
+                  >
+                    [Editar]
+                  </button>
+                </div>
+                <div className="flex items-center gap-2.5 mt-1">
                   {formData.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={formData.logoUrl} alt="Logo Preview" className="w-8 h-8 rounded-lg object-cover border border-[#3A3A3A]/10 bg-white" />
@@ -873,36 +854,74 @@ export default function Onboarding() {
                 </div>
                 <span className="text-[11px] text-[#3A3A3A]/85 leading-relaxed mt-1">{formData.description}</span>
                 
-                {/* Social Profiles */}
                 {(formData.instagram || formData.discord) && (
-                  <div className="flex gap-3 mt-1.5 text-[11px] font-semibold text-[#3A3A3A]/70">
-                    {formData.instagram && <span>📸 @{formData.instagram}</span>}
-                    {formData.discord && <span className="truncate">👾 {formData.discord}</span>}
+                  <div className="flex gap-3 mt-2 text-[11px] font-semibold text-[#3A3A3A]/70">
+                    {formData.instagram && (
+                      <span className="flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        @{formData.instagram}
+                      </span>
+                    )}
+                    {formData.discord && (
+                      <span className="flex items-center gap-1 truncate">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        {formData.discord}
+                      </span>
+                    )}
                   </div>
                 )}
 
-                {/* Public contact info in summary */}
                 {(formData.contactEmail || formData.contactPhone) && (
-                  <div className="flex flex-col gap-1 mt-2 border-t border-[#3A3A3A]/5 pt-2 text-[11px] text-[#3A3A3A]/85 font-semibold">
+                  <div className="flex flex-col gap-1 mt-2.5 border-t border-[#3A3A3A]/5 pt-2.5 text-[11px] text-[#3A3A3A]/85 font-semibold">
                     {formData.contactEmail && <div><span>Contacto:</span> {formData.contactEmail}</div>}
                     {formData.contactPhone && <div><span>Teléfono:</span> {formData.contactPhone}</div>}
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Ubicación en el mapa</span>
-                <span className="font-semibold text-[#3A3A3A]">{formData.lat}, {formData.lng}</span>
+              <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5 relative">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Ubicación en el mapa</span>
+                  <button
+                    type="button"
+                    data-testid="edit-step-2"
+                    onClick={() => setStep(2)}
+                    className="text-[10px] font-extrabold text-[#8367C7] hover:underline cursor-pointer"
+                  >
+                    [Editar]
+                  </button>
+                </div>
+                <span className="font-semibold text-[#3A3A3A] mt-1">{formData.lat}, {formData.lng}</span>
               </div>
 
-              <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Horarios de operación</span>
-                <span className="font-semibold text-[#3A3A3A] leading-snug">{formattedWeeklySchedule}</span>
+              <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5 relative">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Horarios de operación</span>
+                  <button
+                    type="button"
+                    data-testid="edit-step-1-schedule"
+                    onClick={() => setStep(1)}
+                    className="text-[10px] font-extrabold text-[#8367C7] hover:underline cursor-pointer"
+                  >
+                    [Editar]
+                  </button>
+                </div>
+                <span className="font-semibold text-[#3A3A3A] leading-snug mt-1">{formattedWeeklySchedule}</span>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Especialidades</span>
-                <div className="flex flex-wrap gap-1 mt-1">
+              <div className="flex flex-col gap-1 relative">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Especialidades</span>
+                  <button
+                    type="button"
+                    data-testid="edit-step-3"
+                    onClick={() => setStep(3)}
+                    className="text-[10px] font-extrabold text-[#8367C7] hover:underline cursor-pointer"
+                  >
+                    [Editar]
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1.5">
                   {formData.tags.length > 0 ? (
                     formData.tags.map((tag) => (
                       <span key={tag} className="px-2 py-0.5 text-[10px] font-bold bg-[#8367C7]/10 text-[#8367C7] rounded-md">
@@ -916,9 +935,8 @@ export default function Onboarding() {
               </div>
             </div>
 
-            {/* Form Action Buttons */}
             <div className="flex gap-3 mt-2">
-              <button type="button" disabled={loading} onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm disabled:opacity-50">
+              <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
                 Atrás
               </button>
               <button type="submit" className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
@@ -928,11 +946,11 @@ export default function Onboarding() {
           </form>
         )}
 
-        {/* STEP 6: Ownership Verification */}
-        {step === 6 && (
+        {/* STEP 5: Ownership Verification */}
+        {step === 5 && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 6: verificación de propiedad</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 5: verificación de propiedad</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Sube la documentación requerida para verificar la propiedad del establecimiento.</p>
             </div>
 
@@ -950,7 +968,6 @@ export default function Onboarding() {
               />
             </div>
 
-            {/* Operating Permit File Upload & Canvas Compressor */}
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-bold text-[#3A3A3A]/85">Permiso de operación (comprobante)</span>
               {formData.verificationProof ? (
@@ -962,12 +979,11 @@ export default function Onboarding() {
                     className="w-20 h-15 rounded-lg object-cover border border-[#3A3A3A]/10 bg-white"
                   />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-extrabold text-[#3A3A3A] text-success">Documento cargado y comprimido</span>
-                    <span className="text-[10px] text-[#3A3A3A]/50">Optimizado para auditoría (máx 400x300px, &lt; 15 KB)</span>
+                    <span className="text-xs font-extrabold text-[#3A3A3A] text-success">¡Permiso cargado correctamente! Lo hemos optimizado para que el equipo lo revise lo antes posible.</span>
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, verificationProof: '' }))}
-                      className="text-[11px] font-extrabold text-[#FF9E8A] hover:underline text-left cursor-pointer mt-0.5"
+                      className="text-[11px] font-extrabold text-[#FF9E8A] hover:underline text-left cursor-pointer mt-1"
                     >
                       Quitar documento
                     </button>
@@ -979,9 +995,7 @@ export default function Onboarding() {
                     htmlFor="permit-upload" 
                     className="flex flex-col items-center justify-center border-2 border-dashed border-[#3A3A3A]/20 hover:border-[#8367C7] bg-[#3A3A3A]/5 p-6 rounded-xl cursor-pointer transition-all duration-200 text-center select-none"
                   >
-                    <svg className="w-6 h-6 text-[#3A3A3A]/40 fill-current mb-1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M428 224H288V84c0-11-9-20-20-20s-20 9-20 20v140H108c-11 0-20 9-20 20s9 20 20 20h140v140c0 11 9 20 20 20s20-9 20-20V264h140c11 0 20-9 20-20s-9-20-20-20z" />
-                    </svg>
+                    <svg className="w-6 h-6 text-[#3A3A3A]/40 fill-current mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span className="text-xs font-extrabold text-[#3A3A3A]">Subir permiso de operación</span>
                     <span className="text-[10px] text-[#3A3A3A]/50 mt-0.5">Se comprimirá a JPEG (máx 400x300px)</span>
                     <input
