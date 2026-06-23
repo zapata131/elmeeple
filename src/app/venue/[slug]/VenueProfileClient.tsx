@@ -548,7 +548,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                         type="button"
                         onClick={() => setNewRating(star)}
                         className={`text-2xl transition-colors cursor-pointer ${
-                          star <= newRating ? 'text-yellow-500' : 'text-gray-350'
+                          star <= newRating ? 'text-yellow-500' : 'text-brand-dark/20'
                         }`}
                       >
                         ★

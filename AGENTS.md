@@ -188,3 +188,8 @@ You must strictly adhere to the following proven engineering conventions to prev
 ### 10. Jest JSDOM memory bloat and serial execution
 * **The problem:** Running Jest unit tests in parallel on Next.js/JSDOM components spawns concurrent worker processes that bloat-load React and JSDOM libraries, leading to `JavaScript heap out of memory` crashes and taking up to 10 minutes.
 * **The convention:** Always run the test runner in serial mode using the `--runInBand` (or `-i`) and `--forceExit` flags (e.g., `npm run test -- --runInBand --forceExit`). This runs all tests in a single Node process, reducing memory overhead by over 70%, preventing OOM crashes, and cutting the execution time down to under 90 seconds.
+
+### 11. Tailwind CSS v4 class compilation and color opacity tokens
+* **The problem:** Ad-hoc classes that are not part of the standard Tailwind CSS colors (e.g., `text-gray-350`) fail to compile under Tailwind CSS v4, silently falling back to default text colors (Carbón Suave `#3A3A3A`), which visually breaks states like unselected stars in a rating feed.
+* **The convention:** Never invent non-standard Tailwind colors. For lighter elements or opacity states, always use standard classes (e.g. `text-gray-300`) or leverage our customized theme color opacity tokens (e.g. `text-brand-dark/20` or `text-brand-primary/10`) which are 100% compliant with Tailwind v4 and render perfectly.
+

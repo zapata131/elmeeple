@@ -129,6 +129,12 @@ async function run() {
       // 5. WRITE AND SUBMIT REVIEW
       console.log(`[${vp.name}] Filling out and submitting a detailed review...`);
       
+      if (vp.isMobile) {
+        console.log(`[${vp.name}] Switching to Comunidad tab on mobile...`);
+        await page.click('button:has-text("Comunidad")');
+        await page.waitForTimeout(500); // Wait for tab animation/transition
+      }
+
       // Enter comment
       const commentSelector = 'textarea[placeholder*="Comparte tu opinión"]';
       await page.fill(commentSelector, 'Excelente comida y mesas amplias para jugar euros pesados. ¡El café de especialidad es top!');

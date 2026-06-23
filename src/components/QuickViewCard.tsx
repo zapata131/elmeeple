@@ -112,6 +112,12 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loadingFavorite, setLoadingFavorite] = useState(false)
 
+  const reviewsList = venue.reviews || []
+  const hasReviews = reviewsList.length > 0
+  const avgRating = hasReviews
+    ? (reviewsList.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewsList.length).toFixed(1)
+    : null
+
   const formattedSchedule = formatSchedule(venue.schedule)
   const typeLabel = venue.type ? VENUE_TYPE_LABELS[venue.type] : null
 
@@ -198,10 +204,19 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
             </div>
           )}
           
-          <div>
-            <h2 className="text-xl font-extrabold text-[#3A3A3A] leading-tight">
-              {venue.name}
-            </h2>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-xl font-extrabold text-[#3A3A3A] leading-tight">
+                {venue.name}
+              </h2>
+              {avgRating && (
+                <div className="flex items-center gap-0.5 text-xs text-amber-500 font-black bg-amber-500/10 px-1.5 py-0.5 rounded-lg border border-amber-500/15 flex-shrink-0">
+                  <span>★</span>
+                  <span>{avgRating}</span>
+                  <span className="text-[10px] text-[#3A3A3A]/50 font-semibold">({reviewsList.length})</span>
+                </div>
+              )}
+            </div>
             <p className="text-xs font-semibold text-[#8367C7] tracking-wide mt-0.5">
               {venue.address}
             </p>

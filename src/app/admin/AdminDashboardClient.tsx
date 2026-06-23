@@ -106,8 +106,10 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
       {/* Premium Sidebar Navigation */}
       <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-[#3A3A3A]/10 p-6 flex flex-col gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🛡️</span>
-          <span className="text-lg font-extrabold text-[#3A3A3A]">El Meeple Admin</span>
+          <svg className="w-6 h-6 text-[#8367C7] fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          <span className="text-lg font-extrabold text-[#3A3A3A] tracking-tight">El Meeple Admin</span>
         </div>
         <nav className="flex flex-col gap-2">
           <button
@@ -118,7 +120,10 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                 : 'hover:bg-[#3A3A3A]/5 text-[#3A3A3A]/70'
             }`}
           >
-            📥 Solicitudes Pendientes
+            <svg className="w-4 h-4 text-current fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.008 1.24l.885 1.77a2.25 2.25 0 002.007 1.24h1.98a2.25 2.25 0 002.007-1.24l.885-1.77a2.25 2.25 0 012.007-1.24h3.86m-18 0h19.5" />
+            </svg>
+            <span>Solicitudes pendientes</span>
           </button>
           <button
             onClick={() => setActiveTab('all')}
@@ -128,13 +133,20 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                 : 'hover:bg-[#3A3A3A]/5 text-[#3A3A3A]/70'
             }`}
           >
-            📋 Todos los Locales
+            <svg className="w-4 h-4 text-current fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <span>Todos los locales</span>
           </button>
           <Link
             href="/"
             className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold text-[#8367C7] hover:bg-[#8367C7]/10 transition-all text-left"
           >
-            🗺️ Volver al Mapa
+            <svg className="w-4 h-4 text-current fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0z" />
+            </svg>
+            <span>Volver al mapa</span>
           </Link>
         </nav>
       </aside>
@@ -280,9 +292,12 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                     {selectedVenue.contact_email && (
                       <a
                         href={`mailto:${selectedVenue.contact_email}`}
-                        className="flex-1 py-2.5 bg-[#8367C7]/10 hover:bg-[#8367C7]/15 text-[#8367C7] font-bold rounded-xl text-center border border-[#8367C7]/20 transition-all"
+                        className="flex-1 py-2.5 bg-[#8367C7]/10 hover:bg-[#8367C7]/15 text-[#8367C7] font-bold rounded-xl text-center border border-[#8367C7]/20 transition-all flex items-center justify-center gap-1.5"
                       >
-                        ✉️ Enviar Correo
+                        <svg className="w-3.5 h-3.5 text-current fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        </svg>
+                        <span>Enviar correo</span>
                       </a>
                     )}
                     {selectedVenue.contact_phone && (
@@ -290,9 +305,12 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                         href={`https://wa.me/${selectedVenue.contact_phone.replace(/\D/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 py-2.5 bg-green-600/10 hover:bg-green-600/15 text-green-700 font-bold rounded-xl text-center border border-green-600/20 transition-all"
+                        className="flex-1 py-2.5 bg-green-600/10 hover:bg-green-600/15 text-green-700 font-bold rounded-xl text-center border border-green-600/20 transition-all flex items-center justify-center gap-1.5"
                       >
-                        💬 WhatsApp
+                        <svg className="w-3.5 h-3.5 text-current fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                        </svg>
+                        <span>WhatsApp</span>
                       </a>
                     )}
                   </div>

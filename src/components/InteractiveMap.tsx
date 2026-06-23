@@ -360,7 +360,23 @@ export default function InteractiveMap() {
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm text-[#3A3A3A] truncate">{venue.name}</h3>
+                    <div className="flex justify-between items-start gap-1">
+                      <h3 className="font-bold text-sm text-[#3A3A3A] truncate">{venue.name}</h3>
+                      {venue.reviews && venue.reviews.length > 0 && (
+                        <div className="flex items-center gap-0.5 text-xs text-amber-500 font-black flex-shrink-0">
+                          <span>★</span>
+                          <span>
+                            {(
+                              venue.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) /
+                              venue.reviews.length
+                            ).toFixed(1)}
+                          </span>
+                          <span className="text-[10px] text-[#3A3A3A]/50 font-semibold ml-0.5">
+                            ({venue.reviews.length})
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-xs text-[#3A3A3A]/70 truncate mb-1.5">{venue.address}</p>
                     
                     {/* Game Match Badge */}

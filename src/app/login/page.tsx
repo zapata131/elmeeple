@@ -71,7 +71,7 @@ function LoginForm() {
             <span className="text-2xl font-extrabold text-[#3A3A3A]">El Meeple</span>
           </Link>
           <h2 className="mt-2 text-xl font-extrabold text-[#3A3A3A]">Inicia Sesión en tu Cuenta</h2>
-          <p className="text-xs text-[#3A3A3A]/60">Accede a tus locales favoritos, perfil and dashboard.</p>
+          <p className="text-xs text-[#3A3A3A]/75">Accede a tus locales favoritos, perfil y panel de socio.</p>
         </div>
 
         {error && (
