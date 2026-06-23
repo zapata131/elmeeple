@@ -80,6 +80,8 @@ This document defines the specialized AI agents responsible for developing **El 
 ## **📋 5. General Rules & Backlog Hygiene**
 * **GitHub Issue-Driven Development (Mandatory)**: Whenever the user and the agent discuss a new feature, improvement, or bug, a new GitHub Issue must be immediately created using the `gh` CLI to track it.
 * **Backlog Traceability**: Every feature branch must be named after its corresponding issue (e.g., `feature/issue-<number>-<title>`), and the Pull Request must be linked to the issue using the standard closing keywords (e.g., `Closes #<issue_number>` or `Fixes #<issue_number>`) in the PR description, so that merging the PR automatically resolves and closes the issue.
+* **Mandatory Design Doc Synchronization (Always Update DESIGN.md)**: Every major feature release, architectural choice, or retrospective must be immediately codified in `DESIGN.md`. Never let documentation go stale. The design doc is our single source of truth.
+
 
 ---
 
