@@ -5,6 +5,21 @@ const RESULTS_DIR = path.join(__dirname, '../visual-qa-results')
 
 test.describe('El Meeple Visual QA Spec', () => {
   test('homepage map, sidebar, and onboarding flows walkthrough', async ({ page }) => {
+    // Mock Nominatim geocoding API to prevent external network calls and rate limits
+    await page.route('**/nominatim.openstreetmap.org/search*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            lat: '19.4165',
+            lon: '-99.1620',
+            display_name: 'Chihuahua 142, Roma Nte, CDMX'
+          }
+        ])
+      })
+    })
+
     // 1. Navigate to Homepage (Desktop)
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('http://localhost:3000')

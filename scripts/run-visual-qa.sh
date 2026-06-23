@@ -26,7 +26,7 @@ rm -f visual-qa-results/*.png
 
 # Run the Playwright visual QA spec
 echo "🚀 Running Playwright visual QA walkthrough..."
-npx playwright test e2e/visual-qa.spec.ts --project=chromium
+npx playwright test e2e/visual-qa.spec.ts
 
 echo ""
 echo "=== 🎉 Visual QA Completed successfully! ==="
