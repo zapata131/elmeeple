@@ -4,6 +4,7 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import QuickViewCard, { Venue } from '@/components/QuickViewCard'
+import LocationSearch from '@/components/LocationSearch'
 
 const MOCK_VENUES: Venue[] = [
   {
@@ -89,6 +90,7 @@ export default function InteractiveMap() {
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Todos')
+  const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined)
 
   // Filter venues based on search query and selected category chip
   const filteredVenues = MOCK_VENUES.filter((venue) => {
@@ -118,6 +120,7 @@ export default function InteractiveMap() {
       {/* Full screen Map Background */}
       <div className="absolute inset-0 w-full h-full z-0">
         <Map
+          center={mapCenter}
           venues={filteredVenues}
           onSelectVenue={setSelectedVenue}
           selectedVenue={selectedVenue}
@@ -159,7 +162,8 @@ export default function InteractiveMap() {
         </div>
 
         {/* Search and Category Filters */}
-        <div className="p-4 md:px-6 md:py-4 flex flex-col gap-3 border-b border-[#3A3A3A]/5">
+        <div className="p-4 md:px-6 md:py-4 flex flex-col gap-3 border-b border-[#3A3A3A]/5 text-sm">
+          <LocationSearch onSelectLocation={(lat, lon) => setMapCenter([lat, lon])} />
           <div className="relative">
             <input
               type="text"
