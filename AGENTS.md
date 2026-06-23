@@ -74,3 +74,18 @@ This document defines the specialized AI agents responsible for developing **El 
 2. **Hand off to the Builder:** Pass the Architect's step-by-step plan to the Builder (e.g., *"Builder, execute this plan. Start by creating the `feature/quick-view-cards` branch and writing the tests."*)
 3. **Call the Reviewer:** Once the Builder finishes and opens a PR, ask the Reviewer to check it (e.g., *"Reviewer, please review the PR for `feature/quick-view-cards`."*)
 4. **Merge & Deploy:** Once the Reviewer approves, manually merge into `main` to trigger the Vercel deployment.
+
+---
+
+## **📋 5. General Rules & Backlog Hygiene**
+* **GitHub Issue-Driven Development (Mandatory)**: Whenever the user and the agent discuss a new feature, improvement, or bug, a new GitHub Issue must be immediately created using the `gh` CLI to track it.
+* **Backlog Traceability**: Every feature branch must be named after its corresponding issue (e.g., `feature/issue-<number>-<title>`), and the Pull Request must be linked to the issue using the standard closing keywords (e.g., `Closes #<issue_number>` or `Fixes #<issue_number>`) in the PR description, so that merging the PR automatically resolves and closes the issue.
+
+---
+
+## **🧪 6. Three-Tier Testing Standard (Mandatory)**
+Every feature release must be validated across three distinct testing tiers before it can be approved for merge into `main`:
+1. **Unit Testing (Jest / JSDOM)**: Verify the isolated behavior of individual utility functions, custom hooks, helper classes, and basic UI rendering states.
+2. **Integration Testing (Jest / mock-supabase)**: Verify multi-component coordination, state synchronization, and mock Server Action execution, ensuring that database updates are successfully simulated.
+3. **System & E2E Testing (Chrome DevTools MCP / browser_subagent)**: Run a live browser walkthrough on both **Desktop (1280x800)** and **Mobile (390x844)** viewports. Simulate complete user journeys (such as logging in, filling out stepper onboarding, uploading assets, and submitting ratings/favorites) to verify layout responsiveness, visual alignment, and ensure the browser console is free of runtime errors.
+
