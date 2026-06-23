@@ -18,11 +18,13 @@ Desarrollado en colaboración con [La Matatena](https://la-matatena.com) y dispo
 
 ## **🚀 Características Principales (MVP)**
 
-*   🗺️ **Interfaz Centrada en el Mapa**: Un mapa interactivo y responsivo como página de inicio que se centra automáticamente en tu ciudad para mostrarte los locales más cercanos.
-*   ⚡ **Tarjetas de Vista Rápida**: Haz clic en cualquier pin del mapa para ver una tarjeta informativa con el nombre del local, horario, especialidades y un enlace directo a su perfil completo.
-*   🔑 **Portal de Tiendas Auto-gestionado**: Flujo de registro sencillo para que los dueños de tiendas y organizadores de eventos den de alta su local, configuren sus horarios y ubiquen su pin en el mapa.
+*   🗺️ **Interfaz de Mapa en Pantalla Completa**: Un mapa interactivo y responsivo como página de inicio que se centra en tu ciudad para mostrarte los locales más cercanos, decorado con pines de marca personalizados.
+*   🗂️ **Panel Lateral de Búsqueda (Sidebar)**: Un sidebar fijo en escritorio que contiene el buscador, filtros por etiquetas de juego y una lista scrollable de locales. En móvil se convierte en una cabecera de búsqueda superior compacta para maximizar la visibilidad del mapa.
+*   ⚡ **Tarjetas de Vista Rápida**: Haz clic en cualquier pin del mapa o local de la lista para abrir una tarjeta flotante de vista rápida con el logotipo, descripción, horario interactivo y redes sociales del local.
+*   🔑 **Portal de Tiendas Auto-gestionado**: Flujo de registro secuencial (5 pasos) para que los propietarios den de alta su local, seleccionen su ubicación interactiva en el mapa, configuren sus horarios de apertura y suban su logotipo.
+*   🎨 **Autorrecorte de Logotipo en Cliente**: El flujo de registro procesa la imagen cargada por el dueño utilizando un lienzo HTML5 Canvas invisible en el cliente, recortándola y comprimiéndola en un cuadrado perfecto de `150x150px` en Base64 de alta eficiencia (5-10 KB) para evitar almacenamiento pesado.
 *   🏷️ **Inventario por Etiquetas**: En lugar de capturar bases de datos complejas, las tiendas definen su *ludoteca* usando etiquetas preestablecidas (ej. *Eurogames*, *TCGs*, *Wargames*, *Rol*, *D&D*, *Magic: The Gathering*).
-*   🛡️ **Verificación de Administrador**: Filtro de seguridad que permite a los administradores de la plataforma aprobar los locales registrados antes de que aparezcan públicamente en el mapa.
+*   🛡️ **Verificación de Administrador**: Filtro de seguridad en base de datos que permite a los administradores de la plataforma verificar los locales registrados antes de que aparezcan públicamente en el mapa general.
 
 ---
 
@@ -77,6 +79,38 @@ Asegúrate de tener instalado:
     npm run dev
     ```
     Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el proyecto en ejecución.
+
+---
+
+## **🧪 Estrategia de Pruebas y QA Visual**
+
+Para mantener la máxima estabilidad y consistencia visual en todas las pantallas de **El Meeple**, contamos con una suite de pruebas dividida en dos niveles:
+
+### **1. Pruebas Unitarias y de Integración (Jest + React Testing Library)**
+Valida la lógica de renderizado de componentes y flujos de datos de forma aislada. Para evitar problemas de entorno en JSDOM, simulamos las capas de Leaflet y los imports dinámicos de forma síncrona y limpia.
+*   **Ejecutar pruebas unitarias:**
+    ```bash
+    npm run test
+    ```
+*   **Modo observación (Watch Mode):**
+    ```bash
+    npm run test:watch
+    ```
+
+### **2. QA Visual Automatizado (Playwright E2E)**
+Ejecuta un flujo completo de extremo a extremo simulando la navegación de un usuario real en un navegador real (Chromium). Recorre la búsqueda en el mapa, la apertura de tarjetas rápidas y el flujo de registro de 5 pasos en dos resoluciones: **Escritorio (Desktop 1280x800)** y **Móvil (iPhone viewport 390x844)**. Captura capturas de pantalla de cada paso para asegurar la responsividad y evitar regresiones visuales (elementos superpuestos, textos cortados o controles bloqueados).
+*   **Ejecutar el ciclo de QA Visual:**
+    ```bash
+    ./scripts/run-visual-qa.sh
+    ```
+    *Este script instalará las dependencias y binarios de navegadores necesarios de forma automática si no están presentes, limpiará ejecuciones anteriores y guardará los resultados.*
+*   **Resultados:** Las capturas de pantalla generadas se guardan en la carpeta `/visual-qa-results` en la raíz del proyecto para su inspección visual.
+
+### **3. Script de Verificación Pre-Commit/Pre-Push**
+Antes de subir cualquier cambio a tu rama o abrir un Pull Request, ejecuta la verificación completa para comprobar que no hay errores de linter, que el proyecto compila a producción sin problemas y que todas las pruebas de Jest pasan:
+```bash
+npm run verify
+```
 
 ---
 

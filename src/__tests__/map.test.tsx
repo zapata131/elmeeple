@@ -11,6 +11,9 @@ jest.mock('react-leaflet', () => ({
   TileLayer: () => <div data-testid="mock-tile-layer" />,
   ZoomControl: () => <div data-testid="mock-zoom-control" />,
   Marker: () => <div data-testid="mock-marker" />,
+  useMap: () => ({
+    setView: jest.fn(),
+  }),
 }))
 
 describe('Map Component', () => {

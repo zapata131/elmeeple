@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Home from '@/app/page'
 
@@ -32,6 +32,9 @@ jest.mock('react-leaflet', () => ({
       Marker at {position[0]}, {position[1]}
     </button>
   ),
+  useMap: () => ({
+    setView: jest.fn(),
+  }),
 }))
 
 describe('Quick View Card Integration', () => {
@@ -62,17 +65,20 @@ describe('Quick View Card Integration', () => {
     const card = screen.getByTestId('quick-view-card')
     expect(card).toBeInTheDocument()
 
+    // Scope queries inside the Quick View Card to prevent conflicts with the sidebar
+    const cardContent = within(card)
+
     // Check that it contains the venue details
-    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
-    expect(screen.getByText('Roma Norte, CDMX')).toBeInTheDocument()
-    expect(screen.getByText('Mar - Dom: 14:00 - 22:00')).toBeInTheDocument()
-    expect(screen.getByText('Híbrido (Café y Tienda)')).toBeInTheDocument()
-    expect(screen.getByAltText('Logo Orcs Stories')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /visit-instagram/i })).toHaveAttribute('href', 'https://instagram.com/orcs_stories')
-    expect(screen.getByRole('link', { name: /visit-discord/i })).toHaveAttribute('href', 'https://discord.gg/orcsstories')
-    expect(screen.getByText('Eurogames')).toBeInTheDocument()
-    expect(screen.getByText('TCGs')).toBeInTheDocument()
-    expect(screen.getByText('Café')).toBeInTheDocument()
+    expect(cardContent.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(cardContent.getByText('Roma Norte, CDMX')).toBeInTheDocument()
+    expect(cardContent.getByText('Mar - Dom: 14:00 - 22:00')).toBeInTheDocument()
+    expect(cardContent.getByText('Híbrido (Café y Tienda)')).toBeInTheDocument()
+    expect(cardContent.getByAltText('Logo Orcs Stories')).toBeInTheDocument()
+    expect(cardContent.getByRole('link', { name: /visit-instagram/i })).toHaveAttribute('href', 'https://instagram.com/orcs_stories')
+    expect(cardContent.getByRole('link', { name: /visit-discord/i })).toHaveAttribute('href', 'https://discord.gg/orcsstories')
+    expect(cardContent.getByText('Eurogames')).toBeInTheDocument()
+    expect(cardContent.getByText('TCGs')).toBeInTheDocument()
+    expect(cardContent.getByText('Café')).toBeInTheDocument()
   })
 
   it('closes the Quick View Card when the close button is clicked', async () => {
