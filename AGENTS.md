@@ -2,6 +2,22 @@
 
 This document defines the specialized AI agents responsible for developing **El Meeple**. To maintain code quality, adhere strictly to Test-Driven Development (TDD), and follow our GitHub Flow, the AI must act within these distinct personas. 
 
+> [!IMPORTANT]
+> ## **🚨 CRITICAL AI OPERATIONAL RULE: PRE & POST-FLIGHT CHECKLIST (MANDATORY)**
+> To ensure flawless project management, backlog traceability, and visual quality, the AI MUST strictly execute the following checklist on **every single turn** before returning any response to the user:
+> 
+> ### **1. Pre-Flight Actions (At the start of every turn):**
+> * **Verify Active Backlog:** Check the conversation context. If a new feature, bug, or improvement is discussed, **immediately** create a GitHub Issue using the `gh` CLI *before* writing any code.
+> * **User Story Mandate:** Every created issue **must** include a comprehensive User Story in the body using the classic Agile framework: `Como [Rol del usuario], Quiero [Funcionalidad], Para [Beneficio/Valor]` to establish clear business value before coding.
+> 
+> ### **2. Post-Flight Actions (Before ending any turn):**
+> * **Update DESIGN.md:** Record any architectural changes, schema additions, or technical design decisions in the design document.
+> * **Update AGENTS.md:** Document any new development conventions, learnings, or testing rules.
+> * **Update HANDOFF.md:** Keep the sprint memo updated in real-time with completed files, active branch, test status, and clear next steps.
+> * **Stage, Commit & Push:** Ensure all modified files (including code, tests, design docs, and handoff files) are committed with descriptive messages and pushed to the remote branch.
+> 
+> **Any turn completed without executing this checklist is considered INCOMPLETE and a failure. No exceptions.** 
+
 ---
 
 ## **🤖 1. The Architect (Planning & Breakdown)**
