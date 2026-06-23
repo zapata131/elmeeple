@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import React from 'react'
 import AnnouncementForm from './AnnouncementForm'
+import BggSyncForm from './BggSyncForm'
 
 interface PageProps {
   searchParams: Promise<{ email?: string }> | { email?: string }
@@ -45,6 +47,20 @@ export default async function OwnerDashboard({ searchParams }: PageProps) {
     .eq('owner_email', email)
 
   const venueList = venues || []
+
+  // Fetch games for all venues in parallel
+  const venuesWithGames = await Promise.all(
+    venueList.map(async (venue) => {
+      const { data: games } = await supabase
+        .from('venue_games')
+        .select('*')
+        .eq('venue_id', venue.id)
+      return {
+        ...venue,
+        games: games || []
+      }
+    })
+  )
 
   return (
     <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 md:px-8 text-[#3A3A3A]">
@@ -91,8 +107,9 @@ export default async function OwnerDashboard({ searchParams }: PageProps) {
               <p className="text-xs text-[#3A3A3A]/50 mt-1">Registra tu primer local para comenzar.</p>
             </div>
           ) : (
-            venueList.map((venue) => {
+            venuesWithGames.map((venue) => {
               const status = venue.verification_status || 'pending'
+              const venueGames = venue.games
               return (
                 <div
                   key={venue.id}
@@ -194,18 +211,63 @@ export default async function OwnerDashboard({ searchParams }: PageProps) {
                       )}
                     </div>
 
+                    {/* Mi Ludoteca Visual Gallery */}
+                    {status === 'approved' && (
+                      <div className="border-t border-[#3A3A3A]/10 pt-6">
+                        <h4 className="text-xs font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider mb-3">
+                          🎲 Mi Ludoteca ({venueGames.length} juegos)
+                        </h4>
+                        {venueGames.length === 0 ? (
+                          <p className="text-xs text-[#3A3A3A]/50 italic">
+                            Aún no has sincronizado tu colección de BoardGameGeek.
+                          </p>
+                        ) : (
+                          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 max-h-64 overflow-y-auto pr-1">
+                            {venueGames.map((game: any) => (
+                              <div
+                                key={game.id}
+                                className="flex flex-col items-center gap-1 bg-[#3A3A3A]/5 p-2 rounded-xl border border-[#3A3A3A]/5 text-center group"
+                              >
+                                {game.thumbnail ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={game.thumbnail}
+                                    alt={game.name}
+                                    className="w-12 h-12 object-cover rounded-lg shadow-sm group-hover:scale-105 transition-transform"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-[#8367C7]/15 text-[#8367C7] rounded-lg flex items-center justify-center text-xs font-bold">
+                                    🎲
+                                  </div>
+                                )}
+                                <span
+                                  className="text-[9px] font-bold text-[#3A3A3A] truncate w-full"
+                                  title={game.name}
+                                >
+                                  {game.name}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                   </div>
 
-                  {/* Right Column: Announcement Posting Card */}
-                  <div className="w-full lg:w-96 flex flex-col justify-start">
+                  {/* Right Column: Announcement & BGG Sync */}
+                  <div className="w-full lg:w-96 flex flex-col gap-6 justify-start">
                     {status === 'approved' ? (
-                      <AnnouncementForm venueId={venue.id} />
+                      <>
+                        <BggSyncForm venueId={venue.id} initialUsername={venue.bgg_username} />
+                        <AnnouncementForm venueId={venue.id} />
+                      </>
                     ) : (
                       <div className="bg-[#3A3A3A]/5 p-6 rounded-2xl border border-dashed border-[#3A3A3A]/15 text-center flex flex-col items-center justify-center h-full py-12">
                         <span className="text-2xl mb-2">🔒</span>
-                        <h4 className="text-xs font-extrabold text-[#3A3A3A]/70 uppercase tracking-wide">Anuncios Bloqueados</h4>
+                        <h4 className="text-xs font-extrabold text-[#3A3A3A]/70 uppercase tracking-wide">Funciones Bloqueadas</h4>
                         <p className="text-[10px] text-[#3A3A3A]/50 max-w-xs mt-1">
-                          Debes esperar a que tu local sea aprobado por los administradores para poder publicar anuncios en la cartelera.
+                          Debes esperar a que tu local sea aprobado por los administradores para publicar anuncios e importar tu ludoteca de BGG.
                         </p>
                       </div>
                     )}

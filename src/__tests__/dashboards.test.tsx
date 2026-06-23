@@ -206,11 +206,17 @@ describe('Owner Dashboard (/dashboard)', () => {
   ]
 
   it('renders owner profile, quick action button, and list of venues with status badges', async () => {
-    mockSupabaseClient.from.mockReturnThis()
+    let currentTable = ''
+    mockSupabaseClient.from.mockImplementation((table: string) => {
+      currentTable = table
+      return mockSupabaseClient
+    })
     mockSupabaseClient.select.mockReturnThis()
-    mockSupabaseClient.eq.mockResolvedValue({
-      data: mockOwnerVenues,
-      error: null
+    mockSupabaseClient.eq.mockImplementation(() => {
+      if (currentTable === 'venues') {
+        return Promise.resolve({ data: mockOwnerVenues, error: null })
+      }
+      return Promise.resolve({ data: [], error: null })
     })
 
     // Await the Server Component as a function to resolve async data fetching
