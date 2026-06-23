@@ -87,4 +87,48 @@
 * **Community Organizer Profiles:** Tools for independent organizers to create community pages, schedule meetups at affiliated venues, and manage player RSVPs.
 * **Premium Store Subscriptions:** Highlighted map pins and traffic analytics for venues.
 * **Tournament Management:** Comprehensive bracket generation and event management tools.
-* **BGG Integration:** Direct BoardGameGeek XML API connection for automated *ludoteca* inventory syncing.
+
+---
+
+## 🏛️ **9. Engineering Retrospective & Case Study**
+This section documents the technical successes, failures, blockers, and architectural decision-making reasoning accumulated during the development of the **El Meeple** platform. All future developments must reference this retrospective to maintain system integrity.
+
+### **9.1 What Works (Core Architectural Successes)**
+1. **Unified Profiles & Role-Based Access Control (RBAC):**
+   Instead of separating store owners and players into distinct tables (which would force dual-role users to create duplicate accounts), we implemented a single `public.profiles` table extending Supabase Auth. A `role` enum (`player`, `partner`, `admin`) manages access controls. This makes queries clean, simplifies NextAuth session handling, and allows seamless role upgrades.
+2. **Client-Side Image Auto-Cropping & Canvas Compression:**
+   To prevent high-resolution store logos and operating permits from bloat-loading or exhausting database storage, we built an invisible HTML5 canvas processor in the browser. Logos are auto-cropped to a perfect `150x150px` square, and permit JPEGs are compressed to a maximum dimension of `400x300px` at 70% quality, keeping file uploads strictly under `15 KB` as base64 strings.
+3. **Idempotent BoardGameGeek (BGG) XML Synchronization:**
+   Rather than manually typing in catalogs, store owners sync their library in 1 click using their BGG username. The server-side action parses BGG's XML payload using `fast-xml-parser` and performs a bulk upsert into `venue_games` with a unique constraint on `(venue_id, bgg_id)`.
+4. **Resilient Local Mock Infrastructure:**
+   By designing a custom mock Supabase server (`mock-supabase.js`) and local BGG XML caching, we created a high-fidelity local developer environment that runs completely independently of live third-party APIs.
+
+---
+
+### **9.2 What Has Failed & Lessons Learned (Blockers & Workarounds)**
+1. **Next.js & Leaflet SSR Hydration Conflicts (Critical):**
+   * *The Blocker:* Leaflet references the browser-only `window` object immediately upon import, which caused Next.js server-side rendering (SSR) to crash during production builds and runtime.
+   * *The Workaround:* We bypassed direct server imports. The map is marked as `"use client"` and dynamically imported on the client side using:
+     `const Map = dynamic(() => import('@/components/Map'), { ssr: false, loading: () => <MapPlaceholder /> })`
+2. **Leaflet Default Marker Asset Resolution (Critical):**
+   * *The Blocker:* Webpack and Turbopack bundlers dynamically compile and hash asset paths, which broke Leaflet's default blue pin image URL resolutions, throwing silent 404 image-loading errors in the console.
+   * *The Workaround:* We bypassed Leaflet's image marker asset resolution entirely. We now render pins using custom inline Vector SVGs styled with our brand Malva `#8367C7` and custom CSS drop-shadow filters, making pin rendering 100% independent of asset bundlers and matching our premium aesthetics.
+3. **NextAuth / Auth.js Context Wrappers (Critical):**
+   * *The Blocker:* Client-side authentication hooks like `useSession()` triggered fatal client-side crashes if they were called in components that were not nested inside NextAuth's context provider.
+   * *The Workaround:* We wrapped the root layout body in a custom client-side `<NextAuthProvider>` wrapper in `layout.tsx`, making sessions globally available.
+4. **Empty Database Connection Refused States (Critical):**
+   * *The Blocker:* If a developer starts the application without configured Supabase credentials in `.env.local` (or if the local database is offline), the homepage map would hang in an infinite loading spinner.
+   * *The Workaround:* We implemented a graceful catch-block fallback. If the Supabase query fails, the app prints a warning and populates the local state with our static CDMX mock venues (`MOCK_VENUES` array), keeping the map and sidebar 100% interactive out of the box.
+
+---
+
+### **9.3 Decision-Making Reasoning**
+1. **Why Unified Identity?**
+   It matches the real-world behaviors of our audience. Store owners are also board game players; they want to bookmark other stores as favorites and rate cafés they visit. A unified profile table handles this seamlessly with zero database overhead.
+2. **Why Client-Side Compression?**
+   Processing files on the client side is highly scalable. It shifts the CPU workload of cropping and compressing image binaries from our server-less functions/Supabase buckets to the user's browser, saving massive storage costs and avoiding upload timeouts.
+3. **Why Offload Map Cards to Dedicated `/venue/[slug]` Routes (Milestone 4)?**
+   * *UX Density:* Map-based Quick View Cards are brilliant for quick discoverability (getting address, hours, and announcements at a glance). However, as cafés sync their BGG collections (100+ games) and gather reviews, cramming tabs, scrollable grids, search inputs, and forms into a small floating card degrades the UX.
+   * *Performance:* Loading heavy arrays of games and comments inside map markers increases the DOM weight and slows down map panning performance.
+   * *Marketing Value:* Dedicated routes like `/venue/orcs-stories` give store owners a clean, professional, SEO-friendly marketing URL to share on their social media, driving organic traffic directly to their digital storefront.
+
