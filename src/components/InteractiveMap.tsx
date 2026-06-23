@@ -118,6 +118,7 @@ export default function InteractiveMap() {
           .select(`
             id,
             name,
+            slug,
             description,
             schedule,
             lat,
@@ -167,6 +168,7 @@ export default function InteractiveMap() {
           return {
             id: v.id,
             name: v.name,
+            slug: v.slug || undefined,
             lat: v.lat,
             lng: v.lng,
             tags: tagsList,
@@ -227,7 +229,7 @@ export default function InteractiveMap() {
   }
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#F5F0E9]">
+    <div className="relative w-full h-full overflow-hidden bg-[#F5F0E9]">
       {/* Full screen Map Background */}
       <div className="absolute inset-0 w-full h-full z-0">
         <Map

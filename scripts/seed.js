@@ -52,6 +52,7 @@ const tagsData = [
 const venuesData = [
   {
     name: 'Orcs Stories',
+    slug: 'orcs-stories',
     owner_name: 'Admin',
     owner_email: 'admin@orcsstories.com',
     lat: 19.4165,
@@ -74,6 +75,7 @@ const venuesData = [
   },
   {
     name: 'El Duende',
+    slug: 'el-duende',
     owner_name: 'Admin',
     owner_email: 'admin@elduendetcg.com',
     lat: 19.3750,
@@ -96,6 +98,7 @@ const venuesData = [
   },
   {
     name: 'Ravenfolks',
+    slug: 'ravenfolks',
     owner_name: 'Admin',
     owner_email: 'admin@ravenfolks.com',
     lat: 19.4184,

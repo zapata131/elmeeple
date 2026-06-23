@@ -6,6 +6,7 @@ let venues = [
   {
     id: "1",
     name: "Orcs Stories",
+    slug: "orcs-stories",
     owner_name: "Owner User",
     owner_email: "owner@example.com",
     description: "Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.",
@@ -40,6 +41,7 @@ let venues = [
   {
     id: "2",
     name: "El Duende",
+    slug: "el-duende",
     owner_name: "Duende Owner",
     owner_email: "duende@example.com",
     description: "El punto de encuentro para torneos de cartas coleccionables y comunidad de juegos de mesa.",
@@ -83,6 +85,34 @@ let announcements = [
 ];
 
 let favorites = [];
+
+let profiles = [
+  {
+    id: "prof-1",
+    email: "player@example.com",
+    name: "Player One",
+    password: "password123",
+    role: "player",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "prof-2",
+    email: "partner@example.com",
+    name: "Partner Owner",
+    password: "password123",
+    role: "partner",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "prof-3",
+    email: "admin@example.com",
+    name: "Admin User",
+    password: "password123",
+    role: "admin",
+    created_at: new Date().toISOString()
+  }
+];
+
 
 let reviews = [
   {
@@ -388,6 +418,49 @@ const server = http.createServer((req, res) => {
       } else {
         res.writeHead(404);
         res.end();
+      }
+      return;
+    }
+
+    // Profiles endpoint
+    if (path.startsWith('/rest/v1/profiles')) {
+      if (method === 'GET') {
+        const emailFilter = getFilterValue(parsedUrl.query, 'email');
+        let filtered = [...profiles];
+        if (emailFilter) {
+          filtered = filtered.filter(p => p.email === emailFilter);
+        }
+
+        const preferHeader = req.headers['prefer'] || '';
+        if (preferHeader.includes('handling=strict') || preferHeader.includes('count=') || req.url.includes('single')) {
+          if (filtered.length === 0) {
+            res.writeHead(406, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }));
+            return;
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(filtered[0]));
+            return;
+          }
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(filtered));
+      } else if (method === 'POST') {
+        try {
+          const payload = JSON.parse(body);
+          const newProfile = {
+            id: `prof-${Date.now()}`,
+            created_at: new Date().toISOString(),
+            ...payload
+          };
+          profiles.push(newProfile);
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify([newProfile]));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
       }
       return;
     }
