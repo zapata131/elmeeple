@@ -1,6 +1,7 @@
 'use client'
 
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import React from 'react'
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -24,6 +25,15 @@ interface OnboardingMapProps {
   onChangeCoordinates: (lat: number, lng: number) => void
 }
 
+// Sub-component to dynamically center/pan the map when coordinates change
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap()
+  React.useEffect(() => {
+    map.setView(center, 15) // Zoom in closer when location is found/set
+  }, [center, map])
+  return null
+}
+
 function MapEvents({ onClick }: { onClick: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
@@ -42,11 +52,12 @@ export default function OnboardingMap({
   onChangeCoordinates 
 }: OnboardingMapProps) {
   const markerPosition: [number, number] | null = lat && lng ? [lat, lng] : null
+  const mapCenter: [number, number] = markerPosition || DEFAULT_CENTER
 
   return (
     <div className="w-full h-full relative z-0" data-testid="map-container">
       <MapContainer
-        center={DEFAULT_CENTER}
+        center={mapCenter}
         zoom={DEFAULT_ZOOM}
         scrollWheelZoom={true}
         className="w-full h-full"
@@ -58,6 +69,7 @@ export default function OnboardingMap({
         />
         <MapEvents onClick={onChangeCoordinates} />
         {markerPosition && <Marker position={markerPosition} />}
+        {markerPosition && <ChangeView center={markerPosition} />}
       </MapContainer>
     </div>
   )

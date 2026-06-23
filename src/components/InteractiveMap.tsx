@@ -12,9 +12,21 @@ const MOCK_VENUES: Venue[] = [
     lat: 19.4165,
     lng: -99.1620,
     tags: ['Eurogames', 'TCGs', 'Café'],
-    schedule: 'Mar - Dom: 14:00 - 22:00',
+    schedule: {
+      mon: null,
+      tue: { open: '14:00', close: '22:00' },
+      wed: { open: '14:00', close: '22:00' },
+      thu: { open: '14:00', close: '22:00' },
+      fri: { open: '14:00', close: '22:00' },
+      sat: { open: '14:00', close: '22:00' },
+      sun: { open: '14:00', close: '22:00' }
+    },
     address: 'Roma Norte, CDMX',
-    description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.'
+    description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.',
+    type: 'hibrido',
+    instagram: 'orcs_stories',
+    discord: 'https://discord.gg/orcsstories',
+    logoUrl: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop'
   },
   {
     id: '2',
@@ -22,9 +34,21 @@ const MOCK_VENUES: Venue[] = [
     lat: 19.3750,
     lng: -99.1780,
     tags: ['TCGs', 'Magic: The Gathering', 'Torneos'],
-    schedule: 'Lun - Dom: 11:00 - 21:00',
+    schedule: {
+      mon: { open: '11:00', close: '21:00' },
+      tue: { open: '11:00', close: '21:00' },
+      wed: { open: '11:00', close: '21:00' },
+      thu: { open: '11:00', close: '21:00' },
+      fri: { open: '11:00', close: '21:00' },
+      sat: { open: '11:00', close: '21:00' },
+      sun: { open: '11:00', close: '21:00' }
+    },
     address: 'Coyoacán, CDMX',
-    description: 'El punto de encuentro para torneos de cartas coleccionables y comunidad de juegos de mesa.'
+    description: 'El punto de encuentro para torneos de cartas coleccionables y comunidad de juegos de mesa.',
+    type: 'tienda',
+    instagram: 'elduendetcg',
+    discord: 'https://discord.gg/elduendetcg',
+    logoUrl: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop'
   },
   {
     id: '3',
@@ -32,9 +56,20 @@ const MOCK_VENUES: Venue[] = [
     lat: 19.4184,
     lng: -99.1627,
     tags: ['Eurogames', 'Café', 'Ludoteca'],
-    schedule: 'Mar - Dom: 14:00 - 22:00',
+    schedule: {
+      mon: null,
+      tue: { open: '14:00', close: '22:00' },
+      wed: { open: '14:00', close: '22:00' },
+      thu: { open: '14:00', close: '22:00' },
+      fri: { open: '14:00', close: '22:00' },
+      sat: { open: '14:00', close: '22:00' },
+      sun: { open: '14:00', close: '22:00' }
+    },
     address: 'Roma Norte, CDMX',
-    description: 'El primer board game café de la Ciudad de México. Cientos de juegos de mesa, comida deliciosa y excelente café de especialidad.'
+    description: 'El primer board game café de la Ciudad de México. Cientos de juegos de mesa, comida deliciosa y excelente café de especialidad.',
+    type: 'cafe',
+    instagram: 'ravenfolks',
+    logoUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop'
   }
 ]
 

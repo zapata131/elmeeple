@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { createVenue, OnboardingData } from '@/app/actions/venue'
+import { StructuredSchedule, formatSchedule } from '@/components/QuickViewCard'
 
 const OnboardingMap = dynamic(() => import('@/components/OnboardingMap'), {
   ssr: false,
@@ -14,25 +15,69 @@ const OnboardingMap = dynamic(() => import('@/components/OnboardingMap'), {
   ),
 })
 
-const PREDEFINED_TAGS = ['Eurogames', 'TCGs', 'Wargames', 'Rol', 'Café']
+const PREDEFINED_TAGS = [
+  'Eurogames', 
+  'TCGs', 
+  'Wargames', 
+  'Rol (RPGs)', 
+  'Juegos de Miniaturas', 
+  'Juegos Familiares / Party', 
+  'Magic: The Gathering', 
+  'Yu-Gi-Oh!', 
+  'Pokémon TCG', 
+  'Lorcana', 
+  'Venta de Juegos', 
+  'Alquiler de Mesas', 
+  'Café de Especialidad', 
+  'Comida y Bebida', 
+  'Torneos Oficiales'
+]
+
+const DAYS_OF_WEEK = [
+  { key: 'mon', label: 'Lunes' },
+  { key: 'tue', label: 'Martes' },
+  { key: 'wed', label: 'Miércoles' },
+  { key: 'thu', label: 'Jueves' },
+  { key: 'fri', label: 'Viernes' },
+  { key: 'sat', label: 'Sábado' },
+  { key: 'sun', label: 'Domingo' }
+] as const
 
 export default function Onboarding() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   
+  // Geocoding and GPS states
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState('')
+  const [gpsError, setGpsError] = useState('')
+
   const [formData, setFormData] = useState<OnboardingData>({
     ownerName: '',
     ownerEmail: '',
     name: '',
     description: '',
-    schedule: '',
+    type: 'cafe',
+    instagram: '',
+    discord: '',
+    logoUrl: '',
+    schedule: {
+      mon: null,
+      tue: null,
+      wed: null,
+      thu: null,
+      fri: null,
+      sat: null,
+      sun: null
+    },
     lat: undefined as unknown as number,
     lng: undefined as unknown as number,
     tags: []
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -46,6 +91,78 @@ export default function Onboarding() {
       lat: parseFloat(lat.toFixed(6)),
       lng: parseFloat(lng.toFixed(6))
     }))
+  }
+
+  // GPS Geolocation trigger
+  const handleGeolocation = () => {
+    setGpsError('')
+    if (!navigator.geolocation) {
+      setGpsError('La geolocalización no es compatible con tu navegador.')
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        handleCoordinateChange(position.coords.latitude, position.coords.longitude)
+      },
+      (error) => {
+        console.error(error)
+        setGpsError('No se pudo obtener tu ubicación. Por favor, selecciona tu local en el mapa.')
+      }
+    );
+  }
+
+  // Address Geocoding trigger (Nominatim API)
+  const handleAddressSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+
+    setSearching(true)
+    setSearchError('')
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`
+      )
+      if (!response.ok) throw new Error('Network error')
+      const results = await response.json()
+
+      if (results && results.length > 0) {
+        const { lat, lon } = results[0]
+        handleCoordinateChange(parseFloat(lat), parseFloat(lon))
+      } else {
+        setSearchError('No se encontraron resultados para la dirección ingresada.')
+      }
+    } catch (err) {
+      console.error(err)
+      setSearchError('Ocurrió un error al buscar la dirección. Por favor, inténtalo de nuevo.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  // Structured schedule handlers
+  const handleDayToggle = (day: keyof StructuredSchedule) => {
+    setFormData((prev) => {
+      const current = prev.schedule[day]
+      const updatedSchedule = {
+        ...prev.schedule,
+        [day]: current ? null : { open: '09:00', close: '21:00' }
+      }
+      return { ...prev, schedule: updatedSchedule }
+    })
+  }
+
+  const handleTimeChange = (day: keyof StructuredSchedule, type: 'open' | 'close', value: string) => {
+    setFormData((prev) => {
+      const current = prev.schedule[day]
+      if (!current) return prev
+      const updatedDay = { ...current, [type]: value }
+      const updatedSchedule = {
+        ...prev.schedule,
+        [day]: updatedDay
+      }
+      return { ...prev, schedule: updatedSchedule }
+    })
   }
 
   const handleTagToggle = (tag: string) => {
@@ -85,10 +202,12 @@ export default function Onboarding() {
     }
   }
 
+  const formattedWeeklySchedule = formatSchedule(formData.schedule)
+
   if (success) {
     return (
       <div className="min-h-screen bg-[#F5F0E9] flex items-center justify-center p-4">
-        <div className="bg-[#F5F0E9] text-[#3A3A3A] p-8 rounded-2xl shadow-2xl border border-[#3A3A3A]/10 max-w-md w-full text-center flex flex-col gap-6 backdrop-blur-md bg-opacity-95">
+        <div className="bg-[#F5F0E9] text-[#3A3A3A] p-8 rounded-2xl shadow-2xl border border-[#3A3A3A]/10 max-w-md w-full text-center flex flex-col gap-6 backdrop-blur-md bg-opacity-95 animate-in fade-in duration-300">
           <div className="w-20 h-20 bg-[#73D8D4]/20 text-[#73D8D4] rounded-full flex items-center justify-center mx-auto shadow-inner">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-10 h-10">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -99,11 +218,22 @@ export default function Onboarding() {
             <p className="text-sm font-semibold text-[#8367C7] mt-1">El Meeple - Portal de Tiendas</p>
           </div>
           
-          <div className="bg-[#3A3A3A]/5 p-5 rounded-xl text-left border border-[#3A3A3A]/5 flex flex-col gap-2">
-            <p className="text-sm font-semibold text-[#3A3A3A]">Resumen del Registro:</p>
-            <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Local:</span> {formData.name}</p>
+          <div className="bg-[#3A3A3A]/5 p-5 rounded-xl text-left border border-[#3A3A3A]/5 flex flex-col gap-2.5">
+            <div className="flex items-center gap-3 border-b border-[#3A3A3A]/10 pb-2">
+              {formData.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={formData.logoUrl} alt="Logo" className="w-10 h-10 rounded-lg object-cover" />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">🎲</div>
+              )}
+              <div>
+                <p className="text-sm font-extrabold text-[#3A3A3A]">{formData.name}</p>
+                <p className="text-xs text-[#8367C7] font-semibold uppercase">{formData.type}</p>
+              </div>
+            </div>
             <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Propietario:</span> {formData.ownerName}</p>
             <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Coordenadas:</span> {formData.lat}, {formData.lng}</p>
+            <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Horario:</span> {formattedWeeklySchedule}</p>
             <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Especialidades:</span> {formData.tags.join(', ')}</p>
           </div>
 
@@ -111,7 +241,7 @@ export default function Onboarding() {
             Tu local está en espera de aprobación por parte de los administradores. Te notificaremos a tu correo <span className="font-bold">{formData.ownerEmail}</span> una vez esté verificado.
           </p>
 
-          <Link href="/" className="w-full py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 text-center text-sm">
+          <Link href="/" className="w-full py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 text-center text-sm cursor-pointer">
             Volver al Mapa Principal
           </Link>
         </div>
@@ -122,7 +252,7 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 flex flex-col items-center justify-center">
       {/* Brand Header */}
-      <div className="text-center mb-8 flex flex-col items-center gap-2">
+      <div className="text-center mb-8 flex flex-col items-center gap-2 animate-in fade-in duration-300">
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
           <span className="text-3xl" role="img" aria-label="dice">🎲</span>
           <span className="text-2xl font-extrabold text-[#3A3A3A]">El Meeple</span>
@@ -131,7 +261,7 @@ export default function Onboarding() {
       </div>
 
       {/* Stepper Progress */}
-      <div className="max-w-lg w-full mb-8 flex justify-between items-center px-2">
+      <div className="max-w-lg w-full mb-8 flex justify-between items-center px-2 animate-in fade-in duration-300">
         {[1, 2, 3, 4, 5].map((s) => (
           <React.Fragment key={s}>
             <div className="flex flex-col items-center">
@@ -201,14 +331,15 @@ export default function Onboarding() {
           </form>
         )}
 
-        {/* STEP 2: Venue Details */}
+        {/* STEP 2: Venue Details & Structured Schedule */}
         {step === 2 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
               <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 2: Datos del Local</h2>
-              <p className="text-xs text-[#3A3A3A]/60 mt-1">Comparte los detalles de tu establecimiento.</p>
+              <p className="text-xs text-[#3A3A3A]/60 mt-1">Comparte los detalles y horarios de tu establecimiento.</p>
             </div>
 
+            {/* Basic Info */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="name" className="text-xs font-bold text-[#3A3A3A]/85">Nombre del Local</label>
               <input
@@ -224,33 +355,131 @@ export default function Onboarding() {
             </div>
 
             <div className="flex flex-col gap-1.5">
+              <label htmlFor="type" className="text-xs font-bold text-[#3A3A3A]/85">Tipo de Local</label>
+              <select
+                id="type"
+                name="type"
+                required
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors cursor-pointer"
+              >
+                <option value="cafe">Café de Juegos</option>
+                <option value="tienda">Tienda de Juegos / TCG</option>
+                <option value="hibrido">Híbrido (Café y Tienda)</option>
+                <option value="comunidad">Club / Comunidad</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
               <label htmlFor="description" className="text-xs font-bold text-[#3A3A3A]/85">Descripción</label>
               <textarea
                 id="description"
                 name="description"
                 required
-                rows={3}
+                rows={2}
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Cuéntanos sobre la ludoteca, comunidad o eventos..."
+                placeholder="Cuéntanos sobre tu local, el ambiente, eventos y comunidad..."
                 className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors resize-none"
               />
             </div>
 
+            {/* Social profiles & Logo URL */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="instagram" className="text-xs font-bold text-[#3A3A3A]/85">Usuario de Instagram</label>
+                <input
+                  id="instagram"
+                  name="instagram"
+                  type="text"
+                  value={formData.instagram}
+                  onChange={handleChange}
+                  placeholder="Ej. meeple_oasis"
+                  className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="discord" className="text-xs font-bold text-[#3A3A3A]/85">Enlace de Discord</label>
+                <input
+                  id="discord"
+                  name="discord"
+                  type="url"
+                  value={formData.discord}
+                  onChange={handleChange}
+                  placeholder="Ej. https://discord.gg/..."
+                  className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
+                />
+              </div>
+            </div>
+
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="schedule" className="text-xs font-bold text-[#3A3A3A]/85">Horario de Servicio</label>
+              <label htmlFor="logoUrl" className="text-xs font-bold text-[#3A3A3A]/85">URL del Logo</label>
               <input
-                id="schedule"
-                name="schedule"
-                type="text"
-                required
-                value={formData.schedule}
+                id="logoUrl"
+                name="logoUrl"
+                type="url"
+                value={formData.logoUrl}
                 onChange={handleChange}
-                placeholder="Ej. Mar - Dom: 13:00 - 22:00"
-                className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors"
+                placeholder="Ej. https://tusitio.com/imagen.png"
+                className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
               />
             </div>
 
+            {/* Structured Schedule Selector */}
+            <div className="flex flex-col gap-2 border-t border-[#3A3A3A]/10 pt-4">
+              <span className="text-xs font-bold text-[#3A3A3A]/85">Horarios de Operación</span>
+              <p className="text-[10px] text-[#3A3A3A]/60 -mt-1 mb-2">Define qué días abres y en qué horarios.</p>
+              
+              <div className="flex flex-col gap-2.5 max-h-60 overflow-y-auto pr-1">
+                {DAYS_OF_WEEK.map(({ key, label }) => {
+                  const isOpen = formData.schedule[key] !== null
+                  return (
+                    <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 border border-[#3A3A3A]/5 bg-[#3A3A3A]/5 rounded-xl">
+                      <label htmlFor={`day-checkbox-${key}`} className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          id={`day-checkbox-${key}`}
+                          type="checkbox"
+                          checked={isOpen}
+                          onChange={() => handleDayToggle(key)}
+                          className="w-4 h-4 text-[#8367C7] bg-[#F5F0E9] border-[#3A3A3A]/20 rounded focus:ring-[#8367C7]"
+                        />
+                        <span className="text-xs font-bold text-[#3A3A3A]">{label}</span>
+                      </label>
+
+                      {isOpen && (
+                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-[#3A3A3A]/50 font-bold uppercase">De:</span>
+                            <input
+                              aria-label={`${key}-open`}
+                              type="time"
+                              required
+                              value={formData.schedule[key]?.open || '09:00'}
+                              onChange={(e) => handleTimeChange(key, 'open', e.target.value)}
+                              className="p-1 text-xs border border-[#3A3A3A]/25 rounded bg-[#F5F0E9] focus:outline-none font-semibold text-[#3A3A3A]"
+                            />
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-[#3A3A3A]/50 font-bold uppercase">A:</span>
+                            <input
+                              aria-label={`${key}-close`}
+                              type="time"
+                              required
+                              value={formData.schedule[key]?.close || '21:00'}
+                              onChange={(e) => handleTimeChange(key, 'close', e.target.value)}
+                              className="p-1 text-xs border border-[#3A3A3A]/25 rounded bg-[#F5F0E9] focus:outline-none font-semibold text-[#3A3A3A]"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Stepper Buttons */}
             <div className="flex gap-3 mt-2">
               <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
                 Atrás
@@ -262,14 +491,51 @@ export default function Onboarding() {
           </form>
         )}
 
-        {/* STEP 3: Map Location Pin */}
+        {/* STEP 3: Map Location with Address Search & GPS Geolocation */}
         {step === 3 && (
-          <form onSubmit={handleNext} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5">
             <div>
               <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 3: Ubicar en el Mapa</h2>
-              <p className="text-xs text-[#3A3A3A]/60 mt-1">Haz clic en el mapa para ubicar el pin de tu local.</p>
+              <p className="text-xs text-[#3A3A3A]/60 mt-1">Busca tu dirección o haz clic en el mapa para ubicar tu local.</p>
             </div>
 
+            {/* Address Search Bar */}
+            <form onSubmit={handleAddressSearch} className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Escribe una dirección (ej. Chihuahua 142, Roma Nte)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
+              />
+              <button
+                type="submit"
+                disabled={searching || !searchQuery.trim()}
+                className="px-4 bg-[#8367C7] hover:bg-[#6f53b3] disabled:opacity-50 text-[#F5F0E9] font-bold text-xs rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1"
+              >
+                {searching ? 'Buscando...' : 'Buscar'}
+              </button>
+            </form>
+
+            {searchError && (
+              <p className="text-[11px] font-bold text-[#FF9E8A] bg-[#FF9E8A]/10 p-2.5 rounded-xl border border-[#FF9E8A]/20">{searchError}</p>
+            )}
+
+            {/* GPS Geolocation Trigger Button */}
+            <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={handleGeolocation}
+                className="w-full py-2.5 bg-[#F5F0E9] hover:bg-[#EAE2D5] border border-[#8367C7]/40 text-[#8367C7] font-bold text-xs rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                📍 Usar mi ubicación actual
+              </button>
+              {gpsError && (
+                <p className="text-[10px] font-bold text-[#FF9E8A] mt-1 text-center">{gpsError}</p>
+              )}
+            </div>
+
+            {/* Interactive Map Box */}
             <div className="w-full h-64 rounded-xl overflow-hidden shadow-inner border border-[#3A3A3A]/10">
               <OnboardingMap 
                 lat={formData.lat}
@@ -278,47 +544,50 @@ export default function Onboarding() {
               />
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex flex-col gap-1 flex-1">
-                <label htmlFor="lat" className="text-xs font-bold text-[#3A3A3A]/85">Latitud</label>
-                <input
-                  id="lat"
-                  name="lat"
-                  type="text"
-                  readOnly
-                  required
-                  value={formData.lat || ''}
-                  placeholder="Hacer clic en mapa"
-                  className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#3A3A3A]/5 rounded-xl text-sm text-[#3A3A3A] focus:outline-none"
-                />
+            {/* Coords Form */}
+            <form onSubmit={handleNext} className="flex flex-col gap-4">
+              <div className="flex gap-4">
+                <div className="flex flex-col gap-1 flex-1">
+                  <label htmlFor="lat" className="text-xs font-bold text-[#3A3A3A]/85">Latitud</label>
+                  <input
+                    id="lat"
+                    name="lat"
+                    type="text"
+                    readOnly
+                    required
+                    value={formData.lat || ''}
+                    placeholder="Hacer clic en mapa"
+                    className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#3A3A3A]/5 rounded-xl text-xs font-semibold text-[#3A3A3A] focus:outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 flex-1">
+                  <label htmlFor="lng" className="text-xs font-bold text-[#3A3A3A]/85">Longitud</label>
+                  <input
+                    id="lng"
+                    name="lng"
+                    type="text"
+                    readOnly
+                    required
+                    value={formData.lng || ''}
+                    placeholder="Hacer clic en mapa"
+                    className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#3A3A3A]/5 rounded-xl text-xs font-semibold text-[#3A3A3A] focus:outline-none"
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-1 flex-1">
-                <label htmlFor="lng" className="text-xs font-bold text-[#3A3A3A]/85">Longitud</label>
-                <input
-                  id="lng"
-                  name="lng"
-                  type="text"
-                  readOnly
-                  required
-                  value={formData.lng || ''}
-                  placeholder="Hacer clic en mapa"
-                  className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#3A3A3A]/5 rounded-xl text-sm text-[#3A3A3A] focus:outline-none"
-                />
-              </div>
-            </div>
 
-            <div className="flex gap-3 mt-2">
-              <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
-                Atrás
-              </button>
-              <button type="submit" disabled={!formData.lat || !formData.lng} className="w-1/2 py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
-                Siguiente
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-3 mt-1">
+                <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
+                  Atrás
+                </button>
+                <button type="submit" disabled={!formData.lat || !formData.lng} className="w-1/2 py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+                  Siguiente
+                </button>
+              </div>
+            </form>
+          </div>
         )}
 
-        {/* STEP 4: Specialties / Tags */}
+        {/* STEP 4: Specialties / Extended Tags */}
         {step === 4 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
@@ -326,14 +595,14 @@ export default function Onboarding() {
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Selecciona las categorías principales que ofrece tu local.</p>
             </div>
 
-            <div className="flex flex-col gap-2.5 my-2">
+            <div className="flex flex-col gap-2 my-1 max-h-80 overflow-y-auto pr-1">
               {PREDEFINED_TAGS.map((tag) => {
                 const isSelected = formData.tags.includes(tag)
                 return (
                   <label
                     key={tag}
                     htmlFor={`tag-${tag}`}
-                    className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all duration-200 ${
+                    className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
                       isSelected
                         ? 'border-[#8367C7] bg-[#8367C7]/5 text-[#8367C7]'
                         : 'border-[#3A3A3A]/10 bg-[#F5F0E9] hover:bg-[#3A3A3A]/5 text-[#3A3A3A]/80'
@@ -346,7 +615,7 @@ export default function Onboarding() {
                       onChange={() => handleTagToggle(tag)}
                       className="w-4 h-4 text-[#8367C7] bg-[#F5F0E9] border-[#3A3A3A]/20 rounded focus:ring-[#8367C7]"
                     />
-                    <span className="text-sm font-bold">{tag}</span>
+                    <span className="text-xs font-bold">{tag}</span>
                   </label>
                 )
               })}
@@ -371,38 +640,70 @@ export default function Onboarding() {
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Revisa que toda tu información sea correcta antes de enviar.</p>
             </div>
 
-            <div className="flex flex-col gap-4 bg-[#3A3A3A]/5 border border-[#3A3A3A]/10 p-5 rounded-2xl text-sm">
+            <div className="flex flex-col gap-4 bg-[#3A3A3A]/5 border border-[#3A3A3A]/10 p-5 rounded-2xl text-xs max-h-96 overflow-y-auto">
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-xs font-bold text-[#8367C7]">PROPIETARIO</span>
+                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">PROPIETARIO</span>
                 <span className="font-semibold text-[#3A3A3A]">{formData.ownerName}</span>
-                <span className="text-xs text-[#3A3A3A]/70">{formData.ownerEmail}</span>
+                <span className="text-[11px] text-[#3A3A3A]/70">{formData.ownerEmail}</span>
               </div>
-              <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-xs font-bold text-[#8367C7]">DATOS DEL LOCAL</span>
-                <span className="font-extrabold text-[#3A3A3A]">{formData.name}</span>
-                <span className="text-xs text-[#3A3A3A]/85 mt-0.5 leading-relaxed">{formData.description}</span>
-                <span className="text-xs text-[#3A3A3A]/70 font-semibold mt-1.5 flex items-center gap-1">🕒 {formData.schedule}</span>
+              
+              <div className="flex flex-col gap-1.5 border-b border-[#3A3A3A]/10 pb-2.5">
+                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">DATOS DEL LOCAL</span>
+                <div className="flex items-center gap-2.5">
+                  {formData.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={formData.logoUrl} alt="Logo Preview" className="w-8 h-8 rounded-lg object-cover border border-[#3A3A3A]/10" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">🎲</div>
+                  )}
+                  <div>
+                    <span className="font-extrabold text-[#3A3A3A] text-sm">{formData.name}</span>
+                    <span className="text-[10px] font-extrabold text-[#8367C7] uppercase bg-[#8367C7]/10 px-1.5 py-0.5 rounded ml-2">
+                      {formData.type === 'cafe' && 'Café de Juegos'}
+                      {formData.type === 'tienda' && 'Tienda de Juegos / TCG'}
+                      {formData.type === 'hibrido' && 'Híbrido (Café y Tienda)'}
+                      {formData.type === 'comunidad' && 'Club / Comunidad'}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[11px] text-[#3A3A3A]/85 leading-relaxed mt-1">{formData.description}</span>
+                
+                {/* Social Profiles */}
+                {(formData.instagram || formData.discord) && (
+                  <div className="flex gap-3 mt-1.5 text-[11px] font-semibold text-[#3A3A3A]/70">
+                    {formData.instagram && <span>📸 @{formData.instagram}</span>}
+                    {formData.discord && <span className="truncate">👾 {formData.discord}</span>}
+                  </div>
+                )}
               </div>
+
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-xs font-bold text-[#8367C7]">UBICACIÓN EN MAPA</span>
+                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">UBICACIÓN EN MAPA</span>
                 <span className="font-semibold text-[#3A3A3A]">{formData.lat}, {formData.lng}</span>
               </div>
+
+              <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
+                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">HORARIOS DE OPERACIÓN</span>
+                <span className="font-semibold text-[#3A3A3A] leading-snug">{formattedWeeklySchedule}</span>
+              </div>
+
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold text-[#8367C7]">ESPECIALIDADES</span>
+                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">ESPECIALIDADES</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {formData.tags.length > 0 ? (
                     formData.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-0.5 text-xs font-bold bg-[#8367C7]/10 text-[#8367C7] rounded-md">
+                      <span key={tag} className="px-2 py-0.5 text-[10px] font-bold bg-[#8367C7]/10 text-[#8367C7] rounded-md">
                         {tag}
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs text-[#3A3A3A]/50 italic">Ninguna especialidad seleccionada</span>
+                    <span className="text-[11px] text-[#3A3A3A]/50 italic">Ninguna especialidad seleccionada</span>
                   )}
                 </div>
               </div>
             </div>
 
+            {/* Form Action Buttons */}
             <div className="flex gap-3 mt-2">
               <button type="button" disabled={loading} onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm disabled:opacity-50">
                 Atrás
