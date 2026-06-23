@@ -24,9 +24,16 @@
 | :--- | :--- | :--- |
 | Background / Base | Blanco roto | #F5F0E9 |
 | Main Text / Dark UI | Carbón suave | #3A3A3A |
-| Secondary Elements | Malva suave | #8367C7 |
-| Primary Accent / Buttons | Turquesa pastel | #73D8D4 |
-| Secondary Accent / Alerts | Coral deslavado | #FF9E8A |
+| Primary Accent / Buttons / Pins | Malva suave | #8367C7 |
+| Secondary Accent / Accents | Turquesa pastel | #73D8D4 |
+| Alerts / Highlights | Coral deslavado | #FF9E8A |
+
+### **4.1 Core UX & Design System Rules**
+* **Custom Purple Map Pins:** The map uses custom vector-based SVG markers styled in `#8367C7` (Malva suave) instead of Leaflet's default blue pins, ensuring brand cohesion.
+* **Zoom Controls Positioning:** Leaflet's default zoom control is disabled in the top-left, and a custom `ZoomControl` is added at `topright` to prevent overlap with the floating brand card.
+* **Mobile Overlap Prevention:** To keep the map visible on mobile devices, the top brand card is automatically hidden (`hidden md:block`) whenever a venue's Quick View Card is active.
+* **Owner Logo Upload & Canvas Auto-Cropping:** To avoid heavy image storage requirements for the B2B MVP, the Onboarding page features a Client-side File Input. When an image is uploaded, an invisible HTML5 Canvas crops and resizes it to a perfect `150x150px` square, compressing it into a highly lightweight Base64 JPEG string (5-10 KB) stored directly in the database.
+* **Mandatory Visual Review Loop:** As defined in `AGENTS.md`, the AI Reviewer must capture and verify screenshots for both desktop and mobile viewports to ensure no visual regressions (overlapping text, clipping, or blocked controls) exist before approving a PR.
 
 ### **5. Technical Architecture (The "ShipFast" Stack)**
 * **Framework:** Next.js (App Router) acting as a monolith for both Frontend UI and Backend Server Actions/API routes.

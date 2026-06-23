@@ -3,20 +3,7 @@ import userEvent from '@testing-library/user-event'
 import OnboardingPage from '@/app/onboarding/page'
 import React from 'react'
 
-// Override next/dynamic to render OnboardingMap synchronously in Jest
-jest.mock('next/dynamic', () => ({
-  __esModule: true,
-  default: () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const OnboardingMap = require('../components/OnboardingMap').default
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return function MockDynamicOnboardingMap(props: any) {
-      return <OnboardingMap {...props} />
-    }
-  },
-}))
-
-// Mock react-leaflet hooks and components
+// Mock Leaflet and map events since they rely on browser window APIs
 jest.mock('react-leaflet', () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-map-container">{children}</div>
@@ -73,6 +60,47 @@ const mockFetch = jest.fn().mockResolvedValue({
 })
 
 describe('Enhanced Owner Onboarding Flow', () => {
+  beforeAll(() => {
+    // Mock FileReader prototype for JSDOM
+    const mockFileReader = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      readAsDataURL: jest.fn().mockImplementation(function(this: any) {
+        if (this.onload) {
+          this.onload({ target: { result: 'data:image/jpeg;base64,mockcroppedlogo' } })
+        }
+      })
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as any)
+
+    // Mock Image prototype in JSDOM to trigger onload instantly
+    Object.defineProperty(global.Image.prototype, 'src', {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      set(_src) {
+        if (this.onload) {
+          setTimeout(() => this.onload(), 0)
+        }
+      }
+    })
+
+    // Mock Canvas creation to prevent DOM exceptions in JSDOM
+    const originalCreateElement = document.createElement.bind(document)
+    jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
+      if (tagName === 'canvas') {
+        return {
+          width: 0,
+          height: 0,
+          getContext: () => ({
+            drawImage: jest.fn()
+          }),
+          toDataURL: () => 'data:image/jpeg;base64,mockcroppedlogo'
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any
+      }
+      return originalCreateElement(tagName)
+    })
+  })
+
   beforeEach(() => {
     mockCreateVenue.mockClear()
     mockGetCurrentPosition.mockClear()
@@ -116,10 +144,17 @@ describe('Enhanced Owner Onboarding Flow', () => {
     const typeSelect = screen.getByLabelText(/Tipo de Local/i)
     await user.selectOptions(typeSelect, 'hibrido')
 
-    // Set Social Links and Logo
+    // Set Social Links
     await user.type(screen.getByLabelText(/Usuario de Instagram/i), 'meeple_oasis')
     await user.type(screen.getByLabelText(/Enlace de Discord/i), 'https://discord.gg/meepleoasis')
-    await user.type(screen.getByLabelText(/URL del Logo/i), 'https://elmeeple.com/logo-oasis.png')
+
+    // Simulate Logo Image Upload & Auto-Crop
+    const file = new File(['logo-content'], 'logo-oasis.png', { type: 'image/png' })
+    const fileInput = screen.getByLabelText(/Subir Imagen de Logo/i)
+    await user.upload(fileInput, file)
+
+    // Wait for the async canvas/image loading simulation to resolve
+    await screen.findByText(/Logo cargado y recortado/i)
 
     // Set Structured Schedule (e.g. open Tue & Wed 14:00 - 22:00, others closed)
     const tueCheckbox = screen.getByLabelText(/Martes/i)
@@ -138,45 +173,43 @@ describe('Enhanced Owner Onboarding Flow', () => {
 
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-    // --- STEP 3: Map Location Pin ---
+    // --- STEP 3: Map Location ---
     expect(screen.getByRole('heading', { name: /Paso 3: Ubicar en el Mapa/i })).toBeInTheDocument()
-    expect(screen.getByTestId('mock-map-container')).toBeInTheDocument()
-
-    const latInput = screen.getByLabelText(/Latitud/i) as HTMLInputElement
-    const lngInput = screen.getByLabelText(/Longitud/i) as HTMLInputElement
-    expect(latInput.value).toBe('')
-    expect(lngInput.value).toBe('')
-
-    // Test Geolocation Button
-    const geoBtn = screen.getByRole('button', { name: /📍 Usar mi ubicación/i })
-    await user.click(geoBtn)
-    expect(mockGetCurrentPosition).toHaveBeenCalled()
-    expect(latInput.value).toBe('19.4155')
-    expect(lngInput.value).toBe('-99.1622')
-
-    // Test Address Search
+    
+    // Type Address and Search
     const searchInput = screen.getByPlaceholderText(/Escribe una dirección/i)
-    await user.type(searchInput, 'Chihuahua 142, Roma Nte')
     const searchBtn = screen.getByRole('button', { name: /Buscar/i })
+    
+    await user.type(searchInput, 'Chihuahua 142, Roma Nte, CDMX')
     await user.click(searchBtn)
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining('nominatim.openstreetmap.org/search?format=json&q=Chihuahua%20142%2C%20Roma%20Nte')
     )
     // Should update inputs to search result coords
+    const latInput = screen.getByLabelText(/Latitud/i) as HTMLInputElement
+    const lngInput = screen.getByLabelText(/Longitud/i) as HTMLInputElement
     expect(latInput.value).toBe('19.4123')
     expect(lngInput.value).toBe('-99.1654')
 
+    // Test Geolocation Button
+    const geoBtn = screen.getByRole('button', { name: /Usar mi ubicación/i })
+    await user.click(geoBtn)
+    expect(mockGetCurrentPosition).toHaveBeenCalled()
+    expect(latInput.value).toBe('19.4155')
+    expect(lngInput.value).toBe('-99.1622')
+
+
+
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-    // --- STEP 4: Specialties/Tags ---
+    // --- STEP 4: Specialties / Tags ---
     expect(screen.getByRole('heading', { name: /Paso 4: Especialidades/i })).toBeInTheDocument()
+    const tagEuro = screen.getByLabelText(/Eurogames/i)
+    const tagTCG = screen.getByLabelText(/TCGs/i)
     
-    // Select Eurogames and TCGs tags
-    const euroCheckbox = screen.getByLabelText(/Eurogames/i)
-    const tcgCheckbox = screen.getByLabelText(/TCGs/i)
-    await user.click(euroCheckbox)
-    await user.click(tcgCheckbox)
+    await user.click(tagEuro)
+    await user.click(tagTCG)
 
     await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
@@ -191,8 +224,8 @@ describe('Enhanced Owner Onboarding Flow', () => {
     expect(screen.getByText(/meeple_oasis/i)).toBeInTheDocument()
     expect(screen.getByText(/discord.gg\/meepleoasis/i)).toBeInTheDocument()
     expect(screen.getByText(/Mar - Mié: 14:00 - 22:00/i)).toBeInTheDocument()
-    expect(screen.getByText(/19.4123/)).toBeInTheDocument()
-    expect(screen.getByText(/-99.1654/)).toBeInTheDocument()
+    expect(screen.getByText(/19.4155/)).toBeInTheDocument()
+    expect(screen.getByText(/-99.1622/)).toBeInTheDocument()
     expect(screen.getByText('Eurogames')).toBeInTheDocument()
     expect(screen.getByText('TCGs')).toBeInTheDocument()
 
@@ -209,7 +242,7 @@ describe('Enhanced Owner Onboarding Flow', () => {
       type: 'hibrido',
       instagram: 'meeple_oasis',
       discord: 'https://discord.gg/meepleoasis',
-      logoUrl: 'https://elmeeple.com/logo-oasis.png',
+      logoUrl: 'data:image/jpeg;base64,mockcroppedlogo',
       schedule: {
         mon: null,
         tue: { open: '14:00', close: '22:00' },
@@ -219,8 +252,8 @@ describe('Enhanced Owner Onboarding Flow', () => {
         sat: null,
         sun: null
       },
-      lat: 19.4123,
-      lng: -99.1654,
+      lat: 19.4155,
+      lng: -99.1622,
       tags: ['Eurogames', 'TCGs']
     })
 

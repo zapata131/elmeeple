@@ -8,6 +8,8 @@ jest.mock('react-leaflet', () => ({
     <div data-testid="mock-map-container">{children}</div>
   ),
   TileLayer: () => <div data-testid="mock-tile-layer" />,
+  ZoomControl: () => <div data-testid="mock-zoom-control" />,
+  Marker: () => <div data-testid="mock-marker" />,
 }))
 
 describe('Map Component', () => {

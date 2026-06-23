@@ -230,7 +230,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         )}
 
         {/* Full Profile CTA */}
-        <button className="flex-1 py-2.5 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+        <button className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
           Ver Perfil Completo
         </button>
       </div>

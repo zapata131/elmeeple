@@ -22,6 +22,7 @@ jest.mock('react-leaflet', () => ({
     <div data-testid="mock-map-container">{children}</div>
   ),
   TileLayer: () => <div data-testid="mock-tile-layer" />,
+  ZoomControl: () => <div data-testid="mock-zoom-control" />,
   Marker: ({ position, eventHandlers }: { position: [number, number]; eventHandlers?: { click?: () => void } }) => (
     <button
       data-testid={`mock-marker-${position[0]}-${position[1]}`}

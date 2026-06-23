@@ -140,6 +140,43 @@ export default function Onboarding() {
     }
   }
 
+  // Local file upload & canvas auto-crop logic
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+
+        // Crop and resize to 150x150 square
+        const size = 150
+        canvas.width = size
+        canvas.height = size
+
+        const minDim = Math.min(img.width, img.height)
+        const sx = (img.width - minDim) / 2
+        const sy = (img.height - minDim) / 2
+
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size)
+
+        // Compress as medium quality JPEG Base64
+        const base64 = canvas.toDataURL('image/jpeg', 0.7)
+        
+        setFormData((prev) => ({
+          ...prev,
+          logoUrl: base64
+        }))
+      }
+      img.src = event.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+
   // Structured schedule handlers
   const handleDayToggle = (day: keyof StructuredSchedule) => {
     setFormData((prev) => {
@@ -206,9 +243,9 @@ export default function Onboarding() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#F5F0E9] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#F5F0E9] flex items-center justify-center p-4 relative">
         <div className="bg-[#F5F0E9] text-[#3A3A3A] p-8 rounded-2xl shadow-2xl border border-[#3A3A3A]/10 max-w-md w-full text-center flex flex-col gap-6 backdrop-blur-md bg-opacity-95 animate-in fade-in duration-300">
-          <div className="w-20 h-20 bg-[#73D8D4]/20 text-[#73D8D4] rounded-full flex items-center justify-center mx-auto shadow-inner">
+          <div className="w-20 h-20 bg-[#8367C7]/20 text-[#8367C7] rounded-full flex items-center justify-center mx-auto shadow-inner">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-10 h-10">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
@@ -241,7 +278,7 @@ export default function Onboarding() {
             Tu local está en espera de aprobación por parte de los administradores. Te notificaremos a tu correo <span className="font-bold">{formData.ownerEmail}</span> una vez esté verificado.
           </p>
 
-          <Link href="/" className="w-full py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 text-center text-sm cursor-pointer">
+          <Link href="/" className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 text-center text-sm cursor-pointer">
             Volver al Mapa Principal
           </Link>
         </div>
@@ -250,7 +287,15 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 flex flex-col items-center justify-center relative">
+      
+      {/* Floating Back to Map Button (Always Visible) */}
+      <div className="absolute top-6 left-6 z-20">
+        <Link href="/" className="flex items-center gap-1.5 text-sm font-extrabold text-[#8367C7] hover:underline cursor-pointer transition-all duration-200">
+          ← Volver al Mapa
+        </Link>
+      </div>
+
       {/* Brand Header */}
       <div className="text-center mb-8 flex flex-col items-center gap-2 animate-in fade-in duration-300">
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
@@ -325,7 +370,7 @@ export default function Onboarding() {
               />
             </div>
 
-            <button type="submit" className="w-full py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 mt-2 cursor-pointer text-center text-sm">
+            <button type="submit" className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 mt-2 cursor-pointer text-center text-sm">
               Siguiente
             </button>
           </form>
@@ -385,7 +430,7 @@ export default function Onboarding() {
               />
             </div>
 
-            {/* Social profiles & Logo URL */}
+            {/* Social profiles */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="instagram" className="text-xs font-bold text-[#3A3A3A]/85">Usuario de Instagram</label>
@@ -413,17 +458,48 @@ export default function Onboarding() {
               </div>
             </div>
 
+            {/* Premium File Upload & Auto-Crop Logo Area */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="logoUrl" className="text-xs font-bold text-[#3A3A3A]/85">URL del Logo</label>
-              <input
-                id="logoUrl"
-                name="logoUrl"
-                type="url"
-                value={formData.logoUrl}
-                onChange={handleChange}
-                placeholder="Ej. https://tusitio.com/imagen.png"
-                className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
-              />
+              <span className="text-xs font-bold text-[#3A3A3A]/85">Logo del Local</span>
+              {formData.logoUrl ? (
+                <div className="flex items-center gap-4 p-3.5 border border-[#3A3A3A]/10 bg-[#3A3A3A]/5 rounded-xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={formData.logoUrl}
+                    alt="Logo Preview"
+                    className="w-14 h-14 rounded-xl object-cover border border-[#3A3A3A]/10 bg-white"
+                  />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-extrabold text-[#3A3A3A]">Logo cargado y recortado</span>
+                    <span className="text-[10px] text-[#3A3A3A]/50">Dimensiones optimizadas a 150x150px</span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, logoUrl: '' }))}
+                      className="text-[11px] font-extrabold text-[#FF9E8A] hover:underline text-left cursor-pointer mt-0.5"
+                    >
+                      Quitar logo
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <label 
+                    htmlFor="logo-upload" 
+                    className="flex flex-col items-center justify-center border-2 border-dashed border-[#3A3A3A]/20 hover:border-[#8367C7] bg-[#3A3A3A]/5 p-6 rounded-xl cursor-pointer transition-all duration-200 text-center select-none"
+                  >
+                    <span className="text-2xl mb-1">📸</span>
+                    <span className="text-xs font-extrabold text-[#3A3A3A]">Subir Imagen de Logo</span>
+                    <span className="text-[10px] text-[#3A3A3A]/50 mt-0.5">Se recortará a un cuadrado de 150x150px</span>
+                    <input
+                      id="logo-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Structured Schedule Selector */}
@@ -484,7 +560,7 @@ export default function Onboarding() {
               <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
                 Atrás
               </button>
-              <button type="submit" className="w-1/2 py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+              <button type="submit" className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
                 Siguiente
               </button>
             </div>
@@ -579,7 +655,7 @@ export default function Onboarding() {
                 <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
                   Atrás
                 </button>
-                <button type="submit" disabled={!formData.lat || !formData.lng} className="w-1/2 py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+                <button type="submit" disabled={!formData.lat || !formData.lng} className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
                   Siguiente
                 </button>
               </div>
@@ -625,7 +701,7 @@ export default function Onboarding() {
               <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
                 Atrás
               </button>
-              <button type="submit" className="w-1/2 py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+              <button type="submit" className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
                 Siguiente
               </button>
             </div>
@@ -652,7 +728,7 @@ export default function Onboarding() {
                 <div className="flex items-center gap-2.5">
                   {formData.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={formData.logoUrl} alt="Logo Preview" className="w-8 h-8 rounded-lg object-cover border border-[#3A3A3A]/10" />
+                    <img src={formData.logoUrl} alt="Logo Preview" className="w-8 h-8 rounded-lg object-cover border border-[#3A3A3A]/10 bg-white" />
                   ) : (
                     <div className="w-8 h-8 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">🎲</div>
                   )}

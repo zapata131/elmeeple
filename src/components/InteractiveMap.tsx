@@ -96,7 +96,9 @@ export default function InteractiveMap() {
       </div>
 
       {/* Floating Brand Card */}
-      <div className="absolute top-4 left-4 right-4 md:right-auto md:max-w-md z-10">
+      <div className={`absolute top-4 left-4 right-4 md:right-auto md:max-w-md z-10 ${
+        selectedVenue ? 'hidden md:block' : 'block'
+      }`}>
         <div className="bg-[#F5F0E9] text-[#3A3A3A] p-6 rounded-2xl shadow-2xl border border-[#3A3A3A]/10 flex flex-col gap-4 backdrop-blur-md bg-opacity-95">
           <div className="flex items-center gap-3">
             <span className="text-4xl" role="img" aria-label="dice">🎲</span>
@@ -119,11 +121,11 @@ export default function InteractiveMap() {
           </p>
 
           <div className="flex flex-col gap-2 mt-2">
-            <button className="w-full py-3 bg-[#73D8D4] hover:bg-[#5ec4c0] text-[#3A3A3A] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center">
+            <button className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
               Explorar Locales Cercanos
             </button>
-            <Link href="/onboarding" className="w-full py-3 bg-[#F5F0E9] hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl border border-[#3A3A3A]/20 transition-all duration-200 cursor-pointer text-center">
-              Registrar mi Local
+            <Link href="/onboarding" className="text-xs font-bold text-[#8367C7] hover:underline text-center mt-1 cursor-pointer">
+              ¿Eres propietario? Registrar mi Local
             </Link>
           </div>
         </div>

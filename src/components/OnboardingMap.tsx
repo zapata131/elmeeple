@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap, ZoomControl } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -16,6 +16,24 @@ if (typeof window !== 'undefined') {
     iconRetinaUrl,
     iconUrl,
     shadowUrl,
+  })
+}
+
+// Custom brand-purple vector SVG marker icon
+let purpleIcon: L.DivIcon | undefined
+
+if (typeof window !== 'undefined') {
+  purpleIcon = L.divIcon({
+    html: `
+      <div style="display: flex; align-items: center; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#8367C7" style="width: 32px; height: 32px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+    `,
+    className: 'custom-purple-icon',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
   })
 }
 
@@ -60,6 +78,7 @@ export default function OnboardingMap({
         center={mapCenter}
         zoom={DEFAULT_ZOOM}
         scrollWheelZoom={true}
+        zoomControl={false} // Disable default top-left zoom controls
         className="w-full h-full"
         style={{ height: '100%', width: '100%' }}
       >
@@ -67,8 +86,9 @@ export default function OnboardingMap({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
+        <ZoomControl position="topright" /> {/* Re-add zoom controls in top-right */}
         <MapEvents onClick={onChangeCoordinates} />
-        {markerPosition && <Marker position={markerPosition} />}
+        {markerPosition && <Marker position={markerPosition} icon={purpleIcon} />}
         {markerPosition && <ChangeView center={markerPosition} />}
       </MapContainer>
     </div>
