@@ -1,6 +1,7 @@
 'use server'
 
 import { StructuredSchedule } from '@/components/QuickViewCard'
+import { createClient } from '@/utils/supabase/server'
 
 export interface OnboardingData {
   ownerName: string
@@ -35,26 +36,79 @@ export async function createVenue(data: OnboardingData) {
     }
   }
 
-  // Log on the server side (simulating database write in development/MVP stage)
-  console.log('--- [SERVER ACTION] Creating New Venue Proposal ---')
-  console.log('Owner Details:', { name: data.ownerName, email: data.ownerEmail })
-  console.log('Venue Details:', {
-    name: data.name,
-    type: data.type,
-    description: data.description,
-    schedule: data.schedule,
-    instagram: data.instagram,
-    discord: data.discord,
-    logoUrl: data.logoUrl,
-    coordinates: `[${data.lat}, ${data.lng}]`,
-    tags: data.tags
-  })
+  try {
+    const supabase = await createClient()
 
-  // Simulated DB success response
-  const generatedId = `venue_${Math.random().toString(36).substring(2, 9)}`
-  
-  return {
-    success: true,
-    venueId: generatedId
+    // 1. Insert the venue into the 'venues' table
+    const { data: insertedVenue, error: venueError } = await supabase
+      .from('venues')
+      .insert({
+        owner_name: data.ownerName,
+        owner_email: data.ownerEmail,
+        name: data.name,
+        description: data.description,
+        schedule: data.schedule,
+        lat: data.lat,
+        lng: data.lng,
+        type: data.type,
+        instagram: data.instagram,
+        discord: data.discord,
+        logo_url: data.logoUrl,
+        verified: false // Default to false (requires admin approval)
+      })
+      .select()
+
+    if (venueError) {
+      return {
+        success: false,
+        error: `Error al crear el local: ${venueError.message}`
+      }
+    }
+
+    if (!insertedVenue || insertedVenue.length === 0) {
+      return {
+        success: false,
+        error: 'No se pudo obtener el ID del local insertado.'
+      }
+    }
+
+    const venueId = insertedVenue[0].id
+
+    // 2. Map tags if any are selected
+    if (data.tags && data.tags.length > 0) {
+      // Fetch corresponding tag records to get their IDs
+      const { data: dbTags, error: tagsError } = await supabase
+        .from('tags')
+        .select('id, name')
+        .in('name', data.tags)
+
+      if (tagsError) {
+        console.error('Error fetching tags:', tagsError)
+      } else if (dbTags && dbTags.length > 0) {
+        const venueTags = dbTags.map(tag => ({
+          venue_id: venueId,
+          tag_id: tag.id
+        }))
+
+        const { error: mappingError } = await supabase
+          .from('venue_tags')
+          .insert(venueTags)
+
+        if (mappingError) {
+          console.error('Error mapping tags to venue:', mappingError)
+        }
+      }
+    }
+
+    return {
+      success: true,
+      venueId: venueId
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return {
+      success: false,
+      error: `Ocurrió un error inesperado: ${errorMessage}`
+    }
   }
 }

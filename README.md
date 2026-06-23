@@ -97,14 +97,9 @@ Valida la lógica de renderizado de componentes y flujos de datos de forma aisla
     npm run test:watch
     ```
 
-### **2. QA Visual Automatizado (Playwright E2E)**
-Ejecuta un flujo completo de extremo a extremo simulando la navegación de un usuario real en un navegador real (Chromium). Recorre la búsqueda en el mapa, la apertura de tarjetas rápidas y el flujo de registro de 5 pasos en dos resoluciones: **Escritorio (Desktop 1280x800)** y **Móvil (iPhone viewport 390x844)**. Captura capturas de pantalla de cada paso para asegurar la responsividad y evitar regresiones visuales (elementos superpuestos, textos cortados o controles bloqueados).
-*   **Ejecutar el ciclo de QA Visual:**
-    ```bash
-    ./scripts/run-visual-qa.sh
-    ```
-    *Este script instalará las dependencias y binarios de navegadores necesarios de forma automática si no están presentes, limpiará ejecuciones anteriores y guardará los resultados.*
-*   **Resultados:** Las capturas de pantalla generadas se guardan en la carpeta `/visual-qa-results` en la raíz del proyecto para su inspección visual.
+### **2. QA Visual y Pruebas de Navegador en Vivo (Chrome DevTools MCP)**
+Para verificar la experiencia de usuario de extremo a extremo en un navegador real, se utiliza Chrome DevTools MCP. Este flujo simula la navegación de un usuario real en resoluciones de **Escritorio (Desktop 1280x800)** y **Móvil (iPhone viewport 390x844)**, permitiendo auditar la interactividad del mapa, la apertura de tarjetas rápidas, el flujo de registro y capturar capturas de pantalla de forma dinámica para asegurar que no existan elementos superpuestos, textos rotos o controles inaccesibles, así como la ausencia de errores en la consola del navegador.
+*   **Flujo de Trabajo:** La IA interactúa directamente con el navegador en vivo usando herramientas de Chrome DevTools (navegar, hacer clic, rellenar formularios, capturar pantalla) durante el proceso de revisión de pull requests.
 
 ### **3. Script de Verificación Pre-Commit/Pre-Push**
 Antes de subir cualquier cambio a tu rama o abrir un Pull Request, ejecuta la verificación completa para comprobar que no hay errores de linter, que el proyecto compila a producción sin problemas y que todas las pruebas de Jest pasan:
