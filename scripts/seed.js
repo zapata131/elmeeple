@@ -39,8 +39,15 @@ const tagsData = [
   { name: 'Café', slug: 'cafe' },
   { name: 'Magic: The Gathering', slug: 'magic-the-gathering' },
   { name: 'Torneos', slug: 'torneos' },
-  { name: 'Ludoteca', slug: 'ludoteca' }
+  { name: 'Ludoteca', slug: 'ludoteca' },
+  { name: 'Magic', slug: 'magic' },
+  { name: 'Yu-Gi-Oh', slug: 'yu-gi-oh' },
+  { name: 'Pokémon', slug: 'pokemon' },
+  { name: 'Lorcana', slug: 'lorcana' },
+  { name: 'One Piece', slug: 'one-piece' },
+  { name: 'Torneos Oficiales', slug: 'torneos-oficiales' }
 ];
+
 
 const venuesData = [
   {

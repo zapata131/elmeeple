@@ -267,7 +267,8 @@ describe('Platform Admin Dashboard (/admin)', () => {
     render(adminJSX)
 
     // Verify stats
-    expect(screen.getByText(/Panel de Administración/i)).toBeInTheDocument()
+    expect(screen.getByText(/Panel de Control/i)).toBeInTheDocument()
+
     
     // Verify audit table shows the pending venue
     expect(screen.getByText('Ludoteca Secreta')).toBeInTheDocument()

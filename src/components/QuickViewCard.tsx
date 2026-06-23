@@ -1,4 +1,9 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { createClient } from '@/utils/supabase/client'
+import { toggleFavorite } from '@/app/actions/favorite'
 
 export interface DailySchedule {
   open: string
@@ -88,9 +93,76 @@ export function formatSchedule(schedule: StructuredSchedule | string): string {
   return groups.length > 0 ? groups.join(' | ') : 'Cerrado todos los días'
 }
 
+interface Announcement {
+  id: string
+  title: string
+  content: string
+  created_at: string
+  venue_id: string
+}
+
 export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
+  const { data: session } = useSession()
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [loadingFavorite, setLoadingFavorite] = useState(false)
+
   const formattedSchedule = formatSchedule(venue.schedule)
   const typeLabel = venue.type ? VENUE_TYPE_LABELS[venue.type] : null
+
+  // Fetch announcements and favorite status
+  useEffect(() => {
+    const fetchVenueDetails = async () => {
+      const supabase = createClient()
+
+      // Fetch announcements
+      const { data: anns } = await supabase
+        .from('announcements')
+        .select('*')
+        .eq('venue_id', venue.id)
+        .order('created_at', { ascending: false })
+
+      if (anns) {
+        setAnnouncements(anns)
+      }
+
+      // Fetch favorite status if user is logged in
+      if (session?.user?.email) {
+        const { data: fav } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('user_email', session.user.email)
+          .eq('venue_id', venue.id)
+          .single()
+
+        setIsFavorite(!!fav)
+      }
+    }
+
+    fetchVenueDetails()
+  }, [venue.id, session])
+
+  const handleFavoriteToggle = async () => {
+    if (!session?.user?.email) {
+      alert('Debes iniciar sesión para guardar favoritos.')
+      return
+    }
+
+    setLoadingFavorite(true)
+    try {
+      const res = await toggleFavorite(venue.id)
+      if (res.success) {
+        setIsFavorite(res.isFavorite ?? false)
+      } else {
+        alert(res.error || 'Error al actualizar favoritos.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error de conexión.')
+    } finally {
+      setLoadingFavorite(false)
+    }
+  }
 
   return (
     <div
@@ -141,14 +213,29 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         </button>
       </div>
 
-      {/* Render Venue Type Badge */}
-      {typeLabel && (
-        <div className="flex">
+      {/* Render Venue Type Badge and Favorite Button */}
+      <div className="flex items-center justify-between gap-2">
+        {typeLabel && (
           <span className="px-2.5 py-0.5 text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md uppercase tracking-wide border border-[#8367C7]/10">
             {typeLabel}
           </span>
-        </div>
-      )}
+        )}
+
+        {/* Favorite ⭐ Button */}
+        {session?.user && (
+          <button
+            onClick={handleFavoriteToggle}
+            disabled={loadingFavorite}
+            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all border cursor-pointer flex items-center gap-1 ${
+              isFavorite
+                ? 'bg-yellow-500/15 border-yellow-500/40 text-yellow-700'
+                : 'bg-white hover:bg-[#3A3A3A]/5 border-[#3A3A3A]/15 text-[#3A3A3A]/70'
+            }`}
+          >
+            {isFavorite ? 'Favorito ⭐' : 'Favorito ☆'}
+          </button>
+        )}
+      </div>
 
       <p className="text-sm text-[#3A3A3A]/80 leading-relaxed">
         {venue.description}
@@ -156,7 +243,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
 
       {/* Specialty Tags */}
       <div className="flex flex-wrap gap-1.5 my-0.5">
-        {venue.tags.map((tag) => (
+        {(venue.tags || []).map((tag) => (
           <span
             key={tag}
             className="px-2.5 py-1 text-xs font-bold bg-[#3A3A3A]/5 text-[#3A3A3A]/85 rounded-lg"
@@ -171,6 +258,24 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         <span role="img" aria-label="clock" className="text-sm">🕒</span>
         <span className="leading-snug">{formattedSchedule}</span>
       </div>
+
+      {/* Announcements Bulletin Board */}
+      {announcements.length > 0 && (
+        <div className="border-t border-[#3A3A3A]/10 pt-3.5 flex flex-col gap-2.5">
+          <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">📢 Cartelera de Anuncios</span>
+          <div className="flex flex-col gap-2.5 max-h-36 overflow-y-auto pr-1">
+            {announcements.map((ann) => (
+              <div key={ann.id} className="bg-[#8367C7]/5 p-3 rounded-xl border border-[#8367C7]/10 flex flex-col gap-1.5">
+                <span className="font-extrabold text-xs text-[#3A3A3A]">{ann.title}</span>
+                <p className="text-[11px] text-[#3A3A3A]/80 leading-relaxed">{ann.content}</p>
+                <span className="text-[8px] text-[#3A3A3A]/40 self-end">
+                  {new Date(ann.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer Actions: Social Links and Full Profile CTA */}
       <div className="flex items-center gap-2 mt-1">

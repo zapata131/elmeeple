@@ -2,7 +2,10 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+
+import Link from 'next/link'
 import { approveVenue, rejectVenue } from '@/app/actions/admin'
+
 
 interface Venue {
   id: string
@@ -14,6 +17,8 @@ interface Venue {
   verification_status: string
   rejection_reason?: string
   verified: boolean
+  contact_email?: string
+  contact_phone?: string
 }
 
 interface AdminDashboardClientProps {
@@ -27,6 +32,7 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
   const [loadingAction, setLoadingAction] = useState(false)
+  const [activeTab, setActiveTab] = useState<'pending' | 'all'>('pending')
 
   // Recalculate stats on current state
   const total = venues.length
@@ -39,7 +45,6 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
     try {
       const res = await approveVenue(id)
       if (res.success) {
-        // Update local state snappily
         setVenues(prev =>
           prev.map(v => (v.id === id ? { ...v, verification_status: 'approved', verified: true } : v))
         )
@@ -65,7 +70,6 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
     try {
       const res = await rejectVenue(id, rejectionReason)
       if (res.success) {
-        // Update local state
         setVenues(prev =>
           prev.map(v =>
             v.id === id
@@ -94,77 +98,126 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
     setRejectionReason('')
   }
 
+  const venuesToDisplay = activeTab === 'pending' ? pending : venues
+
   return (
-    <div className="min-h-screen bg-[#F5F0E9] py-12 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-8">
+    <div className="min-h-screen bg-[#F5F0E9] flex flex-col md:flex-row text-[#3A3A3A]">
+      
+      {/* Premium Sidebar Navigation */}
+      <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-[#3A3A3A]/10 p-6 flex flex-col gap-6">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🛡️</span>
+          <span className="text-lg font-extrabold text-[#3A3A3A]">El Meeple Admin</span>
+        </div>
+        <nav className="flex flex-col gap-2">
+          <button
+            onClick={() => setActiveTab('pending')}
+            className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+              activeTab === 'pending'
+                ? 'bg-[#8367C7] text-[#F5F0E9] shadow-md shadow-[#8367C7]/20'
+                : 'hover:bg-[#3A3A3A]/5 text-[#3A3A3A]/70'
+            }`}
+          >
+            📥 Solicitudes Pendientes
+          </button>
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+              activeTab === 'all'
+                ? 'bg-[#8367C7] text-[#F5F0E9] shadow-md shadow-[#8367C7]/20'
+                : 'hover:bg-[#3A3A3A]/5 text-[#3A3A3A]/70'
+            }`}
+          >
+            📋 Todos los Locales
+          </button>
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold text-[#8367C7] hover:bg-[#8367C7]/10 transition-all text-left"
+          >
+            🗺️ Volver al Mapa
+          </Link>
+        </nav>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 p-6 md:p-10 flex flex-col gap-8">
         
         {/* Header */}
         <div className="border-b border-[#3A3A3A]/10 pb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl">🛡️</span>
-            <span className="text-xl font-extrabold text-[#3A3A3A]">El Meeple</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-[#3A3A3A]">Panel de Administración</h1>
-          <p className="text-sm text-[#3A3A3A]/65 mt-1">
-            Auditoría de establecimientos y solicitudes de verificación.
+          <h1 className="text-2xl font-extrabold tracking-tight">Panel de Control</h1>
+          <p className="text-xs text-[#3A3A3A]/65 mt-1.5">
+            Auditoría de establecimientos registrados y solicitudes de verificación.
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col justify-between">
             <span className="text-[10px] font-bold text-[#3A3A3A]/50 uppercase tracking-wider">Total Locales</span>
-            <p className="text-2xl font-extrabold text-[#3A3A3A] mt-1">{total}</p>
+            <p className="text-2xl font-black text-[#3A3A3A] mt-1.5">{total}</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm">
+          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col justify-between">
             <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">Pendientes</span>
-            <p className="text-2xl font-extrabold text-[#8367C7] mt-1">{pending.length}</p>
+            <p className="text-2xl font-black text-[#8367C7] mt-1.5">{pending.length}</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm">
+          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col justify-between">
             <span className="text-[10px] font-bold text-green-600 uppercase tracking-wider">Aprobados</span>
-            <p className="text-2xl font-extrabold text-green-600 mt-1">{approvedCount}</p>
+            <p className="text-2xl font-black text-green-600 mt-1.5">{approvedCount}</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm">
+          <div className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col justify-between">
             <span className="text-[10px] font-bold text-[#FF9E8A] uppercase tracking-wider">Rechazados</span>
-            <p className="text-2xl font-extrabold text-[#FF9E8A] mt-1">{rejectedCount}</p>
+            <p className="text-2xl font-black text-[#FF9E8A] mt-1.5">{rejectedCount}</p>
           </div>
         </div>
 
         {/* Audit Table Section */}
         <div className="bg-white rounded-2xl border border-[#3A3A3A]/10 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-[#3A3A3A]/10 bg-[#3A3A3A]/5">
-            <h2 className="text-base font-bold text-[#3A3A3A]">Solicitudes Pendientes</h2>
-            <p className="text-xs text-[#3A3A3A]/60 mt-0.5">Revisa y audita los locales en espera de aprobación.</p>
+            <h2 className="text-sm font-bold text-[#3A3A3A]">
+              {activeTab === 'pending' ? 'Solicitudes Pendientes' : 'Todos los Locales'}
+            </h2>
+            <p className="text-xs text-[#3A3A3A]/60 mt-0.5">Revisa y audita la información registrada.</p>
           </div>
 
-          {pending.length === 0 ? (
+          {venuesToDisplay.length === 0 ? (
             <div className="p-12 text-center">
               <span className="text-3xl mb-2 block">🎉</span>
-              <p className="text-sm font-semibold text-[#3A3A3A]/70">¡Al día! No hay solicitudes pendientes.</p>
+              <p className="text-xs font-bold text-[#3A3A3A]/70">¡Al día! No hay locales para mostrar.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#3A3A3A]/5 text-[#3A3A3A]/80 text-xs font-bold border-b border-[#3A3A3A]/10">
+                  <tr className="bg-[#3A3A3A]/5 text-[#3A3A3A]/80 text-[10px] font-bold uppercase tracking-wider border-b border-[#3A3A3A]/10">
                     <th className="p-4">Local</th>
                     <th className="p-4">Propietario</th>
-                    <th className="p-4">Correo</th>
-                    <th className="p-4">ID Fiscal</th>
+                    <th className="p-4">Correo Propietario</th>
+                    <th className="p-4">Estado</th>
                     <th className="p-4 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3A3A3A]/10 text-sm text-[#3A3A3A]">
-                  {pending.map((venue) => (
+                <tbody className="divide-y divide-[#3A3A3A]/10 text-xs text-[#3A3A3A]">
+                  {venuesToDisplay.map((venue) => (
                     <tr key={venue.id} className="hover:bg-[#F5F0E9]/30 transition-colors">
                       <td className="p-4 font-bold">{venue.name}</td>
-                      <td className="p-4">{venue.owner_name}</td>
-                      <td className="p-4 font-mono text-xs">{venue.owner_email}</td>
-                      <td className="p-4 font-mono text-xs">{venue.business_tax_id}</td>
+                      <td className="p-4">
+                        {venue.owner_name}
+                        {venue.business_tax_id && <span className="sr-only">{venue.business_tax_id}</span>}
+                      </td>
+                      <td className="p-4 font-mono text-[10px]">{venue.owner_email}</td>
+                      <td className="p-4">
+                        <span className={`inline-block px-2 py-0.5 font-bold rounded text-[9px] uppercase ${
+                          venue.verification_status === 'approved' ? 'bg-green-100 text-green-700' :
+                          venue.verification_status === 'rejected' ? 'bg-red-100 text-red-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {venue.verification_status}
+                        </span>
+                      </td>
                       <td className="p-4 text-right">
                         <button
                           onClick={() => setSelectedVenue(venue)}
-                          className="px-3.5 py-1.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-lg text-xs shadow transition-all cursor-pointer"
+                          className="px-3.5 py-1.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-lg text-[10px] shadow transition-all cursor-pointer"
                         >
                           Ver Detalles
                         </button>
@@ -189,13 +242,15 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                 </div>
                 <button
                   onClick={closeModal}
-                  className="text-[#3A3A3A]/60 hover:text-[#3A3A3A] font-bold text-lg"
+                  className="text-[#3A3A3A]/60 hover:text-[#3A3A3A] font-bold text-lg cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               <div className="p-6 overflow-y-auto flex flex-col gap-5">
+                
+                {/* Owner details */}
                 <div className="grid grid-cols-2 gap-4 text-xs bg-[#3A3A3A]/5 p-4 rounded-xl border border-[#3A3A3A]/5">
                   <div>
                     <span className="font-bold text-[#3A3A3A]/50 block">PROPIETARIO</span>
@@ -206,6 +261,42 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                     <span className="font-mono font-bold text-[#3A3A3A]">{selectedVenue.business_tax_id}</span>
                   </div>
                 </div>
+
+                {/* Public Contact details */}
+                <div className="grid grid-cols-2 gap-4 text-xs bg-[#3A3A3A]/5 p-4 rounded-xl border border-[#3A3A3A]/5">
+                  <div>
+                    <span className="font-bold text-[#3A3A3A]/50 block">CORREO DE CONTACTO</span>
+                    <span className="font-semibold text-[#3A3A3A]">{selectedVenue.contact_email || 'No provisto'}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-[#3A3A3A]/50 block">TELÉFONO DE CONTACTO</span>
+                    <span className="font-semibold text-[#3A3A3A]">{selectedVenue.contact_phone || 'No provisto'}</span>
+                  </div>
+                </div>
+
+                {/* Quick messaging links */}
+                {(selectedVenue.contact_email || selectedVenue.contact_phone) && (
+                  <div className="flex gap-3 text-xs">
+                    {selectedVenue.contact_email && (
+                      <a
+                        href={`mailto:${selectedVenue.contact_email}`}
+                        className="flex-1 py-2.5 bg-[#8367C7]/10 hover:bg-[#8367C7]/15 text-[#8367C7] font-bold rounded-xl text-center border border-[#8367C7]/20 transition-all"
+                      >
+                        ✉️ Enviar Correo
+                      </a>
+                    )}
+                    {selectedVenue.contact_phone && (
+                      <a
+                        href={`https://wa.me/${selectedVenue.contact_phone.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 py-2.5 bg-green-600/10 hover:bg-green-600/15 text-green-700 font-bold rounded-xl text-center border border-green-600/20 transition-all"
+                      >
+                        💬 WhatsApp
+                      </a>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-2">
                   <span className="text-xs font-bold text-[#3A3A3A]/80">Permiso de Operación</span>
@@ -255,7 +346,7 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                 )}
               </div>
 
-              {!showRejectForm && (
+              {!showRejectForm && selectedVenue.verification_status === 'pending' && (
                 <div className="p-6 border-t border-[#3A3A3A]/10 bg-[#3A3A3A]/5 flex gap-3">
                   <button
                     onClick={() => setShowRejectForm(true)}
@@ -278,7 +369,8 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
           </div>
         )}
 
-      </div>
+      </main>
     </div>
   )
 }
+

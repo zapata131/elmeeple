@@ -22,10 +22,11 @@ const PREDEFINED_TAGS = [
   'Rol (RPGs)', 
   'Juegos de Miniaturas', 
   'Juegos Familiares / Party', 
-  'Magic: The Gathering', 
-  'Yu-Gi-Oh!', 
-  'Pokémon TCG', 
+  'Magic', 
+  'Yu-Gi-Oh', 
+  'Pokémon', 
   'Lorcana', 
+  'One Piece', 
   'Venta de Juegos', 
   'Alquiler de Mesas', 
   'Café de Especialidad', 
@@ -76,7 +77,9 @@ export default function Onboarding() {
     lng: undefined as unknown as number,
     tags: [],
     businessTaxId: '',
-    verificationProof: ''
+    verificationProof: '',
+    contactEmail: '',
+    contactPhone: ''
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -272,7 +275,15 @@ export default function Onboarding() {
     e.preventDefault()
     setLoading(true)
     try {
-      const result = await createVenue(formData)
+      // Omit empty contact fields to maintain backward compatibility with tests
+      const { contactEmail, contactPhone, ...rest } = formData
+      const payload = {
+        ...rest,
+        ...(contactEmail ? { contactEmail } : {}),
+        ...(contactPhone ? { contactPhone } : {})
+      }
+
+      const result = await createVenue(payload)
       if (result.success) {
         setSuccess(true)
       } else {
@@ -476,6 +487,33 @@ export default function Onboarding() {
                 className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors resize-none"
               />
             </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="contactEmail" className="text-xs font-bold text-[#3A3A3A]/85">Correo de Contacto Público</label>
+              <input
+                id="contactEmail"
+                name="contactEmail"
+                type="email"
+                value={formData.contactEmail || ''}
+                onChange={handleChange}
+                placeholder="Ej. contacto@meepletcg.com"
+                className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="contactPhone" className="text-xs font-bold text-[#3A3A3A]/85">Teléfono de Contacto</label>
+              <input
+                id="contactPhone"
+                name="contactPhone"
+                type="text"
+                value={formData.contactPhone || ''}
+                onChange={handleChange}
+                placeholder="Ej. +525512345678"
+                className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors"
+              />
+            </div>
+
 
             {/* Social profiles */}
             <div className="grid grid-cols-2 gap-3">
@@ -796,6 +834,14 @@ export default function Onboarding() {
                   <div className="flex gap-3 mt-1.5 text-[11px] font-semibold text-[#3A3A3A]/70">
                     {formData.instagram && <span>📸 @{formData.instagram}</span>}
                     {formData.discord && <span className="truncate">👾 {formData.discord}</span>}
+                  </div>
+                )}
+
+                {/* Public contact info in summary */}
+                {(formData.contactEmail || formData.contactPhone) && (
+                  <div className="flex flex-col gap-1 mt-2 border-t border-[#3A3A3A]/5 pt-2 text-[11px] text-[#3A3A3A]/85 font-semibold">
+                    {formData.contactEmail && <div><span>Contacto:</span> {formData.contactEmail}</div>}
+                    {formData.contactPhone && <div><span>Teléfono:</span> {formData.contactPhone}</div>}
                   </div>
                 )}
               </div>
