@@ -251,4 +251,17 @@ jest.mock('@/app/actions/admin', () => ({
   rejectVenue: jest.fn().mockResolvedValue({ success: true })
 }), { virtual: true })
 
+// Mock BGG and Reviews server actions
+const mockSyncBggCollection = jest.fn().mockResolvedValue({ success: true, count: 2 })
+global.mockSyncBggCollection = mockSyncBggCollection
+jest.mock('@/app/actions/bgg', () => ({
+  syncBggCollection: (venueId, bggUsername) => mockSyncBggCollection(venueId, bggUsername),
+}), { virtual: true })
+
+const mockSubmitReview = jest.fn().mockResolvedValue({ success: true })
+global.mockSubmitReview = mockSubmitReview
+jest.mock('@/app/actions/reviews', () => ({
+  submitReview: (venueId, rating, comment, vibeTags) => mockSubmitReview(venueId, rating, comment, vibeTags),
+}), { virtual: true })
+
 

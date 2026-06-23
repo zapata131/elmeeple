@@ -74,3 +74,63 @@ This document defines the specialized AI agents responsible for developing **El 
 2. **Hand off to the Builder:** Pass the Architect's step-by-step plan to the Builder (e.g., *"Builder, execute this plan. Start by creating the `feature/quick-view-cards` branch and writing the tests."*)
 3. **Call the Reviewer:** Once the Builder finishes and opens a PR, ask the Reviewer to check it (e.g., *"Reviewer, please review the PR for `feature/quick-view-cards`."*)
 4. **Merge & Deploy:** Once the Reviewer approves, manually merge into `main` to trigger the Vercel deployment.
+
+---
+
+## **📋 5. General Rules & Backlog Hygiene**
+* **GitHub Issue-Driven Development (Mandatory)**: Whenever the user and the agent discuss a new feature, improvement, or bug, a new GitHub Issue must be immediately created using the `gh` CLI to track it.
+* **Backlog Traceability**: Every feature branch must be named after its corresponding issue (e.g., `feature/issue-<number>-<title>`), and the Pull Request must be linked to the issue using the standard closing keywords (e.g., `Closes #<issue_number>` or `Fixes #<issue_number>`) in the PR description, so that merging the PR automatically resolves and closes the issue.
+
+---
+
+## **🧪 6. Three-Tier Testing Standard (Mandatory)**
+Every feature release must be validated across three distinct testing tiers before it can be approved for merge into `main`:
+1. **Unit Testing (Jest / JSDOM)**: Verify the isolated behavior of individual utility functions, custom hooks, helper classes, and basic UI rendering states.
+2. **Integration Testing (Jest / mock-supabase)**: Verify multi-component coordination, state synchronization, and mock Server Action execution, ensuring that database updates are successfully simulated.
+3. **System & E2E Testing (Chrome DevTools MCP / browser_subagent)**: Run a live browser walkthrough on both **Desktop (1280x800)** and **Mobile (390x844)** viewports. Simulate complete user journeys (such as logging in, filling out stepper onboarding, uploading assets, and submitting ratings/favorites) to verify layout responsiveness, visual alignment, and ensure the browser console is free of runtime errors.
+
+---
+
+## **🏛️ 7. Core Architectural Conventions & Lessons Learned**
+Every developer/builder agent working on **El Meeple** must strictly adhere to the following proven engineering conventions to prevent compilation crashes, memory bloat, and runtime bugs:
+
+### **1. Next.js & Leaflet SSR Hydration Conflicts (Critical)**
+* **The Problem:** Leaflet references the browser-only `window` object immediately upon import, which causes server-side rendering (SSR) in Next.js to crash during builds and runtime.
+* **The Convention:** Never import Leaflet components directly in Server Components or standard Client Components. Always mark map components as `"use client"` and dynamically import them using:
+  `const Map = dynamic(() => import('@/components/Map'), { ssr: false, loading: () => <MapPlaceholder /> })`
+
+### **2. Leaflet Default Marker Asset Resolution (Critical)**
+* **The Problem:** Webpack/Turbopack bundlers dynamically compile asset paths, breaking Leaflet's default blue pin image resolutions and throwing silent 404 image errors.
+* **The Convention:** Bypass Leaflet's default image markers entirely. Always render markers using **custom inline Vector SVGs** styled with our brand Malva `#8367C7` and DropShadow filters. This eliminates image-loading dependencies, matches our branding, and is 100% reliable.
+
+### **3. NextAuth / Auth.js Context Wrappers (Critical)**
+* **The Problem:** Client-side authentication hooks like `useSession()` will trigger a fatal crash if they are not wrapped in NextAuth's `<SessionProvider>` context.
+* **The Convention:** The root layout in `src/app/layout.tsx` must wrap its body children in our custom client-side `<NextAuthProvider>` wrapper (defined in `src/app/providers.tsx`) to secure global session availability.
+
+### **4. Client-Side Image Auto-Cropping & Compression (Critical)**
+* **The Problem:** Direct uploads of high-resolution store logos and municipal operating permits create heavy database storage overhead and slow down page loading.
+* **The Convention:** Always process files on the client side before writing base64 strings to Supabase.
+  * Auto-crop uploaded logos to a perfect `150x150px` square using an invisible HTML5 canvas.
+  * Compress operating permit verification images to a maximum dimension of `400x300px` at 70% quality, keeping file sizes `< 15 KB`.
+
+### **5. Resilient Database Fallbacks (Critical)**
+* **The Problem:** If the database is not configured (e.g., placeholder `.env.local`), the app should not crash or get stuck in an infinite loading state.
+* **The Convention:** Any public database fetch (like `fetchVenues` on the homepage) must implement a graceful catch-block fallback. If the query fails, print a console warning and populate the local state with our static CDMX mock venues (`MOCK_VENUES` array) so the interface remains fully interactive and testable.
+
+### **6. Jest Async act() and next/dynamic Warnings (Testing)**
+* **The Problem:** JSDOM struggles to render Next.js dynamic imports, producing noisy React `act()` warnings and DOM validation errors in test logs.
+* **The Convention:** Globally mock `next/dynamic` in `jest.setup.js` to render dynamic components synchronously. Filter out custom props (like `venues` or handlers) from the mocked container element to prevent DOM-validation warning noise.
+
+### **7. JSDOM Polyfills for NextAuth/jose (Testing)**
+* **The Problem:** NextAuth's underlying token packages (like `jose`) rely on browser/node globals (like `TextEncoder`, `ReadableStream`, `Request`, `Response`, `MessagePort`) which JSDOM lacks, causing test runner crashes.
+* **The Convention:** Always verify these globals are polyfilled in `jest.setup.js` using `require('util')`, `require('node:stream/web')`, and `require('undici')` to prevent ESM import syntax and runtime crashes in Jest.
+
+### **8. Branding Palette & Specialized Tags**
+* **The Convention:** UI layouts, badges, and alerts must strictly adhere to the branding color palette:
+  * Blanco Roto: `#F5F0E9` (Backgrounds)
+  * Carbón Suave: `#3A3A3A` (Text / Borders)
+  * Malva Suave: `#8367C7` (Primary Buttons / Active Badges / Pins)
+  * Coral/Salmon: `#FF9E8A` (Rejection / Danger Highlights)
+  * Specific card games must use specialized TCG subtags, and verified official tournament stores must display the "Torneos Oficiales" (WPN/OTS) badge.
+
+
