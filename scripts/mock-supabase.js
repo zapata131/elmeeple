@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-unused-vars */
 const http = require('http');
 const url = require('url');
+const crypto = require('crypto');
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 let venues = [
   {
@@ -91,7 +96,7 @@ let profiles = [
     id: "prof-1",
     email: "player@example.com",
     name: "Player One",
-    password: "password123",
+    password: hashPassword("password123"),
     role: "player",
     created_at: new Date().toISOString()
   },
@@ -99,7 +104,7 @@ let profiles = [
     id: "prof-2",
     email: "partner@example.com",
     name: "Partner Owner",
-    password: "password123",
+    password: hashPassword("password123"),
     role: "partner",
     created_at: new Date().toISOString()
   },
@@ -107,7 +112,7 @@ let profiles = [
     id: "prof-3",
     email: "admin@example.com",
     name: "Admin User",
-    password: "password123",
+    password: hashPassword("password123"),
     role: "admin",
     created_at: new Date().toISOString()
   }

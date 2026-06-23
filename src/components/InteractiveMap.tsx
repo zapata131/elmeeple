@@ -37,6 +37,7 @@ const MOCK_VENUES: Venue[] = [
   {
     id: '1',
     name: 'Orcs Stories',
+    slug: 'orcs-stories',
     lat: 19.4165,
     lng: -99.1620,
     address: 'Roma Norte, CDMX',
@@ -53,7 +54,10 @@ const MOCK_VENUES: Venue[] = [
     description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.',
     type: 'hibrido',
     instagram: 'orcs_stories',
-    logoUrl: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop'
+    logoUrl: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop',
+    venue_games: [
+      { id: 'g1', name: 'Scythe', thumbnail: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop', min_players: 1, max_players: 5, playing_time: 115 }
+    ]
   },
   {
     id: '2',
@@ -246,33 +250,7 @@ export default function InteractiveMap() {
           selectedVenue ? 'hidden md:flex' : 'flex'
         }`}
       >
-        {/* Brand Header */}
-        <div className="p-4 md:p-6 flex flex-col gap-2 md:gap-4 border-b border-[#3A3A3A]/5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="text-2xl md:text-4xl" role="img" aria-label="dice">🎲</span>
-              <div>
-                <h1 className="text-xl md:text-3xl font-extrabold tracking-tight text-[#3A3A3A]">
-                  El Meeple
-                </h1>
-                <p className="text-xs md:text-sm font-semibold text-[#8367C7] tracking-wide uppercase">
-                  Directorio de Juegos
-                </p>
-              </div>
-            </div>
-            <Link href="/onboarding" className="text-xs font-bold text-[#8367C7] hover:underline md:hidden">
-              Registrar Local
-            </Link>
-          </div>
-          
-          <p className="hidden md:block text-lg font-medium text-[#3A3A3A]/95 leading-snug">
-            ¿Dónde jugamos hoy? Tu guía de cafés de juegos y tiendas TCG.
-          </p>
-          
-          <p className="hidden md:block text-sm text-[#3A3A3A]/70 leading-relaxed">
-            Encuentra los mejores locales para jugar juegos de mesa, cartas coleccionables y conocer a tu comunidad local en LATAM y España.
-          </p>
-        </div>
+
 
         {/* Search and Category Filters */}
         <div className="p-4 md:px-6 md:py-4 flex flex-col gap-3 border-b border-[#3A3A3A]/5 text-sm">

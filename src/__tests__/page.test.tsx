@@ -2,15 +2,15 @@ import { render, screen } from '@testing-library/react'
 import Home from '@/app/page'
 
 describe('Home Page', () => {
-  it('renders the main heading "El Meeple"', () => {
+  it('renders the brand title in the Navbar', () => {
     render(<Home />)
-    const heading = screen.getByRole('heading', { level: 1 })
-    expect(heading).toHaveTextContent('El Meeple')
+    expect(screen.getByText('El Meeple')).toBeInTheDocument()
   })
 
-  it('renders the tagline "¿Dónde jugamos hoy?"', () => {
+  it('renders the map search controls and category chips', () => {
     render(<Home />)
-    const tagline = screen.getByText(/¿Dónde jugamos hoy\?/i)
-    expect(tagline).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Buscar locales...')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Todos' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cafés' })).toBeInTheDocument()
   })
 })

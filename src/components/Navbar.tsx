@@ -10,7 +10,6 @@ export default function Navbar() {
   const router = useRouter()
 
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [showModal, setShowModal] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
@@ -23,14 +22,6 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  const handleRegisterLocalClick = () => {
-    if (!session) {
-      setShowModal(true)
-    } else {
-      router.push('/onboarding')
-    }
-  }
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' })
@@ -50,20 +41,18 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 w-full bg-[#F5F0E9]/80 backdrop-blur-md border-b border-[#3A3A3A]/10 shadow-sm px-4 md:px-8 py-3 flex items-center justify-between">
         
         {/* Left: Logo */}
-        <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <span className="text-2xl" role="img" aria-label="die">🎲</span>
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6 text-[#8367C7] flex-shrink-0"
+          >
+            <circle cx="12" cy="4.5" r="2.75" />
+            <path d="M12,8.5 c-2.5,0 -4.5,1.2 -5.5,3.5 L4.3,16.8 c-0.4,0.8 0.2,1.7 1.1,1.7 h2.1 v4.3 c0,0.7 0.6,1.2 1.3,1.2 h1.7 l1.5,-4.5 1.5,4.5 h1.7 c0.7,0,1.3,-0.5 1.3,-1.2 v-4.3 h2.1 c0.9,0 1.5,-0.9 1.1,-1.7 l-2.2,-4.8 c-1,-2.3 -3,-3.5 -5.5,-3.5 z" />
+          </svg>
           <span className="text-lg md:text-xl font-black text-[#3A3A3A] tracking-tight">El Meeple</span>
         </Link>
-
-        {/* Center: Register Local CTA */}
-        <div>
-          <button
-            onClick={handleRegisterLocalClick}
-            className="px-4 py-2 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-extrabold rounded-xl transition-all duration-200 cursor-pointer shadow-md text-xs md:text-sm flex items-center gap-1.5"
-          >
-            <span>🏪</span> Registrar mi Local
-          </button>
-        </div>
 
         {/* Right: Auth states */}
         <div className="flex items-center gap-4">
@@ -101,7 +90,7 @@ export default function Navbar() {
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#3A3A3A]/80 hover:bg-[#3A3A3A]/5 transition-colors"
                   >
-                    <span>👤</span> Mi Perfil
+                    Mi Perfil
                   </Link>
 
                   {/* Partner Dashboard link */}
@@ -111,7 +100,7 @@ export default function Navbar() {
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#8367C7] hover:bg-[#8367C7]/5 transition-colors"
                     >
-                      <span>🏪</span> Mi Panel de Socio
+                      Mi Panel de Socio
                     </Link>
                   )}
 
@@ -122,7 +111,7 @@ export default function Navbar() {
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#FF9E8A] hover:bg-[#FF9E8A]/5 transition-colors"
                     >
-                      <span>🛡️</span> Administración
+                      Administración
                     </Link>
                   )}
 
@@ -132,7 +121,7 @@ export default function Navbar() {
                     onClick={handleLogout}
                     className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-500/5 transition-colors cursor-pointer"
                   >
-                    <span>🚪</span> Cerrar Sesión
+                    Cerrar Sesión
                   </button>
                 </div>
               )}
@@ -140,58 +129,6 @@ export default function Navbar() {
           )}
         </div>
       </header>
-
-      {/* Guest registration prompt modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => setShowModal(false)}
-          />
-
-          {/* Modal Content */}
-          <div
-            data-testid="registration-modal"
-            className="relative bg-[#F5F0E9] border border-[#3A3A3A]/15 rounded-3xl shadow-2xl p-6 md:p-8 max-w-sm w-full z-10 flex flex-col gap-6 text-center transform transition-all duration-300 animate-in zoom-in-95"
-          >
-            <div className="text-4xl">🎲</div>
-            <div>
-              <h3 className="text-xl font-black text-[#3A3A3A] tracking-tight">¡Únete a El Meeple!</h3>
-              <p className="text-xs text-[#3A3A3A]/75 leading-relaxed mt-2">
-                Para registrar tu negocio y aparecer en el mapa, primero debes crear una cuenta. Es rápido y 100% gratis.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2.5">
-              <Link
-                href="/register"
-                onClick={() => setShowModal(false)}
-                className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-extrabold rounded-xl shadow-md text-xs transition-all text-center"
-              >
-                Crear Cuenta
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setShowModal(false)}
-                className="w-full py-3 bg-white hover:bg-[#3A3A3A]/5 border border-[#3A3A3A]/15 text-[#3A3A3A] font-bold rounded-xl shadow-sm text-xs transition-all text-center"
-              >
-                Iniciar Sesión
-              </Link>
-            </div>
-
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-[#3A3A3A]/40 hover:text-[#3A3A3A]/80 cursor-pointer p-1 rounded-full hover:bg-[#3A3A3A]/5 transition-all"
-              aria-label="Cerrar modal"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
     </>
   )
 }

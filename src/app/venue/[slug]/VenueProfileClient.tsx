@@ -178,9 +178,10 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             {/* Back Button */}
             <Link
               href="/"
-              className="mr-2 p-3 bg-[#3A3A3A]/5 hover:bg-[#3A3A3A]/10 text-[#3A3A3A] rounded-xl transition-all font-bold text-sm flex items-center gap-1 cursor-pointer"
+              className="mr-2 p-3 bg-[#3A3A3A]/5 hover:bg-[#3A3A3A]/10 text-[#3A3A3A] rounded-xl transition-all font-bold text-sm flex items-center gap-1.5 cursor-pointer"
             >
-              <span>🎽</span> <span className="hidden sm:inline">Mapa</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+              <span className="hidden sm:inline">Mapa</span>
             </Link>
             
             {venue.logoUrl ? (
@@ -191,8 +192,16 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                 className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover border border-[#3A3A3A]/10 shadow-md flex-shrink-0"
               />
             ) : (
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center text-3xl font-bold flex-shrink-0 shadow-md">
-                🎲
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center flex-shrink-0 shadow-md">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-10 h-10"
+                >
+                  <circle cx="12" cy="4.5" r="2.75" />
+                  <path d="M12,8.5 c-2.5,0 -4.5,1.2 -5.5,3.5 L4.3,16.8 c-0.4,0.8 0.2,1.7 1.1,1.7 h2.1 v4.3 c0,0.7 0.6,1.2 1.3,1.2 h1.7 l1.5,-4.5 1.5,4.5 h1.7 c0.7,0,1.3,-0.5 1.3,-1.2 v-4.3 h2.1 c0.9,0 1.5,-0.9 1.1,-1.7 l-2.2,-4.8 c-1,-2.3 -3,-3.5 -5.5,-3.5 z" />
+                </svg>
               </div>
             )}
             
@@ -205,8 +214,9 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                   </span>
                 )}
               </div>
-              <p className="text-xs md:text-sm font-semibold text-[#8367C7] mt-1 flex items-center gap-1">
-                <span>📍</span> {venue.address}
+              <p className="text-xs md:text-sm font-semibold text-[#8367C7] mt-1 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-[#8367C7] flex-shrink-0"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                {venue.address}
               </p>
             </div>
           </div>
@@ -217,13 +227,23 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
               <button
                 onClick={handleFavoriteToggle}
                 disabled={loadingFavorite}
-                className={`px-5 py-3 text-xs font-black rounded-xl transition-all border cursor-pointer flex items-center gap-1.5 shadow-sm ${
+                className={`px-5 py-3 text-xs font-black rounded-xl transition-all border cursor-pointer flex items-center gap-2 shadow-sm ${
                   isFavorite
                     ? 'bg-yellow-500/15 border-yellow-500/40 text-yellow-700'
                     : 'bg-white hover:bg-[#3A3A3A]/5 border-[#3A3A3A]/15 text-[#3A3A3A]/70'
                 }`}
               >
-                {isFavorite ? 'Favorito ⭐' : 'Guardar Favorito ☆'}
+                {isFavorite ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-yellow-500"><path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" /></svg>
+                    Favorito
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
+                    Guardar Favorito
+                  </>
+                )}
               </button>
             )}
             
@@ -265,7 +285,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           
           {/* Header Info details card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-3">
-            <h2 className="text-xs font-extrabold text-[#8367C7] uppercase tracking-wider">🏪 Acerca del Establecimiento</h2>
+            <h2 className="text-xs font-extrabold text-[#8367C7] uppercase tracking-wider">Acerca del Establecimiento</h2>
             <p className="text-sm text-[#3A3A3A]/85 leading-relaxed">{venue.description}</p>
             <div className="flex flex-wrap gap-1.5 mt-1">
               {(venue.tags || []).map((tag) => (
@@ -275,7 +295,8 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
               ))}
             </div>
             <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/75 font-bold bg-[#3A3A3A]/5 p-3 rounded-xl mt-2">
-              <span>🕒</span> <span>{formattedSchedule}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+              <span>{formattedSchedule}</span>
             </div>
           </div>
 
@@ -284,7 +305,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             <div className="flex justify-between items-center flex-wrap gap-2 border-b border-[#3A3A3A]/5 pb-3">
               <div>
                 <h3 className="text-lg font-extrabold text-[#3A3A3A] flex items-center gap-1.5">
-                  <span>🎲</span> Ludoteca de Juegos
+                  Ludoteca de Juegos
                 </h3>
                 <p className="text-xs text-[#3A3A3A]/60 mt-0.5">Explora e investiga los juegos disponibles para jugar libremente.</p>
               </div>
@@ -355,7 +376,6 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             {/* Visual Games Grid */}
             {filteredGames.length === 0 ? (
               <div className="text-center py-12 bg-[#3A3A3A]/5 rounded-2xl border border-dashed border-[#3A3A3A]/10">
-                <span className="text-3xl block mb-2">🔍</span>
                 <p className="text-xs font-extrabold text-[#3A3A3A]/60">No se encontraron juegos con los filtros seleccionados.</p>
               </div>
             ) : (
@@ -373,8 +393,16 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                         className="w-14 h-14 object-cover rounded-xl flex-shrink-0 shadow-sm"
                       />
                     ) : (
-                      <div className="w-14 h-14 bg-[#8367C7]/15 text-[#8367C7] rounded-xl flex items-center justify-center text-xl font-bold flex-shrink-0">
-                        🎲
+                      <div className="w-14 h-14 bg-[#8367C7]/15 text-[#8367C7] rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <circle cx="12" cy="4.5" r="2.75" />
+                          <path d="M12,8.5 c-2.5,0 -4.5,1.2 -5.5,3.5 L4.3,16.8 c-0.4,0.8 0.2,1.7 1.1,1.7 h2.1 v4.3 c0,0.7 0.6,1.2 1.3,1.2 h1.7 l1.5,-4.5 1.5,4.5 h1.7 c0.7,0,1.3,-0.5 1.3,-1.2 v-4.3 h2.1 c0.9,0 1.5,-0.9 1.1,-1.7 l-2.2,-4.8 c-1,-2.3 -3,-3.5 -5.5,-3.5 z" />
+                        </svg>
                       </div>
                     )}
                     
@@ -398,7 +426,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                       
                       <div className="flex gap-2 text-[10px] font-semibold text-[#3A3A3A]/60 mt-1">
                         <span className="bg-[#3A3A3A]/5 px-2 py-0.5 rounded">
-                          👥 {game.min_players && game.max_players
+                          {game.min_players && game.max_players
                             ? `${game.min_players}-${game.max_players} jug.`
                             : game.min_players
                               ? `${game.min_players}+ jug.`
@@ -406,7 +434,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                         </span>
                         {game.playing_time && (
                           <span className="bg-[#3A3A3A]/5 px-2 py-0.5 rounded">
-                            ⏱️ {game.playing_time} min
+                            {game.playing_time} min
                           </span>
                         )}
                       </div>
@@ -428,7 +456,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           {/* Ratings Summary Card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-4">
             <h3 className="text-sm font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider border-b border-[#3A3A3A]/5 pb-2">
-              🏆 Valoración de la Comunidad
+              Valoración de la Comunidad
             </h3>
             
             <div className="flex justify-between items-center">
@@ -478,7 +506,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           {/* Write Review Form */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-4">
             <h3 className="text-sm font-extrabold text-[#3A3A3A] flex items-center gap-1.5 border-b border-[#3A3A3A]/5 pb-3">
-              <span>✍️</span> Escribir Reseña
+              Escribir Reseña
             </h3>
 
             {session?.user ? (
@@ -556,7 +584,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           {/* Player Reviews Feed */}
           <div className="flex flex-col gap-3">
             <h3 className="text-xs font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider">
-              💬 Comentarios de la Comunidad
+              Comentarios de la Comunidad
             </h3>
             
             {reviews.length === 0 ? (

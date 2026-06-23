@@ -186,8 +186,16 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
               className="w-12 h-12 rounded-xl object-cover border border-[#3A3A3A]/10 flex-shrink-0"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center text-xl font-bold flex-shrink-0">
-              🎲
+            <div className="w-12 h-12 rounded-xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center flex-shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-6 h-6"
+              >
+                <circle cx="12" cy="4.5" r="2.75" />
+                <path d="M12,8.5 c-2.5,0 -4.5,1.2 -5.5,3.5 L4.3,16.8 c-0.4,0.8 0.2,1.7 1.1,1.7 h2.1 v4.3 c0,0.7 0.6,1.2 1.3,1.2 h1.7 l1.5,-4.5 1.5,4.5 h1.7 c0.7,0,1.3,-0.5 1.3,-1.2 v-4.3 h2.1 c0.9,0 1.5,-0.9 1.1,-1.7 l-2.2,-4.8 c-1,-2.3 -3,-3.5 -5.5,-3.5 z" />
+              </svg>
             </div>
           )}
           
@@ -232,13 +240,23 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           <button
             onClick={handleFavoriteToggle}
             disabled={loadingFavorite}
-            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all border cursor-pointer flex items-center gap-1 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all border cursor-pointer flex items-center gap-1.5 ${
               isFavorite
                 ? 'bg-yellow-500/15 border-yellow-500/40 text-yellow-700'
                 : 'bg-white hover:bg-[#3A3A3A]/5 border-[#3A3A3A]/15 text-[#3A3A3A]/70'
             }`}
           >
-            {isFavorite ? 'Favorito ⭐' : 'Favorito ☆'}
+            {isFavorite ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-yellow-500"><path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" /></svg>
+                Favorito
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
+                Guardar Favorito
+              </>
+            )}
           </button>
         )}
       </div>
@@ -266,14 +284,14 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
 
         {/* Schedule Info */}
         <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/70 font-semibold bg-[#3A3A3A]/5 p-2.5 rounded-xl">
-          <span role="img" aria-label="clock" className="text-sm">🕒</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
           <span className="leading-snug">{formattedSchedule}</span>
         </div>
 
         {/* Announcements Bulletin Board */}
         {announcements.length > 0 && (
           <div className="border-t border-[#3A3A3A]/10 pt-3.5 flex flex-col gap-2.5">
-            <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">📢 Cartelera de Anuncios</span>
+            <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">Cartelera de Anuncios</span>
             <div className="flex flex-col gap-2.5 max-h-36 overflow-y-auto pr-1">
               {announcements.map((ann) => (
                 <div key={ann.id} className="bg-[#8367C7]/5 p-3 rounded-xl border border-[#8367C7]/10 flex flex-col gap-1.5">
@@ -349,9 +367,10 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         {/* Premium Full Profile Link CTA */}
         <Link
           href={`/venue/${venue.slug || venue.id}`}
-          className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm"
+          className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm flex items-center justify-center gap-1.5 group"
         >
-          Ver Perfil y Ludoteca ➔
+          <span>Ver Perfil y Ludoteca</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
         </Link>
       </div>
     </div>

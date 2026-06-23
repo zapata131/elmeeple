@@ -75,15 +75,14 @@ async function run() {
 
       // 2. SEARCH BY GAME & CLICK PIN
       console.log(`[${vp.name}] Searching for "Scythe" in map search...`);
-      const searchSelector = 'input[placeholder*="Buscar local o juego"]';
+      const searchSelector = 'input[placeholder*="Buscar locales"]';
       await page.waitForSelector(searchSelector, { timeout: 5000 });
       await page.fill(searchSelector, 'Scythe');
+      await page.waitForTimeout(500); // Settle
       
-      // Click the filtered marker for Orcs Stories
-      console.log(`[${vp.name}] Clicking Orcs Stories map pin...`);
-      const pinSelector = 'button[data-testid*="mock-marker"]';
-      await page.waitForSelector(pinSelector, { timeout: 5000 });
-      await page.click(pinSelector);
+      // Click Orcs Stories in sidebar to open Quick View Card
+      console.log(`[${vp.name}] Opening Quick View Card for Orcs Stories...`);
+      await page.click('[data-testid="venue-list"] >> text=Orcs Stories');
 
       // 3. VERIFY QUICK VIEW CTA & NAVIGATE TO PROFILE
       console.log(`[${vp.name}] Verifying Quick View Card CTA...`);

@@ -124,25 +124,13 @@ describe('User Registration & Floating Navigation Flow', () => {
   // 2. FLOATING NAVBAR & AUTH STATE TESTS
   // ==========================================
   describe('Floating Navbar Component', () => {
-    it('renders guest state with Login link and triggers Modal on Register Local click', async () => {
+    it('renders guest state with Login link', () => {
       // Mock unauthenticated guest
       ;(useSession as jest.Mock).mockReturnValue({ data: null, status: 'unauthenticated' })
       render(<Navbar />)
-      const user = userEvent.setup()
 
       // Should show 'Iniciar Sesión / Registrarse'
       expect(screen.getByText('Iniciar Sesión / Registrarse')).toBeInTheDocument()
-
-      // Clicking 'Registrar mi Local' should show the registration prompt modal
-      const registerLocalBtn = screen.getByRole('button', { name: /Registrar mi Local/i })
-      await user.click(registerLocalBtn)
-
-      // Verify Modal rendering
-      const modal = screen.getByTestId('registration-modal')
-      expect(modal).toBeInTheDocument()
-      expect(screen.getByText('¡Únete a El Meeple!')).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: 'Crear Cuenta' })).toHaveAttribute('href', '/register')
-      expect(screen.getByRole('link', { name: 'Iniciar Sesión' })).toHaveAttribute('href', '/login')
     })
 
     it('renders logged-in Player state with avatar and simple dropdown options', async () => {
@@ -217,22 +205,5 @@ describe('User Registration & Floating Navigation Flow', () => {
       expect(screen.queryByText('Mi Panel de Socio')).not.toBeInTheDocument()
     })
 
-    it('redirects directly to onboarding if authenticated user clicks Registrar mi Local', async () => {
-      // Mock authenticated player
-      ;(useSession as jest.Mock).mockReturnValue({
-        data: {
-          user: { name: 'Pedro Player', email: 'pedro@example.com', role: 'player' }
-        },
-        status: 'authenticated'
-      })
-
-      render(<Navbar />)
-      const user = userEvent.setup()
-
-      const registerLocalBtn = screen.getByRole('button', { name: /Registrar mi Local/i })
-      await user.click(registerLocalBtn)
-
-      expect(mockPush).toHaveBeenCalledWith('/onboarding')
-    })
   })
 })

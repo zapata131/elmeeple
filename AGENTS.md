@@ -78,9 +78,10 @@ This document defines the specialized AI agents responsible for developing **El 
 ---
 
 ## **📋 5. General Rules & Backlog Hygiene**
-* **GitHub Issue-Driven Development (Mandatory)**: Whenever the user and the agent discuss a new feature, improvement, or bug, a new GitHub Issue must be immediately created using the `gh` CLI to track it.
+* **GitHub Issue-Driven Development (Mandatory)**: Whenever the user and the agent discuss a new feature, improvement, or bug, a new GitHub Issue must be immediately created using the `gh` CLI to track it. **Every issue created must include a comprehensive User Story in the body, formatted using the standard Agile framework: 'Como [Rol del usuario], Quiero [Funcionalidad], Para [Beneficio/Valor]' to establish absolute functional intent and business value before coding.**
 * **Backlog Traceability**: Every feature branch must be named after its corresponding issue (e.g., `feature/issue-<number>-<title>`), and the Pull Request must be linked to the issue using the standard closing keywords (e.g., `Closes #<issue_number>` or `Fixes #<issue_number>`) in the PR description, so that merging the PR automatically resolves and closes the issue.
 * **Living Handoff Memo (Always Update HANDOFF.md) (Mandatory)**: During active sprints, any agent modifying the codebase or running a task must keep `HANDOFF.md` updated in real-time with their latest progress, completed steps, and next actions. The agent must update and commit this file before completing their turn so the handoff state is always live on GitHub.
+
 
 
 ---
@@ -134,5 +135,6 @@ Every developer/builder agent working on **El Meeple** must strictly adhere to t
   * Malva Suave: `#8367C7` (Primary Buttons / Active Badges / Pins)
   * Coral/Salmon: `#FF9E8A` (Rejection / Danger Highlights)
   * Specific card games must use specialized TCG subtags, and verified official tournament stores must display the "Torneos Oficiales" (WPN/OTS) badge.
+  * **Minimalist Iconography (No Emojis):** Under no circumstances should developers or agents use raw, colorful emojis (e.g., `🎲`, `🕒`, `👤`, `🏪`, `🛡️`, `🚪`, `🏆`, `✍️`, `💬`, `➔`, `📍`) in headers, buttons, or informational cards. Always prioritize premium, minimalist vector icons (custom inline SVGs styled with Tailwind CSS) or clean typographic labels. Star glyphs (`★`, `☆`) are acceptable only as clean typographic elements in rating feeds.
 
 

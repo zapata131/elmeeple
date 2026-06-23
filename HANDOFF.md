@@ -1,65 +1,78 @@
-# 📑 Active Sprint Handoff & Continuity Memo: Milestone 4 + User-First Flow
+# 📑 Active Sprint Handoff & Continuity Memo: Milestone 4 + Minimalist UI Clean-up
 
-All development steps for **Milestone 4: Dedicated Yelp-style Venue Profiles** and the new **User-First Navigation & Registration Flow** have been fully implemented, polished, and verified!
+All development steps for **Milestone 4: Dedicated Yelp-style Venue Profiles**, **User-First Registration Flow**, and your highly targeted **Minimalist UI & Aesthetic Clean-up** have been fully completed, compiled, and verified!
 
 ---
 
 ## 🚀 1. Active Sprint Status & Goal
 * **Active Branch:** `feature/issue-31-venue-profiles`
 * **Sprint Status:** **COMPLETED & VERIFIED 🏆**
-* **Verification Outcome:** 100% clean compilation, 100% passing tests (12/12 test suites, 52/52 tests passing).
+* **Visual Aesthetic:** Premium Minimalist (Zero emojis, custom SVGs, and brand-aligned layouts).
+* **Verification Outcome:** 100% clean compilation, 100% passing tests (**12/12 test suites, 51/51 tests passing**).
 
 ---
 
-## 📂 2. Completed Implementations & Files
+## 📂 2. Completed Implementations & Refactors
 
-We have successfully built and verified the following assets:
+We have successfully built and refined the following assets in the workspace:
 
-1. **Database Migrations:**
-   * `supabase/migrations/add_venue_slug.sql` (Creates unique `slug` column and populates it for CDMX venues).
-   * `supabase/migrations/add_profiles.sql` (Creates `profiles` table to store user metadata, hashed passwords, and roles: `player`, `partner`, or `admin`).
+1. **Brand-New Purple Meeple SVG Logo (Navbar.tsx):**
+   * Replaced the informal `🎲` emoji in the sticky Top Navbar with a custom, beautifully proportioned vector **purple meeple SVG** styled with our brand Malva `#8367C7`.
+   * Removed the duplicate **"Registrar mi Local"** button from the header to keep the top bar focused.
+   * Completely removed the unauthenticated modal overlay since guest registration and partner onboarding are now cleanly managed through dedicated portals.
+   * Cleaned all dropdown menu items of emojis (`👤`, `🏪`, `🛡️`, `🚪` are gone), leaving gorgeous typography-led controls.
 
-2. **User Registration & Flow (/register):**
-   * `src/app/register/page.tsx` (Premium, minimalist signup portal matching the brand design with Name, Email, Password, and a visual Role Selector for 'Jugador' or 'Socio').
-   * `src/app/actions/register.ts` (Server Action to securely hash passwords with native Node `crypto` and insert user profiles into the database).
+2. **Deduplicated Left Sidebar (InteractiveMap.tsx):**
+   * Completely removed the redundant "El Meeple" brand card, tagline, and social headers from the homepage Left Sidebar.
+   * The sidebar now starts directly with the Location Search input, game title text search, and category chips, floating cleanly at the top of the map for a highly compact, professional Apple/Google Maps-style experience.
+   * Removed mobile-only "Registrar mi Local" footer links.
 
-3. **Floating Header Navigation (Navbar):**
-   * `src/components/Navbar.tsx` (Premium glassmorphic floating header showing brand logo, 'Registrar mi Local' button, and user session states).
-     * **Guest state:** Prompts login/signup buttons. Clicking 'Registrar mi Local' displays a gorgeous visual overlay modal/alert prompting registration.
-     * **Logged-in state:** Displays circular user initials avatar. Clicking it opens a dropdown containing `'Mi Perfil'`, role-based `'Mi Panel de Socio'` (for partners), `'Administración'` (for admins), and `'Cerrar Sesión'`.
-   * `src/app/page.tsx` (Wrapped map layout to host the floating Navbar seamlessly at the top).
-   * `src/components/InteractiveMap.tsx` (Adjusted outer container to `w-full h-full` to prevent screen overflow).
+3. **Premium Iconography & Zero Emojis (QuickViewCard.tsx & VenueProfileClient.tsx):**
+   * Replaced the placeholder emojis in the Quick View and dedicated profile headers with the brand-new purple meeple SVG.
+   * Replaced favorite star emojis (`⭐`, `☆`) with high-fidelity, interactive, custom SVG stars styled dynamically.
+   * Replaced schedule clock emojis (`🕒`) with a clean clock vector SVG.
+   * Replaced other informal emojis (`🏪`, `🏆`, `✍️`, `💬`, `➔`, `📍`, `🔍`) with clean, minimalist typography labels.
+   * Replaced game collection card emojis (`👥`, `⏱️`) with minimalist, premium text badges (e.g., `3-4 jug.`, `60 min`), giving the collection catalog grid an extremely high-end retail look.
 
-4. **Dedicated Yelp-Style Venue Profiles (/venue/[slug]):**
-   * `src/app/venue/[slug]/page.tsx` (Server Component: queries database for venue slug including nested tags, games, and reviews).
-   * `src/app/venue/[slug]/VenueProfileClient.tsx` (Rich client-side dashboard with cover card, full dynamic schedule formatting, social buttons, player count/duration filter chips, real-time vibe tag bars, and an interactive review submission form).
-   * `src/components/QuickViewCard.tsx` (Simplified card representing a map pin preview with a primary Link CTA to the full profile page: `"Ver Perfil y Ludoteca ➔"`).
-
-5. **Server Actions & Backend Integration:**
-   * `src/app/api/auth/[...nextauth]/route.ts` (Integrated database profile checks in NextAuth credentials provider with a mock fallback for backward test compatibility).
-   * `src/app/actions/reviews.ts` (Validates and submits reviews).
-   * `src/app/actions/favorite.ts` (Manages player favorites).
+4. **Living Rules & BACKLOG HYGIENE (AGENTS.md & DESIGN.md):**
+   * Codified the **Minimalist Iconography & No Emojis (Visual Premium Rule)** in both `AGENTS.md` (Section 8) and `DESIGN.md` (Section 4.1), prohibiting raw emojis in future features.
+   * Codified the **User Story Mandate** in `AGENTS.md` (Section 5), requiring all future issues to document clear business value (`Como... Quiero... Para...`).
 
 ---
 
 ## 🧪 3. Verification & Testing Summary
 
-Every aspect of the application has been verified against our Three-Tier Testing Standard:
+Every aspect of the application has been verified against our strict Three-Tier Testing Standard:
 
 1. **Jest Integration & Unit Tests (100% Green):**
-   * `src/__tests__/auth_navigation.test.tsx` **(NEW)**: Verifies registration form submissions, role routing, Navbar dropdown elements, and guest modal prompts.
-   * `src/__tests__/venue-profile.test.tsx` **(NEW)**: Verifies dedicated profile page rendering, catalog text searches, player/duration chip filters, and review posts.
-   * `src/__tests__/milestone3.test.tsx` **(UPDATED)**: Cleaned of obsolete QuickViewCard tab tests since they are now covered on the profile page.
-   * **Global Mocks (`jest.setup.js`)**: Enhanced with chainable Supabase query builder mocks (`insert()`, `delete()`) and a global `next/navigation` router mock to prevent JSDOM runtime crashes.
-   * **All 52 tests across 12 test suites pass perfectly!**
+   * **12/12 test suites and 51/51 tests pass perfectly!**
+   * Refactored `auth_navigation.test.tsx` to align with the simplified, modal-free Navbar.
+   * Refactored `map.test.tsx` and `page.test.tsx` to assert the new top Navbar brand name and map search inputs instead of the old, removed sidebar headers, preventing any failing tests.
+   * **Global Mocks (`jest.setup.js`)** remain 100% robust, polyfilling ESM imports and mocking router hooks.
 
 2. **Production Compilation (`npm run build`):**
-   * Compiled successfully to production. No TypeScript warnings, implicit `any` types, or ESLint linter issues in any modified or untracked files.
+   * Compiles successfully to production with zero TypeScript warnings, implicit `any` types, or linter warnings.
 
 ---
 
-## 🔮 4. Next Steps for Reviewer / QA
-1. Run the local mock Supabase server: `node scripts/mock-supabase.js`
-2. Start the local server: `npm run dev`
-3. Verify the `/register` page and check the floating Navbar on `localhost:3000`.
-4. Approve and merge PR #31 into `main`! 🚀
+## 📋 4. Tracked Backlog & GitHub Issues Created
+
+We registered the following issues on GitHub (complete with full **User Stories** in their bodies) using the `gh` CLI:
+
+1. **Issue #31**: *Feature: Dedicated Yelp-style Store Profiles (/venue/[slug])*
+   * *User Story:* **Como** jugador de juegos de mesa, **quiero** visitar una página de perfil dedicada y espaciosa, **para** poder explorar su ludoteca con filtros avanzados y leer las opiniones detalladas de otros jugadores sin saturar el mapa.
+2. **Issue #32**: *Feature: Floating Navbar and Easy User Registration Portal*
+   * *User Story:* **Como** usuario nuevo, **quiero** tener una barra de navegación flotante y un portal de registro rápido de 5 segundos, **para** poder iniciar sesión como Jugador o Socio y acceder fácilmente a mis paneles privados.
+3. **Issue #33**: *Enhancement: Minimalist UI Clean-up - Remove Sidebar Branding and Emojis*
+   * *User Story:* **Como** usuario, **quiero** una interfaz limpia, premium y libre de emojis o branding duplicado, **para** disfrutar de una experiencia visual sumamente profesional y fluida.
+4. **Issue #34**: *Feature: Codify Three-Tier Testing Standards and Section 9 Engineering Case Study*
+   * *User Story:* **Como** desarrollador del equipo, **quiero** tener estándares de prueba definidos en tres niveles y un estudio de caso en `DESIGN.md`, **para** asegurar que todas las futuras iteraciones mantengan una calidad técnica impecable.
+
+---
+
+## 🔮 5. Next Steps for Live Testing
+
+All local files are committed and pushed to GitHub. The project is fully ready for your review:
+1. Start the local server: `npm run dev`
+2. Open your browser and navigate to `http://localhost:3000`.
+3. **Enjoy the stunning, premium, emoji-free visual aesthetic!** Test searching for game titles (e.g. *"Scythe"*), clicking map pins, opening profiles, and browsing the gorgeous meeple-backed ludoteca catalog!
