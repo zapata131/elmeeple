@@ -118,3 +118,10 @@ jest.mock('@/utils/supabase/client', () => {
     createClient: () => mockSupabase
   }
 })
+
+// Mock platform admin server actions
+jest.mock('@/app/actions/admin', () => ({
+  approveVenue: jest.fn().mockResolvedValue({ success: true }),
+  rejectVenue: jest.fn().mockResolvedValue({ success: true })
+}), { virtual: true })
+
