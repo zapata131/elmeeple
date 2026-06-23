@@ -63,7 +63,8 @@ This document defines the specialized AI agents responsible for developing **El 
 > 1. Review the test coverage. Are the edge cases accounted for?
 > 2. Review the Next.js App Router implementation. Are Server Components and Client Components used appropriately? 
 > 3. Check Supabase queries for security (RLS policies) and efficiency.
-> 4. If issues are found, list them clearly for the Builder to fix. If perfect, approve the PR for merge into `main`.
+> 4. Run the Visual QA Suite (`./scripts/run-visual-qa.sh`) to capture and inspect screenshots for both desktop and mobile viewports. Reject the PR if there are any visual regressions (overlapping text, clipping, or blocked controls).
+> 5. If all linting, building, unit tests, and Visual QA pass perfectly, approve the PR for merge into `main`.
 
 ---
 

@@ -11,7 +11,7 @@ jest.mock('next/dynamic', () => ({
       // Filter out non-DOM props to prevent React warnings in test logs
       const domProps = {}
       for (const [key, value] of Object.entries(props)) {
-        if (typeof value !== 'function' && key !== 'venues') {
+        if (typeof value !== 'function' && key !== 'venues' && key !== 'selectedVenue') {
           domProps[key] = value
         }
       }

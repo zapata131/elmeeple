@@ -29,6 +29,7 @@
 | Alerts / Highlights | Coral deslavado | #FF9E8A |
 
 ### **4.1 Core UX & Design System Rules**
+* **Left Sidebar Layout (Desktop/Mobile):** To maximize search efficiency and support high-density directories, the homepage features a fixed Left Sidebar (width: `md:w-96`) on desktop that contains the brand header, tagline, search bar, category filter chips, and a scrollable list of matching venues. On mobile viewports, the sidebar moves to the top of the screen as a clean, compact header search panel, leaving the rest of the height for the map. Clicking any card in the sidebar list automatically pans and centers the map onto that venue's coordinates.
 * **Custom Purple Map Pins:** The map uses custom vector-based SVG markers styled in `#8367C7` (Malva suave) instead of Leaflet's default blue pins, ensuring brand cohesion.
 * **Zoom Controls Positioning:** Leaflet's default zoom control is disabled in the top-left, and a custom `ZoomControl` is added at `topright` to prevent overlap with the floating brand card.
 * **Mobile Overlap Prevention:** To keep the map visible on mobile devices, the top brand card is automatically hidden (`hidden md:block`) whenever a venue's Quick View Card is active.

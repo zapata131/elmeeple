@@ -1,6 +1,7 @@
 'use client'
 
-import { MapContainer, TileLayer, Marker, ZoomControl } from 'react-leaflet'
+import { useEffect } from 'react'
+import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Venue } from './QuickViewCard'
@@ -42,16 +43,34 @@ interface MapProps {
   zoom?: number
   venues?: Venue[]
   onSelectVenue?: (venue: Venue) => void
+  selectedVenue?: Venue | null
 }
 
 const DEFAULT_CENTER: [number, number] = [19.432608, -99.133209] // Mexico City (CDMX) as default center
 const DEFAULT_ZOOM = 13
 
+// Component to programmatically pan and center the map on the selected venue
+function MapController({ selectedVenue }: { selectedVenue: Venue | null }) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (selectedVenue) {
+      map.setView([selectedVenue.lat, selectedVenue.lng], 15, {
+        animate: true,
+        duration: 1.0, // 1 second smooth animation
+      })
+    }
+  }, [selectedVenue, map])
+
+  return null
+}
+
 export default function Map({ 
   center = DEFAULT_CENTER, 
   zoom = DEFAULT_ZOOM, 
   venues = [], 
-  onSelectVenue 
+  onSelectVenue,
+  selectedVenue = null
 }: MapProps) {
   return (
     <div className="w-full h-full relative z-0" data-testid="map-container">
@@ -68,6 +87,10 @@ export default function Map({
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
         <ZoomControl position="topright" /> {/* Re-add zoom controls in top-right */}
+        
+        {/* Helper component to animate camera pan when a venue is selected */}
+        <MapController selectedVenue={selectedVenue} />
+
         {venues.map((venue) => (
           <Marker
             key={venue.id}

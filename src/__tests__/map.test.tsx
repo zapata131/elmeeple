@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import Home from '@/app/page'
 import Map from '@/components/Map'
@@ -10,6 +11,9 @@ jest.mock('react-leaflet', () => ({
   TileLayer: () => <div data-testid="mock-tile-layer" />,
   ZoomControl: () => <div data-testid="mock-zoom-control" />,
   Marker: () => <div data-testid="mock-marker" />,
+  useMap: () => ({
+    setView: jest.fn(),
+  }),
 }))
 
 describe('Map Component', () => {
