@@ -1,11 +1,11 @@
 'use client'
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { createClient } from '@/utils/supabase/client'
 import { toggleFavorite } from '@/app/actions/favorite'
-import { submitReview } from '@/app/actions/reviews'
+import Link from 'next/link'
 
 export interface DailySchedule {
   open: string
@@ -25,6 +25,7 @@ export interface StructuredSchedule {
 export interface Venue {
   id: string
   name: string
+  slug?: string
   lat: number
   lng: number
   tags: string[]
@@ -105,30 +106,16 @@ interface Announcement {
   venue_id: string
 }
 
-const VIBE_TAGS_PRESETS = ['Eurogames', 'TCGs', 'Café', 'Comida', 'Familiar', 'Torneos', 'Rol']
-
 export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
   const { data: session } = useSession()
-  const [activeTab, setActiveTab] = useState<'general' | 'ludoteca' | 'reviews'>('general')
   const [isFavorite, setIsFavorite] = useState(false)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loadingFavorite, setLoadingFavorite] = useState(false)
 
-  // Sync state with props or fetch dynamically
-  const [games, setGames] = useState<any[]>(venue.venue_games || [])
-  const [reviews, setReviews] = useState<any[]>(venue.reviews || [])
-
-  // Review Form state
-  const [newRating, setNewRating] = useState<number>(5)
-  const [newComment, setNewComment] = useState('')
-  const [selectedVibeTags, setSelectedVibeTags] = useState<string[]>([])
-  const [submittingReview, setSubmittingReview] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
-
   const formattedSchedule = formatSchedule(venue.schedule)
   const typeLabel = venue.type ? VENUE_TYPE_LABELS[venue.type] : null
 
-  // Fetch details (announcements, favorites, games, and reviews)
+  // Fetch announcements and favorites dynamically on component mount
   useEffect(() => {
     const fetchVenueDetails = async () => {
       const supabase = createClient()
@@ -154,25 +141,6 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           .single()
 
         setIsFavorite(!!fav)
-      }
-
-      // Fetch games
-      const { data: dbGames } = await supabase
-        .from('venue_games')
-        .select('*')
-        .eq('venue_id', venue.id)
-      if (dbGames) {
-        setGames(dbGames)
-      }
-
-      // Fetch reviews
-      const { data: dbReviews } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('venue_id', venue.id)
-        .order('created_at', { ascending: false })
-      if (dbReviews) {
-        setReviews(dbReviews)
       }
     }
 
@@ -201,62 +169,6 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
     }
   }
 
-  const handleVibeTagToggle = (tag: string) => {
-    setSelectedVibeTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    )
-  }
-
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!session?.user?.email) return
-
-    setSubmittingReview(true)
-    setFormError(null)
-
-    try {
-      const res = await submitReview(venue.id, newRating, newComment, selectedVibeTags)
-      if (res.success) {
-        // Add review locally to update the UI instantly
-        const newReviewObj = {
-          id: Math.random().toString(), // temporary id
-          user_email: session.user.email,
-          rating: newRating,
-          comment: newComment.trim(),
-          vibe_tags: selectedVibeTags,
-          created_at: new Date().toISOString()
-        }
-        setReviews((prev) => [newReviewObj, ...prev])
-        
-        // Reset form
-        setNewComment('')
-        setNewRating(5)
-        setSelectedVibeTags([])
-      } else {
-        setFormError(res.error || 'Error al enviar la reseña.')
-      }
-    } catch (err) {
-      setFormError('Error de conexión al enviar la reseña.')
-    } finally {
-      setSubmittingReview(false)
-    }
-  }
-
-  // Calculate statistics
-  const averageRating = reviews.length > 0
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : '0.0'
-
-  // Calculate community vibe tags frequencies
-  const vibeStats: Record<string, number> = {}
-  reviews.forEach((r) => {
-    if (r.vibe_tags && Array.isArray(r.vibe_tags)) {
-      r.vibe_tags.forEach((tag: string) => {
-        vibeStats[tag] = (vibeStats[tag] || 0) + 1
-      })
-    }
-  })
-
   return (
     <div
       data-testid="quick-view-card"
@@ -274,8 +186,15 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
               className="w-12 h-12 rounded-xl object-cover border border-[#3A3A3A]/10 flex-shrink-0"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center text-xl font-bold flex-shrink-0">
-              🎲
+            <div className="w-12 h-12 rounded-xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center flex-shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                fill="currentColor"
+                className="w-6 h-6"
+              >
+                <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+              </svg>
             </div>
           )}
           
@@ -320,276 +239,75 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           <button
             onClick={handleFavoriteToggle}
             disabled={loadingFavorite}
-            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all border cursor-pointer flex items-center gap-1 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all border cursor-pointer flex items-center gap-1.5 ${
               isFavorite
                 ? 'bg-yellow-500/15 border-yellow-500/40 text-yellow-700'
                 : 'bg-white hover:bg-[#3A3A3A]/5 border-[#3A3A3A]/15 text-[#3A3A3A]/70'
             }`}
           >
-            {isFavorite ? 'Favorito ⭐' : 'Favorito ☆'}
+            {isFavorite ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-yellow-500"><path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" /></svg>
+                Favorito
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
+                Guardar Favorito
+              </>
+            )}
           </button>
         )}
       </div>
 
-      {/* Tabs Header */}
-      <div className="flex border-b border-[#3A3A3A]/10 my-1">
-        <button
-          onClick={() => setActiveTab('general')}
-          className={`flex-1 py-2 text-xs font-extrabold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'general'
-              ? 'border-[#8367C7] text-[#8367C7]'
-              : 'border-transparent text-[#3A3A3A]/60 hover:text-[#3A3A3A]'
-          }`}
-        >
-          Detalles
-        </button>
-        <button
-          onClick={() => setActiveTab('ludoteca')}
-          className={`flex-1 py-2 text-xs font-extrabold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'ludoteca'
-              ? 'border-[#8367C7] text-[#8367C7]'
-              : 'border-transparent text-[#3A3A3A]/60 hover:text-[#3A3A3A]'
-          }`}
-        >
-          Ludoteca
-        </button>
-        <button
-          onClick={() => setActiveTab('reviews')}
-          className={`flex-1 py-2 text-xs font-extrabold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'reviews'
-              ? 'border-[#8367C7] text-[#8367C7]'
-              : 'border-transparent text-[#3A3A3A]/60 hover:text-[#3A3A3A]'
-          }`}
-        >
-          Reseñas
-        </button>
-      </div>
+      {/* Divider */}
+      <div className="border-b border-[#3A3A3A]/10 my-1"></div>
 
-      {/* Tab Content: General (Details) */}
-      {activeTab === 'general' && (
-        <div className="flex flex-col gap-3">
-          <p className="text-sm text-[#3A3A3A]/80 leading-relaxed">
-            {venue.description}
-          </p>
+      {/* Details Body */}
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-[#3A3A3A]/80 leading-relaxed">
+          {venue.description}
+        </p>
 
-          {/* Specialty Tags */}
-          <div className="flex flex-wrap gap-1.5 my-0.5">
-            {(venue.tags || []).map((tag) => (
-              <span
-                key={tag}
-                className="px-2.5 py-1 text-xs font-bold bg-[#3A3A3A]/5 text-[#3A3A3A]/85 rounded-lg"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Schedule Info */}
-          <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/70 font-semibold bg-[#3A3A3A]/5 p-2.5 rounded-xl">
-            <span role="img" aria-label="clock" className="text-sm">🕒</span>
-            <span className="leading-snug">{formattedSchedule}</span>
-          </div>
-
-          {/* Announcements Bulletin Board */}
-          {announcements.length > 0 && (
-            <div className="border-t border-[#3A3A3A]/10 pt-3.5 flex flex-col gap-2.5">
-              <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">📢 Cartelera de Anuncios</span>
-              <div className="flex flex-col gap-2.5 max-h-36 overflow-y-auto pr-1">
-                {announcements.map((ann) => (
-                  <div key={ann.id} className="bg-[#8367C7]/5 p-3 rounded-xl border border-[#8367C7]/10 flex flex-col gap-1.5">
-                    <span className="font-extrabold text-xs text-[#3A3A3A]">{ann.title}</span>
-                    <p className="text-[11px] text-[#3A3A3A]/80 leading-relaxed">{ann.content}</p>
-                    <span className="text-[8px] text-[#3A3A3A]/40 self-end">
-                      {new Date(ann.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        {/* Specialty Tags */}
+        <div className="flex flex-wrap gap-1.5 my-0.5">
+          {(venue.tags || []).map((tag) => (
+            <span
+              key={tag}
+              className="px-2.5 py-1 text-xs font-bold bg-[#3A3A3A]/5 text-[#3A3A3A]/85 rounded-lg"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
-      )}
 
-      {/* Tab Content: Ludoteca */}
-      {activeTab === 'ludoteca' && (
-        <div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-1">
-          <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">🎲 Catálogo de Juegos</span>
-          {games.length === 0 ? (
-            <p className="text-xs text-[#3A3A3A]/60 italic py-4 text-center">Este local aún no tiene juegos registrados.</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {games.map((game) => (
-                <div key={game.id} className="flex gap-2 bg-white p-2 rounded-xl border border-[#3A3A3A]/10 items-center shadow-sm">
-                  {game.thumbnail ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={game.thumbnail} alt={game.name} className="w-10 h-10 object-cover rounded-lg flex-shrink-0 shadow-sm" />
-                  ) : (
-                    <div className="w-10 h-10 bg-[#8367C7]/15 text-[#8367C7] rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0">🎲</div>
-                  )}
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-[#3A3A3A] truncate" title={game.name}>{game.name}</span>
-                    <span className="text-[9px] font-semibold text-[#3A3A3A]/50">
-                      {game.min_players && game.max_players
-                        ? `${game.min_players}-${game.max_players} jug.`
-                        : game.min_players
-                          ? `${game.min_players}+ jug.`
-                          : 'Jugadores N/A'}
-                      {game.playing_time ? ` | ${game.playing_time} min` : ''}
-                    </span>
-                  </div>
+        {/* Schedule Info */}
+        <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/70 font-semibold bg-[#3A3A3A]/5 p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          <span className="leading-snug">{formattedSchedule}</span>
+        </div>
+
+        {/* Announcements Bulletin Board */}
+        {announcements.length > 0 && (
+          <div className="border-t border-[#3A3A3A]/10 pt-3.5 flex flex-col gap-2.5">
+            <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">Cartelera de Anuncios</span>
+            <div className="flex flex-col gap-2.5 max-h-36 overflow-y-auto pr-1">
+              {announcements.map((ann) => (
+                <div key={ann.id} className="bg-[#8367C7]/5 p-3 rounded-xl border border-[#8367C7]/10 flex flex-col gap-1.5">
+                  <span className="font-extrabold text-xs text-[#3A3A3A]">{ann.title}</span>
+                  <p className="text-[11px] text-[#3A3A3A]/80 leading-relaxed">{ann.content}</p>
+                  <span className="text-[8px] text-[#3A3A3A]/45 self-end">
+                    {new Date(ann.created_at).toLocaleDateString()}
+                  </span>
                 </div>
               ))}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab Content: Reseñas */}
-      {activeTab === 'reviews' && (
-        <div className="flex flex-col gap-4 max-h-96 overflow-y-auto pr-1">
-          {/* Averages */}
-          <div className="bg-white p-3 rounded-xl border border-[#3A3A3A]/10 flex justify-between items-center">
-            <div>
-              <span className="text-[10px] font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider">Calificación Promedio</span>
-              <p className="text-lg font-black text-[#8367C7] mt-0.5">{averageRating} / 5.0</p>
-            </div>
-            <div className="flex gap-0.5 text-yellow-500 text-sm">
-              {'★'.repeat(Math.round(parseFloat(averageRating)))}{'☆'.repeat(5 - Math.round(parseFloat(averageRating)))}
-            </div>
           </div>
+        )}
+      </div>
 
-          {/* Vibe tags progress bars */}
-          {Object.keys(vibeStats).length > 0 && (
-            <div className="bg-white p-3 rounded-xl border border-[#3A3A3A]/10 flex flex-col gap-2">
-              <span className="text-[10px] font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider mb-1">Vibra del Local</span>
-              {Object.entries(vibeStats).map(([tag, count]) => {
-                const percentage = Math.round((count / reviews.length) * 100)
-                return (
-                  <div key={tag} className="flex flex-col gap-1">
-                    <div className="flex justify-between text-[10px] font-bold text-[#3A3A3A]/70">
-                      <span>{tag}</span>
-                      <span>{percentage}%</span>
-                    </div>
-                    <div className="w-full bg-[#3A3A3A]/10 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-[#8367C7] h-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Write Review Form */}
-          {session?.user ? (
-            <form onSubmit={handleReviewSubmit} className="bg-white p-4 rounded-xl border border-[#3A3A3A]/10 flex flex-col gap-3">
-              <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">✍️ Escribir Reseña</span>
-              
-              {/* Star selection */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[#3A3A3A]/75 font-semibold">Tu Calificación:</span>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setNewRating(star)}
-                      className={`text-lg transition-colors cursor-pointer ${
-                        star <= newRating ? 'text-yellow-500' : 'text-gray-300'
-                      }`}
-                    >
-                      ★
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Vibe Tags selector */}
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] text-[#3A3A3A]/60 font-semibold">Tags (selecciona vibras):</span>
-                <div className="flex flex-wrap gap-1">
-                  {VIBE_TAGS_PRESETS.map((tag) => {
-                    const isSelected = selectedVibeTags.includes(tag)
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => handleVibeTagToggle(tag)}
-                        className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#8367C7] text-[#F5F0E9]'
-                            : 'bg-[#3A3A3A]/5 text-[#3A3A3A]/70 hover:bg-[#3A3A3A]/10'
-                        }`}
-                      >
-                        {tag}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Escribe tu reseña aquí..."
-                required
-                rows={2}
-                className="w-full p-2 border border-[#3A3A3A]/20 rounded-lg text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] resize-none"
-              />
-
-              {formError && <p className="text-[10px] text-red-600 font-bold">{formError}</p>}
-
-              <button
-                type="submit"
-                disabled={submittingReview}
-                className="py-2 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/10 text-[#F5F0E9] font-bold rounded-lg text-xs cursor-pointer shadow-sm transition-all"
-              >
-                {submittingReview ? 'Enviando...' : 'Enviar Reseña'}
-              </button>
-            </form>
-          ) : (
-            <div className="bg-[#3A3A3A]/5 p-3 rounded-xl text-center text-xs text-[#3A3A3A]/60 font-semibold border border-dashed border-[#3A3A3A]/15">
-              🔑 Inicia sesión para escribir una reseña.
-            </div>
-          )}
-
-          {/* Reviews Feed */}
-          <div className="flex flex-col gap-2.5">
-            <span className="text-[10px] font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider">Comentarios de la Comunidad</span>
-            {reviews.length === 0 ? (
-              <p className="text-xs text-[#3A3A3A]/60 italic py-2">Sé el primero en dejar una reseña para este local.</p>
-            ) : (
-              reviews.map((rev) => (
-                <div key={rev.id} className="bg-white p-3 rounded-xl border border-[#3A3A3A]/10 flex flex-col gap-1.5 shadow-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-[10px] text-[#3A3A3A]/70 truncate max-w-[180px]" title={rev.user_email}>
-                      {rev.user_email}
-                    </span>
-                    <div className="text-yellow-500 text-[10px]">
-                      {'★'.repeat(rev.rating)}{'☆'.repeat(5 - rev.rating)}
-                    </div>
-                  </div>
-                  {rev.comment && <p className="text-xs text-[#3A3A3A] leading-relaxed">{rev.comment}</p>}
-                  {rev.vibe_tags && rev.vibe_tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-0.5">
-                      {rev.vibe_tags.map((vt: string) => (
-                        <span key={vt} className="px-1.5 py-0.5 text-[8px] font-bold bg-[#8367C7]/10 text-[#8367C7] rounded">
-                          {vt}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <span className="text-[8px] text-[#3A3A3A]/45 self-end">
-                    {new Date(rev.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Footer Actions: Social Links and Full Profile CTA */}
-      <div className="flex items-center gap-2 mt-1">
+      {/* Footer Actions: Social Links and Full Profile Link CTA */}
+      <div className="flex items-center gap-2 mt-1 border-t border-[#3A3A3A]/10 pt-3">
         {/* Instagram Link */}
         {venue.instagram && (
           <a
@@ -645,10 +363,14 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           </a>
         )}
 
-        {/* Full Profile CTA */}
-        <button className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
-          Ver Perfil Completo
-        </button>
+        {/* Premium Full Profile Link CTA */}
+        <a
+          href={`/venue/${venue.slug || venue.id}`}
+          className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm flex items-center justify-center gap-1.5 group"
+        >
+          <span>Ver Perfil y Ludoteca</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+        </a>
       </div>
     </div>
   )

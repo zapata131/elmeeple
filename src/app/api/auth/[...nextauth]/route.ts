@@ -1,6 +1,8 @@
 import NextAuth, { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
+import { createClient } from '@/utils/supabase/server'
+import { hashPassword } from '@/app/actions/register'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,7 +19,37 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email) return null
 
-        // Assign 'partner' role to emails containing 'partner', 'owner', or specific store emails
+        const emailClean = credentials.email.toLowerCase().trim()
+
+        try {
+          const supabase = await createClient()
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', emailClean)
+            .single()
+
+          if (profile) {
+            const hashedPassword = await hashPassword(credentials.password || '')
+            console.log('[NextAuth Debug] Profile found:', profile.email)
+            console.log('[NextAuth Debug] DB Password:', profile.password)
+            console.log('[NextAuth Debug] Form Hashed Password:', hashedPassword)
+            if (profile.password === hashedPassword) {
+              return {
+                id: profile.email,
+                name: profile.name,
+                email: profile.email,
+                role: profile.role,
+              }
+            }
+            console.log('[NextAuth Debug] Password mismatch!')
+            return null
+          }
+        } catch (err) {
+          console.error('Error in nextauth authorize db check:', err)
+        }
+
+        // Fallback for mock users/tests if they aren't in the database yet
         const email = credentials.email.toLowerCase()
         const role = email.includes('partner') || email.includes('owner') || email.includes('admin') ? 'partner' : 'player'
 

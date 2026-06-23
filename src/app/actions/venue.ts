@@ -43,6 +43,11 @@ export async function createVenue(data: OnboardingData) {
   try {
     const supabase = await createClient()
 
+    // Generate URL-friendly slug
+    const slug = data.name.toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '') || `local-${Date.now()}`;
+
     // 1. Insert the venue into the 'venues' table
     const { data: insertedVenue, error: venueError } = await supabase
       .from('venues')
@@ -50,6 +55,7 @@ export async function createVenue(data: OnboardingData) {
         owner_name: data.ownerName,
         owner_email: data.ownerEmail,
         name: data.name,
+        slug: slug,
         description: data.description,
         schedule: data.schedule,
         lat: data.lat,

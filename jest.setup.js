@@ -1,6 +1,21 @@
-// Extend Jest with custom matchers from testing-library
 import '@testing-library/jest-dom'
 import React from 'react'
+
+// Mock next/navigation globally
+const mockPushGlobal = jest.fn()
+const mockRefreshGlobal = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPushGlobal,
+    refresh: mockRefreshGlobal,
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+    replace: jest.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}))
 
 // Polyfill Request, Response, Headers in JSDOM
 if (typeof global.TextEncoder === 'undefined') {
@@ -141,6 +156,8 @@ jest.mock('@/utils/supabase/client', () => {
     eq: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),
     single: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockResolvedValue({ error: null }),
+    delete: jest.fn().mockResolvedValue({ error: null }),
     then: jest.fn(function(onFulfilled) {
       let resolvedValue = { data: [], error: null }
       if (currentTable === 'venues') {
@@ -194,6 +211,8 @@ jest.mock('@/utils/supabase/server', () => {
     eq: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),
     single: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockResolvedValue({ error: null }),
+    delete: jest.fn().mockResolvedValue({ error: null }),
     then: jest.fn(function(onFulfilled) {
       let resolvedValue = { data: [], error: null }
       if (currentTable === 'venues') {
@@ -263,5 +282,19 @@ global.mockSubmitReview = mockSubmitReview
 jest.mock('@/app/actions/reviews', () => ({
   submitReview: (venueId, rating, comment, vibeTags) => mockSubmitReview(venueId, rating, comment, vibeTags),
 }), { virtual: true })
+
+// Mock next/navigation globally to prevent "invariant expected app router to be mounted" crashes
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}))
 
 

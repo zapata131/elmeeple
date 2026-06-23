@@ -30,9 +30,9 @@ describe('Home Page with Map Integration', () => {
     expect(screen.getByTestId('mock-map-container')).toBeInTheDocument()
   })
 
-  it('renders the floating brand card with El Meeple and tagline', () => {
+  it('renders the floating Navbar and search controls', () => {
     render(<Home />)
-    expect(screen.getByRole('heading', { name: /El Meeple/i })).toBeInTheDocument()
-    expect(screen.getByText(/¿Dónde jugamos hoy\?/i)).toBeInTheDocument()
+    expect(screen.getByText('El Meeple')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Buscar locales...')).toBeInTheDocument()
   })
 })

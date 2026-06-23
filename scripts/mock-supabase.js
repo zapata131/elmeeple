@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-unused-vars */
 const http = require('http');
 const url = require('url');
+const crypto = require('crypto');
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 let venues = [
   {
     id: "1",
     name: "Orcs Stories",
+    slug: "orcs-stories",
     owner_name: "Owner User",
     owner_email: "owner@example.com",
     description: "Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.",
@@ -40,6 +46,7 @@ let venues = [
   {
     id: "2",
     name: "El Duende",
+    slug: "el-duende",
     owner_name: "Duende Owner",
     owner_email: "duende@example.com",
     description: "El punto de encuentro para torneos de cartas coleccionables y comunidad de juegos de mesa.",
@@ -84,6 +91,34 @@ let announcements = [
 
 let favorites = [];
 
+let profiles = [
+  {
+    id: "prof-1",
+    email: "player@example.com",
+    name: "Player One",
+    password: hashPassword("password123"),
+    role: "player",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "prof-2",
+    email: "partner@example.com",
+    name: "Partner Owner",
+    password: hashPassword("password123"),
+    role: "partner",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "prof-3",
+    email: "admin@example.com",
+    name: "Admin User",
+    password: hashPassword("password123"),
+    role: "admin",
+    created_at: new Date().toISOString()
+  }
+];
+
+
 let reviews = [
   {
     id: "rev-1",
@@ -107,6 +142,17 @@ let venue_games = [
     min_players: 1,
     max_players: 5,
     playing_time: 120,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "g-init-2",
+    venue_id: "1",
+    bgg_id: 169786,
+    name: "Scythe",
+    thumbnail: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop",
+    min_players: 1,
+    max_players: 5,
+    playing_time: 115,
     created_at: new Date().toISOString()
   }
 ];
@@ -157,6 +203,7 @@ const server = http.createServer((req, res) => {
         const idFilter = getFilterValue(parsedUrl.query, 'id');
         const ownerFilter = getFilterValue(parsedUrl.query, 'owner_email');
         const statusFilter = getFilterValue(parsedUrl.query, 'verification_status');
+        const slugFilter = getFilterValue(parsedUrl.query, 'slug');
 
         let filtered = [...venues];
         if (idFilter) {
@@ -167,6 +214,9 @@ const server = http.createServer((req, res) => {
         }
         if (statusFilter) {
           filtered = filtered.filter(v => v.verification_status === statusFilter);
+        }
+        if (slugFilter) {
+          filtered = filtered.filter(v => v.slug === slugFilter);
         }
 
         // Dynamically embed venue_games and reviews
@@ -179,6 +229,26 @@ const server = http.createServer((req, res) => {
             reviews: revs
           };
         });
+
+        // Handle single object request (.single())
+        const preferHeader = req.headers['prefer'] || '';
+        const acceptHeader = req.headers['accept'] || '';
+        if (
+          preferHeader.includes('handling=strict') ||
+          preferHeader.includes('count=') ||
+          req.url.includes('single') ||
+          acceptHeader.includes('vnd.pgrst.object')
+        ) {
+          if (mapped.length === 0) {
+            res.writeHead(406, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }));
+            return;
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(mapped[0]));
+            return;
+          }
+        }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(mapped));
@@ -388,6 +458,55 @@ const server = http.createServer((req, res) => {
       } else {
         res.writeHead(404);
         res.end();
+      }
+      return;
+    }
+
+    // Profiles endpoint
+    if (path.startsWith('/rest/v1/profiles')) {
+      if (method === 'GET') {
+        const emailFilter = getFilterValue(parsedUrl.query, 'email');
+        let filtered = [...profiles];
+        if (emailFilter) {
+          filtered = filtered.filter(p => p.email === emailFilter);
+        }
+
+        const preferHeader = req.headers['prefer'] || '';
+        const acceptHeader = req.headers['accept'] || '';
+        if (
+          preferHeader.includes('handling=strict') ||
+          preferHeader.includes('count=') ||
+          req.url.includes('single') ||
+          acceptHeader.includes('vnd.pgrst.object')
+        ) {
+          if (filtered.length === 0) {
+            res.writeHead(406, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ code: 'PGRST116', message: 'JSON object requested, multiple (or no) rows returned' }));
+            return;
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(filtered[0]));
+            return;
+          }
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(filtered));
+      } else if (method === 'POST') {
+        try {
+          const payload = JSON.parse(body);
+          const newProfile = {
+            id: `prof-${Date.now()}`,
+            created_at: new Date().toISOString(),
+            ...payload
+          };
+          profiles.push(newProfile);
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify([newProfile]));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
       }
       return;
     }
