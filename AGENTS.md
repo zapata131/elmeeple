@@ -63,8 +63,8 @@ This document defines the specialized AI agents responsible for developing **El 
 > 1. Review the test coverage. Are the edge cases accounted for?
 > 2. Review the Next.js App Router implementation. Are Server Components and Client Components used appropriately? 
 > 3. Check Supabase queries for security (RLS policies) and efficiency.
-> 4. Run the Visual QA Suite (`./scripts/run-visual-qa.sh`) to capture and inspect screenshots for both desktop and mobile viewports. Reject the PR if there are any visual regressions (overlapping text, clipping, or blocked controls).
-> 5. If all linting, building, unit tests, and Visual QA pass perfectly, approve the PR for merge into `main`.
+> 4. Use Chrome DevTools MCP tools (via the `chrome-devtools` server) to perform live browser walkthroughs of the affected features, capturing screenshots on both desktop (e.g., 1280x800) and mobile (e.g., 390x844) viewports. Audit the layout for regressions (such as overlapping text, clipping, or blocked controls) and review browser console logs. Reject the PR if any layout regressions or console errors are detected.
+> 5. If all linting, building, unit tests, and Chrome DevTools browser walkthroughs pass perfectly, approve the PR for merge into `main`.
 
 ---
 

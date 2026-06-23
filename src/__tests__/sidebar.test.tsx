@@ -52,23 +52,26 @@ describe('Left Sidebar Directory Layout', () => {
     expect(screen.getByRole('button', { name: /híbridos/i })).toBeInTheDocument()
   })
 
-  it('renders a scrollable list of matching venues', () => {
+  it('renders a scrollable list of matching venues', async () => {
     render(<Home />)
 
     // Check the venue list container exists
     const venueList = screen.getByTestId('venue-list')
     expect(venueList).toBeInTheDocument()
 
-    // Check default venues are rendered in the list
-    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
-    expect(screen.getByText('El Duende')).toBeInTheDocument()
-    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
+    // Check default venues are rendered in the list after loading
+    expect(await screen.findByText('Orcs Stories')).toBeInTheDocument()
+    expect(await screen.findByText('El Duende')).toBeInTheDocument()
+    expect(await screen.findByText('Ravenfolks')).toBeInTheDocument()
   })
 
   it('filters the list of venues when typing in the search bar', async () => {
     render(<Home />)
     const user = userEvent.setup()
     const searchInput = screen.getByPlaceholderText(/buscar locales/i)
+
+    // Wait for initial venues to load first
+    await screen.findByText('Orcs Stories')
 
     // Type "Orcs" in search bar
     await user.type(searchInput, 'Orcs')
@@ -80,7 +83,7 @@ describe('Left Sidebar Directory Layout', () => {
 
     // Clear search and verify all show up again
     await user.clear(searchInput)
-    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(await screen.findByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.getByText('El Duende')).toBeInTheDocument()
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
 
@@ -94,6 +97,9 @@ describe('Left Sidebar Directory Layout', () => {
   it('filters the list of venues when clicking a category chip', async () => {
     render(<Home />)
     const user = userEvent.setup()
+
+    // Wait for initial venues to load first
+    await screen.findByText('Orcs Stories')
 
     // Click "Tiendas" chip
     const tiendasChip = screen.getByRole('button', { name: /tiendas/i })
@@ -118,7 +124,7 @@ describe('Left Sidebar Directory Layout', () => {
     await user.click(todosChip)
 
     // All should show up
-    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(await screen.findByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.getByText('El Duende')).toBeInTheDocument()
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
   })
@@ -127,12 +133,12 @@ describe('Left Sidebar Directory Layout', () => {
     render(<Home />)
     const user = userEvent.setup()
 
-    // Find the venue card button or clickable card in the list
-    const ravenfolksCard = screen.getByRole('button', { name: /seleccionar ravenfolks/i })
+    // Find the venue card button or clickable card in the list (wait for it to load)
+    const ravenfolksCard = await screen.findByRole('button', { name: /seleccionar ravenfolks/i })
     await user.click(ravenfolksCard)
 
     // Verify Quick View Card is rendered with Ravenfolks details
-    expect(screen.getByTestId('quick-view-card')).toBeInTheDocument()
-    expect(screen.getAllByText('Ravenfolks')).toHaveLength(2) // One in list, one in Quick View Card (or similar)
+    expect(await screen.findByTestId('quick-view-card')).toBeInTheDocument()
+    expect(screen.getAllByText('Ravenfolks')).toHaveLength(2) // One in list, one in Quick View Card
   })
 })

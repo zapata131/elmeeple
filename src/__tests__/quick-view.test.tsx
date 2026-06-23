@@ -43,14 +43,14 @@ describe('Quick View Card Integration', () => {
     expect(screen.queryByTestId('quick-view-card')).not.toBeInTheDocument()
   })
 
-  it('renders the markers on the map for the default venues in CDMX', () => {
+  it('renders the markers on the map for the default venues in CDMX', async () => {
     render(<Home />)
     // "Orcs Stories" (CDMX Roma Norte): 19.4165, -99.1620
-    expect(screen.getByTestId('mock-marker-19.4165--99.162')).toBeInTheDocument()
+    expect(await screen.findByTestId('mock-marker-19.4165--99.162')).toBeInTheDocument()
     // "El Duende" (CDMX Coyoacán): 19.3750, -99.1780
-    expect(screen.getByTestId('mock-marker-19.375--99.178')).toBeInTheDocument()
+    expect(await screen.findByTestId('mock-marker-19.375--99.178')).toBeInTheDocument()
     // "Ravenfolks" (CDMX Roma Norte): 19.4184, -99.1627
-    expect(screen.getByTestId('mock-marker-19.4184--99.1627')).toBeInTheDocument()
+    expect(await screen.findByTestId('mock-marker-19.4184--99.1627')).toBeInTheDocument()
   })
 
   it('opens the Quick View Card with correct details when a marker is clicked', async () => {
@@ -58,7 +58,7 @@ describe('Quick View Card Integration', () => {
     const user = userEvent.setup()
 
     // Click the marker for "Orcs Stories"
-    const orcsMarker = screen.getByTestId('mock-marker-19.4165--99.162')
+    const orcsMarker = await screen.findByTestId('mock-marker-19.4165--99.162')
     await user.click(orcsMarker)
 
     // Check that the card is now visible
@@ -86,9 +86,9 @@ describe('Quick View Card Integration', () => {
     const user = userEvent.setup()
 
     // Click the marker to open it
-    const orcsMarker = screen.getByTestId('mock-marker-19.4165--99.162')
+    const orcsMarker = await screen.findByTestId('mock-marker-19.4165--99.162')
     await user.click(orcsMarker)
-    expect(screen.getByTestId('quick-view-card')).toBeInTheDocument()
+    expect(await screen.findByTestId('quick-view-card')).toBeInTheDocument()
 
     // Click the close button
     const closeButton = screen.getByRole('button', { name: /close-card/i })

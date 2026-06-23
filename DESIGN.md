@@ -34,7 +34,7 @@
 * **Zoom Controls Positioning:** Leaflet's default zoom control is disabled in the top-left, and a custom `ZoomControl` is added at `topright` to prevent overlap with the floating brand card.
 * **Mobile Overlap Prevention:** To keep the map visible on mobile devices, the top brand card is automatically hidden (`hidden md:block`) whenever a venue's Quick View Card is active.
 * **Owner Logo Upload & Canvas Auto-Cropping:** To avoid heavy image storage requirements for the B2B MVP, the Onboarding page features a Client-side File Input. When an image is uploaded, an invisible HTML5 Canvas crops and resizes it to a perfect `150x150px` square, compressing it into a highly lightweight Base64 JPEG string (5-10 KB) stored directly in the database.
-* **Mandatory Visual Review Loop:** As defined in `AGENTS.md`, the AI Reviewer must capture and verify screenshots for both desktop and mobile viewports to ensure no visual regressions (overlapping text, clipping, or blocked controls) exist before approving a PR.
+* **Mandatory Visual Review Loop:** As defined in `AGENTS.md`, the AI Reviewer must use Chrome DevTools MCP tools (via the `chrome-devtools` server) to perform live browser walkthroughs, capturing and verifying screenshots for both desktop and mobile viewports to ensure no visual regressions (overlapping text, clipping, or blocked controls) or console errors exist before approving a PR.
 
 ### **5. Technical Architecture (The "ShipFast" Stack)**
 * **Framework:** Next.js (App Router) acting as a monolith for both Frontend UI and Backend Server Actions/API routes.
