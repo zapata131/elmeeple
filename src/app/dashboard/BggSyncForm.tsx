@@ -49,8 +49,9 @@ export default function BggSyncForm({ venueId, initialUsername = '' }: BggSyncFo
   return (
     <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 flex flex-col gap-4 shadow-sm">
       <div>
-        <h4 className="text-sm font-extrabold text-[#3A3A3A] flex items-center gap-2">
-          <span>📊</span> Sincronizar con BoardGameGeek
+        <h4 className="text-sm font-extrabold text-[#3A3A3A] flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v5.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 013 18.375v-5.25zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125v-9.75zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v14.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+          Sincronizar con BoardGameGeek
         </h4>
         <p className="text-xs text-[#3A3A3A]/60 mt-1">
           Importa automáticamente el catálogo de juegos de mesa de tu local ingresando tu usuario de BGG.

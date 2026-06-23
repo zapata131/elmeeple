@@ -167,7 +167,7 @@ async function run() {
       report.screenshots.push({ name: `Owner Dashboard (${vp.name})`, path: ownerPath });
 
       console.log(`[${vp.name}] Submitting announcement...`);
-      await page.click('button[type="submit"]');
+      await page.click('button:has-text("Publicar")');
       
       // Wait for success message
       await page.waitForSelector('text=¡Anuncio publicado con éxito!', { timeout: 5000 });

@@ -151,9 +151,14 @@ async function run() {
       await playerPage.waitForURL('http://localhost:3000/', { timeout: 8000 });
       console.log(`[${vp.name}] Player logged in successfully.`);
 
+      // Click 'Buscar juegos' tab/pill
+      console.log(`[${vp.name}] Toggling search mode to games...`);
+      await playerPage.click('button:has-text("Buscar juegos")');
+      await playerPage.waitForTimeout(300);
+
       // Type game title 'Scythe' in search bar
       console.log(`[${vp.name}] Searching for game 'Scythe'...`);
-      const searchInput = playerPage.locator('input[placeholder*="Buscar locales"]');
+      const searchInput = playerPage.locator('input[placeholder*="Buscar juegos"]');
       await searchInput.fill('Scythe');
       await playerPage.waitForTimeout(1000); // Wait for filtering to apply
 
@@ -170,21 +175,18 @@ async function run() {
       // Wait for Quick View Card
       await playerPage.waitForSelector('[data-testid="quick-view-card"]', { timeout: 5000 });
       
-      // Open "Ludoteca" tab
-      console.log(`[${vp.name}] Opening Ludoteca tab...`);
-      await playerPage.click('button:has-text("Ludoteca")');
-      await playerPage.waitForTimeout(500); // Settle
-      
-      // Take screenshot of map visual games grid
+      // Transition to dedicated store profile
+      console.log(`[${vp.name}] Transitioning to dedicated store profile...`);
+      const ctaSelector = 'a:has-text("Ver Perfil y Ludoteca")';
+      await playerPage.click(ctaSelector);
+      await playerPage.waitForURL('**/venue/orcs-stories', { timeout: 8000 });
+      await playerPage.waitForSelector('h1:has-text("Orcs Stories")', { timeout: 5000 });
+
+      // Take screenshot of map visual games grid (now on profile page)
       const gamesGridPath = path.join(screenshotDir, `map-visual-games-grid-${vp.name}.png`);
       await playerPage.screenshot({ path: gamesGridPath });
       report.screenshots.push({ name: `Map Visual Games Grid (${vp.name})`, path: gamesGridPath });
       console.log(`[${vp.name}] Saved map visual games grid screenshot.`);
-
-      // Open "Reseñas" tab
-      console.log(`[${vp.name}] Opening Reseñas tab...`);
-      await playerPage.click('button:has-text("Reseñas")');
-      await playerPage.waitForTimeout(500); // Settle
 
       // Fill out "Escribir Reseña" form
       console.log(`[${vp.name}] Filling out review form...`);
@@ -202,11 +204,11 @@ async function run() {
       await tagCafe.click();
 
       // Type comment
-      await playerPage.fill('textarea[placeholder*="Escribe tu reseña"]', '¡Mi café de juegos favorito! Excelente ludoteca, mesas muy amplias y muy buen café.');
+      await playerPage.fill('textarea[placeholder*="Comparte tu opinión"]', '¡Mi café de juegos favorito! Excelente ludoteca, mesas muy amplias y muy buen café.');
       
       // Take screenshot before submitting
       console.log(`[${vp.name}] Submitting review...`);
-      await playerPage.click('button:has-text("Enviar Reseña")');
+      await playerPage.click('button:has-text("Publicar Reseña")');
       
       // Wait for review to appear in the feed (we can wait for comment text)
       await playerPage.waitForSelector('text=¡Mi café de juegos favorito!', { timeout: 5000 });

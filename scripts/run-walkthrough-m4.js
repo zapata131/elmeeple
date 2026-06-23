@@ -73,9 +73,12 @@ async function run() {
       await page.waitForURL('http://localhost:3000/', { timeout: 8000 });
       console.log(`[${vp.name}] Login successful. Redirected to map.`);
 
-      // 2. SEARCH BY GAME & CLICK PIN
+      console.log(`[${vp.name}] Toggling search mode to games...`);
+      await page.click('button:has-text("Buscar juegos")');
+      await page.waitForTimeout(300);
+      
       console.log(`[${vp.name}] Searching for "Scythe" in map search...`);
-      const searchSelector = 'input[placeholder*="Buscar locales"]';
+      const searchSelector = 'input[placeholder*="Buscar juegos"]';
       await page.waitForSelector(searchSelector, { timeout: 5000 });
       await page.fill(searchSelector, 'Scythe');
       await page.waitForTimeout(500); // Settle

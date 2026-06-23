@@ -180,8 +180,8 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
           </div>
 
           {venuesToDisplay.length === 0 ? (
-            <div className="p-12 text-center">
-              <span className="text-3xl mb-2 block">🎉</span>
+            <div className="p-12 text-center flex flex-col items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-10 h-10 text-green-500 mb-2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
               <p className="text-xs font-bold text-[#3A3A3A]/70">¡Al día! No hay locales para mostrar.</p>
             </div>
           ) : (

@@ -267,7 +267,7 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
 
       // Reviews
       expect(screen.getByText(/Excelente ambiente y buen servicio/i)).toBeInTheDocument()
-      expect(screen.getByText('⭐ 5/5')).toBeInTheDocument()
+      expect(screen.getByText('★ 5/5')).toBeInTheDocument()
     })
   })
 
