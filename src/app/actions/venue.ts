@@ -18,6 +18,8 @@ export interface OnboardingData {
   logoUrl?: string
   businessTaxId?: string
   verificationProof?: string
+  contactEmail?: string
+  contactPhone?: string
 }
 
 export async function createVenue(data: OnboardingData) {
@@ -59,8 +61,11 @@ export async function createVenue(data: OnboardingData) {
         business_tax_id: data.businessTaxId,
         verification_proof: data.verificationProof,
         verification_status: 'pending',
-        verified: false // Default to false (requires admin approval)
+        verified: false, // Default to false (requires admin approval)
+        contact_email: data.contactEmail,
+        contact_phone: data.contactPhone
       })
+
       .select()
 
     if (venueError) {

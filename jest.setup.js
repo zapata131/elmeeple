@@ -2,6 +2,34 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 
+// Polyfill Request, Response, Headers in JSDOM
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util')
+  global.TextEncoder = TextEncoder
+  global.TextDecoder = TextDecoder
+}
+
+if (typeof global.ReadableStream === 'undefined') {
+  const { ReadableStream } = require('node:stream/web')
+  global.ReadableStream = ReadableStream
+}
+
+if (typeof global.MessagePort === 'undefined') {
+  const { MessagePort } = require('node:worker_threads')
+  global.MessagePort = MessagePort
+}
+
+
+
+if (typeof global.Request === 'undefined') {
+  const { Request, Response, Headers } = require('undici')
+  global.Request = Request
+  global.Response = Response
+  global.Headers = Headers
+}
+
+
+
 // Mock next/dynamic globally to render dynamic components synchronously in Jest
 jest.mock('next/dynamic', () => ({
   __esModule: true,
@@ -105,23 +133,120 @@ jest.mock('@/utils/supabase/client', () => {
     }
   ]
 
-  const mockSupabase = {
-    from: jest.fn().mockReturnThis(),
+  let currentTable = ''
+  const mockQueryBuilder = {
     select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockResolvedValue({
-      data: mockMOCK_VENUES,
-      error: null
+    eq: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis(),
+    then: jest.fn(function(onFulfilled) {
+      let resolvedValue = { data: [], error: null }
+      if (currentTable === 'venues') {
+        resolvedValue = { data: mockMOCK_VENUES, error: null }
+      }
+      return Promise.resolve(resolvedValue).then(onFulfilled)
     })
   }
 
+  const mockSupabase = {
+    from: jest.fn().mockImplementation((table) => {
+      currentTable = table
+      return mockQueryBuilder
+    }),
+    insert: jest.fn().mockResolvedValue({ error: null }),
+    delete: jest.fn().mockResolvedValue({ error: null })
+  }
+
+  global.mockSupabaseInstance = mockSupabase
   return {
-    createClient: () => mockSupabase
+    createClient: () => global.mockSupabaseInstance
   }
 })
+
+// Mock the server-side Supabase client globally
+jest.mock('@/utils/supabase/server', () => {
+  let currentTable = ''
+  const mockMOCK_VENUES = [
+    {
+      id: '1',
+      name: 'Orcs Stories',
+      lat: 19.4165,
+      lng: -99.1620,
+      venue_tags: [
+        { tags: { name: 'Eurogames' } },
+        { tags: { name: 'TCGs' } },
+        { tags: { name: 'Café' } }
+      ],
+      schedule: {},
+      description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.',
+      type: 'hibrido',
+      instagram: 'orcs_stories',
+      discord: 'https://discord.gg/orcsstories',
+      logo_url: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop',
+      verified: true
+    }
+  ]
+
+  const mockQueryBuilderServer = {
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis(),
+    then: jest.fn(function(onFulfilled) {
+      let resolvedValue = { data: [], error: null }
+      if (currentTable === 'venues') {
+        resolvedValue = { data: mockMOCK_VENUES, error: null }
+      }
+      return Promise.resolve(resolvedValue).then(onFulfilled)
+    })
+  }
+
+  const mockSupabaseServer = {
+    from: jest.fn().mockImplementation((table) => {
+      currentTable = table
+      return mockQueryBuilderServer
+    }),
+    insert: jest.fn().mockResolvedValue({ error: null }),
+    delete: jest.fn().mockResolvedValue({ error: null })
+  }
+
+  global.mockSupabaseServerInstance = mockSupabaseServer
+  return {
+    createClient: () => Promise.resolve(global.mockSupabaseServerInstance)
+  }
+})
+
+// Mock next-auth globally to prevent ESM import syntax issues with the jose package
+jest.mock('next-auth', () => ({
+  getServerSession: jest.fn().mockResolvedValue({
+    user: {
+      name: 'Player One',
+      email: 'player@example.com',
+      role: 'player'
+    }
+  })
+}))
+
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({
+    data: {
+      user: {
+        name: 'Player One',
+        email: 'player@example.com',
+        role: 'player'
+      }
+    },
+    status: 'authenticated'
+  })),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  SessionProvider: ({ children }) => children
+}))
 
 // Mock platform admin server actions
 jest.mock('@/app/actions/admin', () => ({
   approveVenue: jest.fn().mockResolvedValue({ success: true }),
   rejectVenue: jest.fn().mockResolvedValue({ success: true })
 }), { virtual: true })
+
 
