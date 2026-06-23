@@ -84,7 +84,7 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
 
     expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.getByText('Café de especialidad con gran ludoteca.')).toBeInTheDocument()
-    expect(screen.getByText('Híbrido (Café y Tienda)')).toBeInTheDocument()
+    expect(screen.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
     expect(screen.getByText('Roma Norte, CDMX')).toBeInTheDocument()
 
     // Verify social links exist
@@ -165,7 +165,7 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     await user.click(tagCafe)
 
     // Submit the review
-    const submitBtn = screen.getByRole('button', { name: 'Publicar Reseña' })
+    const submitBtn = screen.getByRole('button', { name: 'Publicar reseña' })
     await user.click(submitBtn)
 
     // Verify server action was called

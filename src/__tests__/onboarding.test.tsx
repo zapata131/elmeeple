@@ -220,7 +220,7 @@ describe('Enhanced Owner Onboarding Flow', () => {
     expect(screen.getByText('Jose Zapata')).toBeInTheDocument()
     expect(screen.getByText('jose@elmeeple.com')).toBeInTheDocument()
     expect(screen.getByText('Meeple Oasis CDMX')).toBeInTheDocument()
-    expect(screen.getByText('Híbrido (Café y Tienda)')).toBeInTheDocument()
+    expect(screen.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
     expect(screen.getByText(/meeple_oasis/i)).toBeInTheDocument()
     expect(screen.getByText(/discord.gg\/meepleoasis/i)).toBeInTheDocument()
     expect(screen.getByText(/Mar - Mié: 14:00 - 22:00/i)).toBeInTheDocument()

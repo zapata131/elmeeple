@@ -10,7 +10,7 @@ const OnboardingMap = dynamic(() => import('@/components/OnboardingMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-[#F5F0E9] border border-[#3A3A3A]/10 rounded-xl">
-      <span className="text-sm font-semibold text-[#8367C7] animate-pulse">Cargando Mapa...</span>
+      <span className="text-sm font-semibold text-[#8367C7] animate-pulse">Cargando mapa</span>
     </div>
   ),
 })
@@ -317,13 +317,17 @@ export default function Onboarding() {
             <div className="flex items-center gap-3 border-b border-[#3A3A3A]/10 pb-2">
               {formData.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={formData.logoUrl} alt="Logo" className="w-10 h-10 rounded-lg object-cover" />
+                <img src={formData.logoUrl} alt="Logo Preview" className="w-10 h-10 rounded-lg object-cover border border-[#3A3A3A]/10 bg-white" />
               ) : (
-                <div className="w-10 h-10 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">🎲</div>
+                <div className="w-10 h-10 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">
+                  <svg className="w-5 h-5 text-[#8367C7] fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+                  </svg>
+                </div>
               )}
               <div>
                 <p className="text-sm font-extrabold text-[#3A3A3A]">{formData.name}</p>
-                <p className="text-xs text-[#8367C7] font-semibold uppercase">{formData.type}</p>
+                <p className="text-xs text-[#8367C7] font-semibold">{formData.type === 'cafe' ? 'Café de juegos' : formData.type === 'tienda' ? 'Tienda de juegos y TCG' : formData.type === 'hibrido' ? 'Híbrido (café y tienda)' : 'Club y comunidad'}</p>
               </div>
             </div>
             <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Propietario:</span> {formData.ownerName}</p>
@@ -356,11 +360,13 @@ export default function Onboarding() {
 
       {/* Brand Header */}
       <div className="text-center mb-8 flex flex-col items-center gap-2 animate-in fade-in duration-300">
-        <Link href="/" className="flex items-center gap-2 cursor-pointer">
-          <span className="text-3xl" role="img" aria-label="dice">🎲</span>
+        <Link href="/" className="flex items-center gap-2.5 cursor-pointer">
+          <svg className="w-8 h-8 text-[#8367C7] fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+          </svg>
           <span className="text-2xl font-extrabold text-[#3A3A3A]">El Meeple</span>
         </Link>
-        <p className="text-sm text-[#8367C7] font-bold tracking-wide uppercase">Portal de Socios</p>
+        <p className="text-xs text-[#8367C7] font-bold tracking-wide">Portal de socios</p>
       </div>
 
       {/* Stepper Progress */}
@@ -396,12 +402,12 @@ export default function Onboarding() {
         {step === 1 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 1: Tu Cuenta</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 1: tu cuenta</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Ingresa tus datos personales de contacto.</p>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="ownerName" className="text-xs font-bold text-[#3A3A3A]/85">Nombre del Propietario</label>
+              <label htmlFor="ownerName" className="text-xs font-bold text-[#3A3A3A]/85">Nombre del propietario</label>
               <input
                 id="ownerName"
                 name="ownerName"
@@ -415,7 +421,7 @@ export default function Onboarding() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="ownerEmail" className="text-xs font-bold text-[#3A3A3A]/85">Correo Electrónico</label>
+              <label htmlFor="ownerEmail" className="text-xs font-bold text-[#3A3A3A]/85">Correo electrónico</label>
               <input
                 id="ownerEmail"
                 name="ownerEmail"
@@ -438,13 +444,13 @@ export default function Onboarding() {
         {step === 2 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 2: Datos del Local</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 2: datos del local</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Comparte los detalles y horarios de tu establecimiento.</p>
             </div>
 
             {/* Basic Info */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-xs font-bold text-[#3A3A3A]/85">Nombre del Local</label>
+              <label htmlFor="name" className="text-xs font-bold text-[#3A3A3A]/85">Nombre del local</label>
               <input
                 id="name"
                 name="name"
@@ -458,7 +464,7 @@ export default function Onboarding() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="type" className="text-xs font-bold text-[#3A3A3A]/85">Tipo de Local</label>
+              <label htmlFor="type" className="text-xs font-bold text-[#3A3A3A]/85">Tipo de local</label>
               <select
                 id="type"
                 name="type"
@@ -467,10 +473,10 @@ export default function Onboarding() {
                 onChange={handleChange}
                 className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors cursor-pointer"
               >
-                <option value="cafe">Café de Juegos</option>
-                <option value="tienda">Tienda de Juegos / TCG</option>
-                <option value="hibrido">Híbrido (Café y Tienda)</option>
-                <option value="comunidad">Club / Comunidad</option>
+                <option value="cafe">Café de juegos</option>
+                <option value="tienda">Tienda de juegos y TCG</option>
+                <option value="hibrido">Híbrido (café y tienda)</option>
+                <option value="comunidad">Club y comunidad</option>
               </select>
             </div>
 
@@ -489,7 +495,7 @@ export default function Onboarding() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="contactEmail" className="text-xs font-bold text-[#3A3A3A]/85">Correo de Contacto Público</label>
+              <label htmlFor="contactEmail" className="text-xs font-bold text-[#3A3A3A]/85">Correo de contacto público</label>
               <input
                 id="contactEmail"
                 name="contactEmail"
@@ -502,7 +508,7 @@ export default function Onboarding() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="contactPhone" className="text-xs font-bold text-[#3A3A3A]/85">Teléfono de Contacto</label>
+              <label htmlFor="contactPhone" className="text-xs font-bold text-[#3A3A3A]/85">Teléfono de contacto</label>
               <input
                 id="contactPhone"
                 name="contactPhone"
@@ -545,7 +551,7 @@ export default function Onboarding() {
 
             {/* Premium File Upload & Auto-Crop Logo Area */}
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-bold text-[#3A3A3A]/85">Logo del Local</span>
+              <span className="text-xs font-bold text-[#3A3A3A]/85">Logo del local</span>
               {formData.logoUrl ? (
                 <div className="flex items-center gap-4 p-3.5 border border-[#3A3A3A]/10 bg-[#3A3A3A]/5 rounded-xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -572,8 +578,10 @@ export default function Onboarding() {
                     htmlFor="logo-upload" 
                     className="flex flex-col items-center justify-center border-2 border-dashed border-[#3A3A3A]/20 hover:border-[#8367C7] bg-[#3A3A3A]/5 p-6 rounded-xl cursor-pointer transition-all duration-200 text-center select-none"
                   >
-                    <span className="text-2xl mb-1">📸</span>
-                    <span className="text-xs font-extrabold text-[#3A3A3A]">Subir Imagen de Logo</span>
+                    <svg className="w-6 h-6 text-[#3A3A3A]/40 fill-current mb-1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+                    </svg>
+                    <span className="text-xs font-extrabold text-[#3A3A3A]">Subir imagen de logo</span>
                     <span className="text-[10px] text-[#3A3A3A]/50 mt-0.5">Se recortará a un cuadrado de 150x150px</span>
                     <input
                       id="logo-upload"
@@ -589,7 +597,7 @@ export default function Onboarding() {
 
             {/* Structured Schedule Selector */}
             <div className="flex flex-col gap-2 border-t border-[#3A3A3A]/10 pt-4">
-              <span className="text-xs font-bold text-[#3A3A3A]/85">Horarios de Operación</span>
+              <span className="text-xs font-bold text-[#3A3A3A]/85">Horarios de operación</span>
               <p className="text-[10px] text-[#3A3A3A]/60 -mt-1 mb-2">Define qué días abres y en qué horarios.</p>
               
               <div className="flex flex-col gap-2.5 max-h-60 overflow-y-auto pr-1">
@@ -656,7 +664,7 @@ export default function Onboarding() {
         {step === 3 && (
           <div className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 3: Ubicar en el Mapa</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 3: ubicar en el mapa</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Busca tu dirección o haz clic en el mapa para ubicar tu local.</p>
             </div>
 
@@ -689,7 +697,7 @@ export default function Onboarding() {
                 onClick={handleGeolocation}
                 className="w-full py-2.5 bg-[#F5F0E9] hover:bg-[#EAE2D5] border border-[#8367C7]/40 text-[#8367C7] font-bold text-xs rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                📍 Usar mi ubicación actual
+                Usar mi ubicación actual
               </button>
               {gpsError && (
                 <p className="text-[10px] font-bold text-[#FF9E8A] mt-1 text-center">{gpsError}</p>
@@ -752,7 +760,7 @@ export default function Onboarding() {
         {step === 4 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 4: Especialidades</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 4: especialidades</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Selecciona las categorías principales que ofrece tu local.</p>
             </div>
 
@@ -797,33 +805,37 @@ export default function Onboarding() {
         {step === 5 && (
           <form onSubmit={handleNext} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 5: Confirmar Datos</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 5: confirmar datos</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Revisa que toda tu información sea correcta antes de enviar.</p>
             </div>
 
             <div className="flex flex-col gap-4 bg-[#3A3A3A]/5 border border-[#3A3A3A]/10 p-5 rounded-2xl text-xs max-h-96 overflow-y-auto">
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">PROPIETARIO</span>
+                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Propietario</span>
                 <span className="font-semibold text-[#3A3A3A]">{formData.ownerName}</span>
                 <span className="text-[11px] text-[#3A3A3A]/70">{formData.ownerEmail}</span>
               </div>
               
               <div className="flex flex-col gap-1.5 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">DATOS DEL LOCAL</span>
+                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Datos del local</span>
                 <div className="flex items-center gap-2.5">
                   {formData.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={formData.logoUrl} alt="Logo Preview" className="w-8 h-8 rounded-lg object-cover border border-[#3A3A3A]/10 bg-white" />
                   ) : (
-                    <div className="w-8 h-8 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">🎲</div>
+                    <div className="w-8 h-8 rounded-lg bg-[#8367C7]/15 text-[#8367C7] flex items-center justify-center font-bold">
+                      <svg className="w-4 h-4 text-[#8367C7] fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+                      </svg>
+                    </div>
                   )}
                   <div>
                     <span className="font-extrabold text-[#3A3A3A] text-sm">{formData.name}</span>
-                    <span className="text-[10px] font-extrabold text-[#8367C7] uppercase bg-[#8367C7]/10 px-1.5 py-0.5 rounded ml-2">
-                      {formData.type === 'cafe' && 'Café de Juegos'}
-                      {formData.type === 'tienda' && 'Tienda de Juegos / TCG'}
-                      {formData.type === 'hibrido' && 'Híbrido (Café y Tienda)'}
-                      {formData.type === 'comunidad' && 'Club / Comunidad'}
+                    <span className="text-[10px] font-extrabold text-[#8367C7] bg-[#8367C7]/10 px-1.5 py-0.5 rounded ml-2">
+                      {formData.type === 'cafe' && 'Café de juegos'}
+                      {formData.type === 'tienda' && 'Tienda de juegos y TCG'}
+                      {formData.type === 'hibrido' && 'Híbrido (café y tienda)'}
+                      {formData.type === 'comunidad' && 'Club y comunidad'}
                     </span>
                   </div>
                 </div>
@@ -847,17 +859,17 @@ export default function Onboarding() {
               </div>
 
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">UBICACIÓN EN MAPA</span>
+                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Ubicación en el mapa</span>
                 <span className="font-semibold text-[#3A3A3A]">{formData.lat}, {formData.lng}</span>
               </div>
 
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5">
-                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">HORARIOS DE OPERACIÓN</span>
+                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Horarios de operación</span>
                 <span className="font-semibold text-[#3A3A3A] leading-snug">{formattedWeeklySchedule}</span>
               </div>
 
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-[#8367C7] uppercase tracking-wider">ESPECIALIDADES</span>
+                <span className="text-[10px] font-bold text-[#8367C7] tracking-wider">Especialidades</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {formData.tags.length > 0 ? (
                     formData.tags.map((tag) => (
@@ -888,12 +900,12 @@ export default function Onboarding() {
         {step === 6 && (
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 6: Verificación de Propiedad</h2>
+              <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 6: verificación de propiedad</h2>
               <p className="text-xs text-[#3A3A3A]/60 mt-1">Sube la documentación requerida para verificar la propiedad del establecimiento.</p>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="businessTaxId" className="text-xs font-bold text-[#3A3A3A]/85">Identificación Fiscal (RFC / Tax ID)</label>
+              <label htmlFor="businessTaxId" className="text-xs font-bold text-[#3A3A3A]/85">Identificación fiscal (RFC o Tax ID)</label>
               <input
                 id="businessTaxId"
                 name="businessTaxId"
@@ -908,7 +920,7 @@ export default function Onboarding() {
 
             {/* Operating Permit File Upload & Canvas Compressor */}
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-bold text-[#3A3A3A]/85">Permiso de Operación (Comprobante)</span>
+              <span className="text-xs font-bold text-[#3A3A3A]/85">Permiso de operación (comprobante)</span>
               {formData.verificationProof ? (
                 <div className="flex items-center gap-4 p-3.5 border border-[#3A3A3A]/10 bg-[#3A3A3A]/5 rounded-xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -935,8 +947,10 @@ export default function Onboarding() {
                     htmlFor="permit-upload" 
                     className="flex flex-col items-center justify-center border-2 border-dashed border-[#3A3A3A]/20 hover:border-[#8367C7] bg-[#3A3A3A]/5 p-6 rounded-xl cursor-pointer transition-all duration-200 text-center select-none"
                   >
-                    <span className="text-2xl mb-1">📄</span>
-                    <span className="text-xs font-extrabold text-[#3A3A3A]">Subir Permiso de Operación</span>
+                    <svg className="w-6 h-6 text-[#3A3A3A]/40 fill-current mb-1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M428 224H288V84c0-11-9-20-20-20s-20 9-20 20v140H108c-11 0-20 9-20 20s9 20 20 20h140v140c0 11 9 20 20 20s20-9 20-20V264h140c11 0 20-9 20-20s-9-20-20-20z" />
+                    </svg>
+                    <span className="text-xs font-extrabold text-[#3A3A3A]">Subir permiso de operación</span>
                     <span className="text-[10px] text-[#3A3A3A]/50 mt-0.5">Se comprimirá a JPEG (máx 400x300px)</span>
                     <input
                       id="permit-upload"

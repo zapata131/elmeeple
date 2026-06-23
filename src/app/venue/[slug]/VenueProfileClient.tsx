@@ -14,10 +14,10 @@ interface VenueProfileClientProps {
 }
 
 const VENUE_TYPE_LABELS = {
-  cafe: 'Café de Juegos',
-  tienda: 'Tienda de Juegos / TCG',
-  hibrido: 'Híbrido (Café y Tienda)',
-  comunidad: 'Club / Comunidad'
+  cafe: 'Café de juegos',
+  tienda: 'Tienda de juegos y TCG',
+  hibrido: 'Híbrido (café y tienda)',
+  comunidad: 'Club y comunidad'
 }
 
 const VIBE_TAGS_PRESETS = ['Eurogames', 'TCGs', 'Café', 'Comida', 'Familiar', 'Torneos', 'Rol']
@@ -64,7 +64,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
 
   const handleFavoriteToggle = async () => {
     if (!session?.user?.email) {
-      alert('Debes iniciar sesión para guardar favoritos.')
+      alert('Inicia sesión para guardar favoritos.')
       return
     }
 
@@ -74,7 +74,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
       if (res.success) {
         setIsFavorite(res.isFavorite ?? false)
       } else {
-        alert(res.error || 'Error al actualizar favoritos.')
+        alert(res.error || 'No se pudieron actualizar tus favoritos.')
       }
     } catch (err) {
       console.error(err)
@@ -115,10 +115,10 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
         setNewRating(5)
         setSelectedVibeTags([])
       } else {
-        setFormError(res.error || 'Error al enviar la reseña.')
+        setFormError(res.error || 'No se pudo enviar tu reseña. Por favor, inténtalo de nuevo.')
       }
     } catch (err) {
-      setFormError('Error de conexión al enviar la reseña.')
+      setFormError('Error de conexión. No se pudo enviar tu reseña.')
     } finally {
       setSubmittingReview(false)
     }
@@ -208,7 +208,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl md:text-4xl font-black text-[#3A3A3A] tracking-tight">{venue.name}</h1>
                 {typeLabel && (
-                  <span className="px-3 py-0.5 text-[10px] md:text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md uppercase tracking-wide border border-[#8367C7]/10">
+                  <span className="px-3 py-0.5 text-[10px] md:text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md tracking-wide border border-[#8367C7]/10">
                     {typeLabel}
                   </span>
                 )}
@@ -240,7 +240,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                 ) : (
                   <>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
-                    Guardar Favorito
+                    Guardar en favoritos
                   </>
                 )}
               </button>
@@ -284,7 +284,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           
           {/* Header Info details card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-3">
-            <h2 className="text-xs font-extrabold text-[#8367C7] uppercase tracking-wider">Acerca del Establecimiento</h2>
+            <h2 className="text-xs font-extrabold text-[#8367C7] tracking-wider">Acerca del establecimiento</h2>
             <p className="text-sm text-[#3A3A3A]/85 leading-relaxed">{venue.description}</p>
             <div className="flex flex-wrap gap-1.5 mt-1">
               {(venue.tags || []).map((tag) => (
@@ -304,9 +304,9 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             <div className="flex justify-between items-center flex-wrap gap-2 border-b border-[#3A3A3A]/5 pb-3">
               <div>
                 <h3 className="text-lg font-extrabold text-[#3A3A3A] flex items-center gap-1.5">
-                  Ludoteca de Juegos
+                  Ludoteca de juegos
                 </h3>
-                <p className="text-xs text-[#3A3A3A]/60 mt-0.5">Explora e investiga los juegos disponibles para jugar libremente.</p>
+                <p className="text-xs text-[#3A3A3A]/60 mt-0.5">Explora la colección de juegos disponibles para jugar.</p>
               </div>
               <span className="px-3 py-1 text-xs font-black bg-[#8367C7]/10 text-[#8367C7] rounded-full">
                 {filteredGames.length} juegos
@@ -453,8 +453,8 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           
           {/* Ratings Summary Card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-4">
-            <h3 className="text-sm font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider border-b border-[#3A3A3A]/5 pb-2">
-              Valoración de la Comunidad
+            <h3 className="text-sm font-extrabold text-[#3A3A3A]/50 tracking-wider border-b border-[#3A3A3A]/5 pb-2">
+              Valoración de la comunidad
             </h3>
             
             <div className="flex justify-between items-center">
@@ -468,7 +468,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                 <div className="flex gap-0.5 text-yellow-500 text-lg">
                   {'★'.repeat(Math.round(parseFloat(averageRating)))}{'☆'.repeat(5 - Math.round(parseFloat(averageRating)))}
                 </div>
-                <span className="px-2 py-0.5 bg-green-500/10 text-green-700 text-[9px] font-black rounded uppercase">
+                <span className="px-2 py-0.5 bg-green-500/10 text-green-700 text-[9px] font-black rounded">
                   Excelente
                 </span>
               </div>
@@ -477,7 +477,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             {/* Vibe Tags Progress Bars */}
             {Object.keys(vibeStats).length > 0 ? (
               <div className="border-t border-[#3A3A3A]/5 pt-4 flex flex-col gap-3">
-                <span className="text-[10px] font-extrabold text-[#3A3A3A]/60 uppercase tracking-wider mb-1">Vibra del Local</span>
+                <span className="text-[10px] font-extrabold text-[#3A3A3A]/60 tracking-wider mb-1">Vibra del local</span>
                 {Object.entries(vibeStats).map(([tag, count]) => {
                   const percentage = Math.round((count / reviews.length) * 100)
                   return (
@@ -504,14 +504,14 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
           {/* Write Review Form */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-4">
             <h3 className="text-sm font-extrabold text-[#3A3A3A] flex items-center gap-1.5 border-b border-[#3A3A3A]/5 pb-3">
-              Escribir Reseña
+              Escribir reseña
             </h3>
 
             {session?.user ? (
               <form onSubmit={handleReviewSubmit} className="flex flex-col gap-4">
                 {/* Star Rating Select */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#3A3A3A]/75 font-semibold">Tu Calificación:</span>
+                  <span className="text-xs text-[#3A3A3A]/75 font-semibold">Tu calificación:</span>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -530,7 +530,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
 
                 {/* Vibe Presets checkboxes */}
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[#3A3A3A]/60 font-extrabold uppercase">Selecciona las vibras del local:</span>
+                  <span className="text-[10px] text-[#3A3A3A]/60 font-extrabold">Selecciona las vibras del local:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {VIBE_TAGS_PRESETS.map((tag) => {
                       const isSelected = selectedVibeTags.includes(tag)
@@ -556,7 +556,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Comparte tu opinión... ¿Es espacioso? ¿Tienen buen café? ¿La comunidad es amigable?"
+                  placeholder="Comparte tu opinión... ¿Es amplio? ¿Tienen buen café? ¿El ambiente es amigable?"
                   required
                   rows={3}
                   className="w-full p-3 border border-[#3A3A3A]/20 rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:ring-2 focus:ring-[#8367C7]/50 focus:border-[#8367C7] resize-none shadow-inner bg-[#3A3A3A]/5"
@@ -569,25 +569,25 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                   disabled={submittingReview}
                   className="w-full py-3 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/15 text-[#F5F0E9] font-extrabold rounded-xl shadow-md cursor-pointer transition-all text-xs"
                 >
-                  {submittingReview ? 'Publicando...' : 'Publicar Reseña'}
+                  {submittingReview ? 'Publicando...' : 'Publicar reseña'}
                 </button>
               </form>
             ) : (
               <div className="bg-[#3A3A3A]/5 p-4 rounded-xl text-center text-xs text-[#3A3A3A]/55 font-semibold border border-dashed border-[#3A3A3A]/15 py-6">
-                🔑 Inicia sesión para escribir una reseña en este local.
+                Inicia sesión para escribir una reseña en este local.
               </div>
             )}
           </div>
 
           {/* Player Reviews Feed */}
           <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-extrabold text-[#3A3A3A]/50 uppercase tracking-wider">
-              Comentarios de la Comunidad
+            <h3 className="text-xs font-extrabold text-[#3A3A3A]/50 tracking-wider">
+              Comentarios de la comunidad
             </h3>
             
             {reviews.length === 0 ? (
               <p className="text-xs text-[#3A3A3A]/60 italic py-4 bg-white rounded-2xl border border-[#3A3A3A]/10 text-center">
-                Aún no hay reseñas. ¡Sé el primero en dejar una!
+                Aún no hay reseñas. Escribe la primera reseña para este local.
               </p>
             ) : (
               <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-1">

@@ -60,7 +60,7 @@ export default function Navbar() {
               href="/login"
               className="px-4 py-2 bg-white hover:bg-[#3A3A3A]/5 border border-[#3A3A3A]/15 text-[#3A3A3A]/80 font-bold rounded-xl transition-all duration-200 text-xs md:text-sm cursor-pointer shadow-sm"
             >
-              Iniciar Sesión / Registrarse
+              Iniciar sesión o registrarse
             </Link>
           ) : (
             <div className="relative" ref={dropdownRef}>
@@ -79,8 +79,8 @@ export default function Navbar() {
                   <div className="px-4 py-2.5 border-b border-[#3A3A3A]/10">
                     <p className="text-xs font-bold text-[#3A3A3A] truncate">{session.user?.name}</p>
                     <p className="text-[10px] text-[#3A3A3A]/60 truncate mt-0.5">{session.user?.email}</p>
-                    <span className="inline-block px-1.5 py-0.5 text-[8px] font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded mt-1 uppercase">
-                      {userRole}
+                    <span className="inline-block px-1.5 py-0.5 text-[8px] font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded mt-1">
+                      {userRole === 'admin' ? 'Administrador' : userRole === 'partner' ? 'Socio' : 'Jugador'}
                     </span>
                   </div>
 
@@ -89,7 +89,7 @@ export default function Navbar() {
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#3A3A3A]/80 hover:bg-[#3A3A3A]/5 transition-colors"
                   >
-                    Mi Perfil
+                    Mi perfil
                   </Link>
 
                   {/* Partner Dashboard link */}
@@ -99,7 +99,7 @@ export default function Navbar() {
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#8367C7] hover:bg-[#8367C7]/5 transition-colors"
                     >
-                      Mi Panel de Socio
+                      Mi panel de socio
                     </Link>
                   )}
 
@@ -120,7 +120,7 @@ export default function Navbar() {
                     onClick={handleLogout}
                     className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-500/5 transition-colors cursor-pointer"
                   >
-                    Cerrar Sesión
+                    Cerrar sesión
                   </button>
                 </div>
               )}

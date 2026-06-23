@@ -129,8 +129,8 @@ describe('User Registration & Floating Navigation Flow', () => {
       ;(useSession as jest.Mock).mockReturnValue({ data: null, status: 'unauthenticated' })
       render(<Navbar />)
 
-      // Should show 'Iniciar Sesión / Registrarse'
-      expect(screen.getByText('Iniciar Sesión / Registrarse')).toBeInTheDocument()
+      // Should show 'Iniciar sesión o registrarse'
+      expect(screen.getByText('Iniciar sesión o registrarse')).toBeInTheDocument()
     })
 
     it('renders logged-in Player state with avatar and simple dropdown options', async () => {
@@ -154,11 +154,11 @@ describe('User Registration & Floating Navigation Flow', () => {
       await user.click(avatarBtn)
 
       // Check dropdown options
-      expect(screen.getByText('Mi Perfil')).toBeInTheDocument()
-      // Should NOT show 'Mi Panel de Socio' or 'Administración'
-      expect(screen.queryByText('Mi Panel de Socio')).not.toBeInTheDocument()
+      expect(screen.getByText('Mi perfil')).toBeInTheDocument()
+      // Should NOT show 'Mi panel de socio' or 'Administración'
+      expect(screen.queryByText('Mi panel de socio')).not.toBeInTheDocument()
       expect(screen.queryByText('Administración')).not.toBeInTheDocument()
-      expect(screen.getByText('Cerrar Sesión')).toBeInTheDocument()
+      expect(screen.getByText('Cerrar sesión')).toBeInTheDocument()
     })
 
     it('renders logged-in Partner state and includes Partner Panel in dropdown', async () => {
@@ -177,9 +177,9 @@ describe('User Registration & Floating Navigation Flow', () => {
       const avatarBtn = screen.getByLabelText('User Menu')
       await user.click(avatarBtn)
 
-      // Should show 'Mi Panel de Socio' but NOT 'Administración'
-      expect(screen.getByText('Mi Perfil')).toBeInTheDocument()
-      expect(screen.getByText('Mi Panel de Socio')).toBeInTheDocument()
+      // Should show 'Mi panel de socio' but NOT 'Administración'
+      expect(screen.getByText('Mi perfil')).toBeInTheDocument()
+      expect(screen.getByText('Mi panel de socio')).toBeInTheDocument()
       expect(screen.queryByText('Administración')).not.toBeInTheDocument()
     })
 
@@ -199,10 +199,10 @@ describe('User Registration & Floating Navigation Flow', () => {
       const avatarBtn = screen.getByLabelText('User Menu')
       await user.click(avatarBtn)
 
-      // Should show 'Administración' but NOT 'Mi Panel de Socio'
-      expect(screen.getByText('Mi Perfil')).toBeInTheDocument()
+      // Should show 'Administración' but NOT 'Mi panel de socio'
+      expect(screen.getByText('Mi perfil')).toBeInTheDocument()
       expect(screen.getByText('Administración')).toBeInTheDocument()
-      expect(screen.queryByText('Mi Panel de Socio')).not.toBeInTheDocument()
+      expect(screen.queryByText('Mi panel de socio')).not.toBeInTheDocument()
     })
 
   })

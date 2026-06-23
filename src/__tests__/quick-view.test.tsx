@@ -72,7 +72,7 @@ describe('Quick View Card Integration', () => {
     expect(cardContent.getByText('Orcs Stories')).toBeInTheDocument()
     expect(cardContent.getByText('Roma Norte, CDMX')).toBeInTheDocument()
     expect(cardContent.getByText('Mar - Dom: 14:00 - 22:00')).toBeInTheDocument()
-    expect(cardContent.getByText('Híbrido (Café y Tienda)')).toBeInTheDocument()
+    expect(cardContent.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
     expect(cardContent.getByAltText('Logo Orcs Stories')).toBeInTheDocument()
     expect(cardContent.getByRole('link', { name: /visit-instagram/i })).toHaveAttribute('href', 'https://instagram.com/orcs_stories')
     expect(cardContent.getByRole('link', { name: /visit-discord/i })).toHaveAttribute('href', 'https://discord.gg/orcsstories')

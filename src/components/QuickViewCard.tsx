@@ -46,10 +46,10 @@ interface QuickViewCardProps {
 }
 
 const VENUE_TYPE_LABELS = {
-  cafe: 'Café de Juegos',
-  tienda: 'Tienda de Juegos / TCG',
-  hibrido: 'Híbrido (Café y Tienda)',
-  comunidad: 'Club / Comunidad'
+  cafe: 'Café de juegos',
+  tienda: 'Tienda de juegos y TCG',
+  hibrido: 'Híbrido (café y tienda)',
+  comunidad: 'Club y comunidad'
 }
 
 export function formatSchedule(schedule: StructuredSchedule | string): string {
@@ -202,7 +202,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
             <h2 className="text-xl font-extrabold text-[#3A3A3A] leading-tight">
               {venue.name}
             </h2>
-            <p className="text-xs font-semibold text-[#8367C7] tracking-wider uppercase mt-0.5">
+            <p className="text-xs font-semibold text-[#8367C7] tracking-wide mt-0.5">
               {venue.address}
             </p>
           </div>
@@ -229,7 +229,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
       {/* Render Venue Type Badge and Favorite Button */}
       <div className="flex items-center justify-between gap-2">
         {typeLabel && (
-          <span className="px-2.5 py-0.5 text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md uppercase tracking-wide border border-[#8367C7]/10">
+          <span className="px-2.5 py-0.5 text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md tracking-wide border border-[#8367C7]/10">
             {typeLabel}
           </span>
         )}
@@ -253,7 +253,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
             ) : (
               <>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
-                Guardar Favorito
+                Guardar en favoritos
               </>
             )}
           </button>
@@ -290,7 +290,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         {/* Announcements Bulletin Board */}
         {announcements.length > 0 && (
           <div className="border-t border-[#3A3A3A]/10 pt-3.5 flex flex-col gap-2.5">
-            <span className="text-[10px] font-extrabold text-[#8367C7] uppercase tracking-wider">Cartelera de Anuncios</span>
+            <span className="text-[10px] font-extrabold text-[#8367C7] tracking-wider">Anuncios recientes</span>
             <div className="flex flex-col gap-2.5 max-h-36 overflow-y-auto pr-1">
               {announcements.map((ann) => (
                 <div key={ann.id} className="bg-[#8367C7]/5 p-3 rounded-xl border border-[#8367C7]/10 flex flex-col gap-1.5">
@@ -368,7 +368,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           href={`/venue/${venue.slug || venue.id}`}
           className="flex-1 py-2.5 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm flex items-center justify-center gap-1.5 group"
         >
-          <span>Ver Perfil y Ludoteca</span>
+          <span>Ver perfil y ludoteca</span>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
         </a>
       </div>
