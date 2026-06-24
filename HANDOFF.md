@@ -62,8 +62,9 @@ git push origin main
 ---
 
 ## 5. Future roadmap issues logged (UX/PM findings)
-Based on our comprehensive Product Management & UX Audit findings, we have created 3 new GitHub issues containing full Agile User Stories to guide the next phase of development:
+Based on our comprehensive Product Management & UX Audit findings, we have created new GitHub issues containing full Agile User Stories to guide the next phase of development:
 *   **Issue #48 (Feature/UX)**: `feature(ux): add custom skeleton loader for map tile visual latency` — Adds a brand-purple CSS skeleton pulse animation in the map container while Leaflet tiles load.
 *   **Issue #49 (Security/UX)**: `security(onboarding): add secure encryption trust badge to operating permit uploader` — Integrates an emerald-green secure lock icon and explanation caption on Step 3 of onboarding.
 *   **Issue #50 (Feature/UX)**: `feature(ux): implement interactive zero-state card for empty game searches` — Displays a beautiful zero-state overlay card on the map when game searches return empty, offering quick filter reset actions.
+*   **Issue #51 (Feature/Onboarding)**: `feature(onboarding): add reviewer comment field during venue onboarding` — Integrates an optional "Comentario para el revisor" textarea in the onboarding stepper and renders it in the Admin portal request cards to support contextual partner-admin communication.
 
