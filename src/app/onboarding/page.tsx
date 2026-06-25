@@ -1009,6 +1009,35 @@ export default function Onboarding() {
                   </label>
                 </div>
               )}
+
+              {/* Secure trust badge for document encryption */}
+              <div 
+                data-testid="secure-trust-badge"
+                className="flex items-start gap-2.5 p-3.5 bg-emerald-500/10 border border-emerald-500/25 rounded-xl mt-2"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={2.5} 
+                  stroke="currentColor" 
+                  className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" 
+                  />
+                </svg>
+                <div className="flex flex-col gap-0.5 text-left">
+                  <span className="text-[11px] font-extrabold text-[#3A3A3A] leading-normal">
+                    Conexión y almacenamiento 100% seguros
+                  </span>
+                  <span className="text-[10px] text-[#3A3A3A]/80 leading-relaxed font-medium">
+                    Tu documento se encripta de extremo a extremo y se guarda de forma segura. Solo son visibles para la administración de El Meeple.
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-2">
