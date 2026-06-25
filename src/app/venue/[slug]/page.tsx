@@ -9,6 +9,8 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+import { MOCK_VENUES } from '@/utils/mockData'
+
 export default async function VenueProfilePage({ params }: PageProps) {
   const { slug } = await params
 
@@ -16,52 +18,71 @@ export default async function VenueProfilePage({ params }: PageProps) {
     return notFound()
   }
 
-  const supabase = await createClient()
-
   // Fetch the venue by slug, including nested relations
-  const { data: venueData, error } = await supabase
-    .from('venues')
-    .select(`
-      id,
-      name,
-      slug,
-      description,
-      schedule,
-      lat,
-      lng,
-      type,
-      instagram,
-      discord,
-      logo_url,
-      verification_status,
-      venue_tags (
-        tags (
-          name
-        )
-      ),
-      venue_games (
+  let venueData = null
+  let error = null
+
+  try {
+    const supabase = await createClient()
+    const result = await supabase
+      .from('venues')
+      .select(`
         id,
         name,
-        thumbnail,
-        min_players,
-        max_players,
-        playing_time
-      ),
-      reviews (
-        id,
-        user_email,
-        rating,
-        comment,
-        vibe_tags,
-        created_at
-      )
-    `)
-    .eq('slug', slug)
-    .single()
+        slug,
+        description,
+        schedule,
+        lat,
+        lng,
+        type,
+        instagram,
+        discord,
+        logo_url,
+        verification_status,
+        venue_tags (
+          tags (
+            name
+          )
+        ),
+        venue_games (
+          id,
+          name,
+          thumbnail,
+          min_players,
+          max_players,
+          playing_time
+        ),
+        reviews (
+          id,
+          user_email,
+          rating,
+          comment,
+          vibe_tags,
+          created_at
+        )
+      `)
+      .eq('slug', slug)
+      .single()
+    venueData = result.data
+    error = result.error
+  } catch (err) {
+    console.warn(`Error querying database for venue "${slug}":`, err)
+    error = err
+  }
 
   if (error || !venueData) {
-    console.warn(`Venue with slug "${slug}" not found or database error:`, error)
-    return notFound()
+    console.warn(`Venue with slug "${slug}" not found or database error. Checking local mock venues.`, error)
+    const mockVenue = MOCK_VENUES.find(v => v.slug === slug)
+    if (!mockVenue) {
+      return notFound()
+    }
+
+    const formattedVenue = {
+      ...mockVenue,
+      venue_games: mockVenue.venue_games || [],
+      reviews: mockVenue.reviews || []
+    }
+    return <VenueProfileClient venue={formattedVenue} />
   }
 
   // Format the tags to a clean array

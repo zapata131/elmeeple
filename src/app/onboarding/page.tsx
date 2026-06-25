@@ -55,27 +55,6 @@ export default function Onboarding() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/login?callbackUrl=/onboarding')
-    }
-  }, [status, router])
-
-  useEffect(() => {
-    if (session?.user) {
-      setFormData(prev => ({
-        ...prev,
-        ownerName: prev.ownerName || session.user?.name || '',
-        ownerEmail: prev.ownerEmail || session.user?.email || '',
-      }))
-    }
-  }, [session])
-
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searching, setSearching] = useState(false)
-  const [searchError, setSearchError] = useState('')
-  const [gpsError, setGpsError] = useState('')
-
   const [formData, setFormData] = useState<OnboardingData>({
     ownerName: '',
     ownerEmail: '',
@@ -102,6 +81,28 @@ export default function Onboarding() {
     contactEmail: '',
     contactPhone: ''
   })
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.replace('/login?callbackUrl=/onboarding')
+    }
+  }, [status, router])
+
+  useEffect(() => {
+    if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(prev => ({
+        ...prev,
+        ownerName: prev.ownerName || session.user?.name || '',
+        ownerEmail: prev.ownerEmail || session.user?.email || '',
+      }))
+    }
+  }, [session])
+
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState('')
+  const [gpsError, setGpsError] = useState('')
 
   if (status === 'loading') {
     return (
