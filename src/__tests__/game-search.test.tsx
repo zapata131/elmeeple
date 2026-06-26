@@ -128,6 +128,6 @@ describe('Global Game Search & Mode Toggle', () => {
     expect(screen.queryByText('Orcs Stories')).not.toBeInTheDocument()
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
     expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
-    expect(screen.getByText(/no se encontraron locales/i)).toBeInTheDocument()
+    expect(screen.getByText(/no se encontraron resultados/i)).toBeInTheDocument()
   })
 })

@@ -127,12 +127,10 @@ This section documents the technical successes, failures, blockers, and architec
    * *The blocker:* If you start the application without configured Supabase credentials in `.env.local` (or if the local database is offline), the homepage map hangs in an infinite loading spinner.
    * *The workaround:* We implemented a graceful catch-block fallback. If the Supabase query fails, the app prints a warning and populates the local state with our static CDMX mock venues (`MOCK_VENUES` array), keeping the map and sidebar 100% interactive out of the box.
 
-### 9.3 Decision-making reasoning
-1. **Why unified identity?**
-   It matches the real-world behaviors of our audience. Store owners are also board game players; they want to bookmark other stores as favorites and rate cafés they visit. A unified profile table handles this seamlessly with zero database overhead.
-2. **Why client-side compression?**
-   Processing files on the client side is highly scalable. It shifts the CPU workload of cropping and compressing image binaries from our server-less functions/Supabase buckets to the user's browser, saving massive storage costs and avoiding upload timeouts.
-3. **Why offload map cards to dedicated `/venue/[slug]` routes (Milestone 4)?**
-   * *UX density:* Map-based quick view cards are brilliant for quick discoverability (getting address, hours, and announcements at a glance). However, as cafés sync their BGG collections (100+ games) and gather reviews, cramming tabs, scrollable grids, search inputs, and forms into a small floating card degrades the UX.
-   * *Performance:* Loading heavy arrays of games and comments inside map markers increases the DOM weight and slows down map panning performance.
-   * *Marketing value:* Dedicated routes like `/venue/orcs-stories` give store owners a clean, professional, SEO-friendly marketing URL to share on their social media, driving organic traffic directly to their digital storefront.
+### 9.4 Empty-state visual patterns (Zero States)
+We follow a strict zero-state policy. When a search or list query yields 0 results (empty state), the interface must never render an empty page, blank grid, or missing markers. It must show a premium, brand-aligned zero-state card (`data-testid="zero-state-search"`) that contains:
+1. A descriptive header indicating that no results were found.
+2. A helper explanation suggesting options to resolve the empty state.
+3. An interactive primary button to "Limpiar filtros" or reset search parameters.
+4. Clean vector SVGs (no emojis) matching brand typography and soft outlines.
+
