@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { Venue, formatSchedule } from '@/components/QuickViewCard'
 
 interface VenueProfileClientProps {
-  venue: Venue & { venue_games: any[]; reviews: any[] }
+  venue: Venue & { venue_games: any[]; reviews: any[]; bgg_last_synced_at?: string | null }
 }
 
 const VENUE_TYPE_LABELS = {
@@ -336,6 +336,12 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                   Ludoteca de juegos
                 </h3>
                 <p className="text-xs text-[#3A3A3A]/60 mt-0.5">Explora la colección de juegos disponibles para jugar.</p>
+                {venue.bgg_last_synced_at && (
+                  <p className="text-[10px] text-[#8367C7] font-semibold mt-1 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                    Sincronizado con BGG: {new Date(venue.bgg_last_synced_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
+                )}
               </div>
               <span className="px-3 py-1 text-xs font-black bg-[#8367C7]/10 text-[#8367C7] rounded-full">
                 {filteredGames.length} juegos

@@ -101,12 +101,18 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
 
       // Mock Supabase client
       const mockUpsert = jest.fn().mockResolvedValue({ error: null })
+      const mockNot = jest.fn().mockResolvedValue({ error: null })
+      const mockEqDelete = jest.fn().mockReturnValue({ not: mockNot })
+      const mockDelete = jest.fn().mockReturnValue({ eq: mockEqDelete })
       const mockEq = jest.fn().mockResolvedValue({ error: null })
       const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq })
       
       ;(global as any).mockSupabaseServerInstance.from = jest.fn().mockImplementation((table: string) => {
         if (table === 'venue_games') {
-          return { upsert: mockUpsert }
+          return {
+            upsert: mockUpsert,
+            delete: mockDelete
+          }
         }
         if (table === 'venues') {
           return { update: mockUpdate }
@@ -147,6 +153,100 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
           playing_time: 120,
         }
       ], { onConflict: 'venue_id,bgg_id' })
+    })
+
+    it('returns isQueued true when BGG API returns 202 status', async () => {
+      const spyFetch = jest.fn().mockResolvedValue({
+        status: 202,
+        ok: true,
+        text: () => Promise.resolve(''),
+      } as Response)
+      ;(global as any).fetch = spyFetch
+
+      const res = await syncBggCollection('venue-123', 'testuser')
+      expect(res.success).toBe(false)
+      expect(res.isQueued).toBe(true)
+      expect(res.retryAfter).toBe(5)
+    })
+
+    it('returns error when BGG API returns 429 status in production', async () => {
+      const originalEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'production'
+
+      const spyFetch = jest.fn().mockResolvedValue({
+        status: 429,
+        ok: false,
+        text: () => Promise.resolve('Rate limit exceeded'),
+      } as Response)
+      ;(global as any).fetch = spyFetch
+
+      try {
+        const res = await syncBggCollection('venue-123', 'testuser')
+        expect(res.success).toBe(false)
+        expect(res.error).toContain('La API de BoardGameGeek está experimentando un tráfico alto')
+      } finally {
+        process.env.NODE_ENV = originalEnv
+      }
+    })
+
+    it('performs full sync: deletes obsolete venue games that are not in the new sync list', async () => {
+      const mockSingleGameXml = `
+        <items totalitems="1">
+          <item objectid="169786" subtype="boardgame">
+            <name sortindex="1">Scythe</name>
+            <thumbnail>https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop</thumbnail>
+            <stats minplayers="1" maxplayers="5" playingtime="115"></stats>
+          </item>
+        </items>
+      `
+      const spyFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(mockSingleGameXml),
+      } as Response)
+      ;(global as any).fetch = spyFetch
+
+      const mockUpsert = jest.fn().mockResolvedValue({ error: null })
+      const mockNot = jest.fn().mockResolvedValue({ error: null })
+      const mockEqDelete = jest.fn().mockReturnValue({ not: mockNot })
+      const mockDelete = jest.fn().mockReturnValue({ eq: mockEqDelete })
+      const mockEq = jest.fn().mockResolvedValue({ error: null })
+      const mockUpdate = jest.fn().mockReturnValue({ eq: mockEq })
+
+      ;(global as any).mockSupabaseServerInstance.from = jest.fn().mockImplementation((table: string) => {
+        if (table === 'venue_games') {
+          return {
+            upsert: mockUpsert,
+            delete: mockDelete
+          }
+        }
+        if (table === 'venues') {
+          return { update: mockUpdate }
+        }
+        return {
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          single: jest.fn().mockResolvedValue({ data: { id: 'venue-123', owner_email: 'owner@example.com' }, error: null })
+        }
+      })
+
+      const res = await syncBggCollection('venue-123', 'testuser')
+      expect(res.success).toBe(true)
+      
+      expect(mockUpsert).toHaveBeenCalledWith([
+        {
+          venue_id: 'venue-123',
+          bgg_id: 169786,
+          name: 'Scythe',
+          thumbnail: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop',
+          min_players: 1,
+          max_players: 5,
+          playing_time: 115,
+        }
+      ], { onConflict: 'venue_id,bgg_id' })
+
+      expect(mockDelete).toHaveBeenCalled()
+      expect(mockEqDelete).toHaveBeenCalledWith('venue_id', 'venue-123')
+      expect(mockNot).toHaveBeenCalledWith('bgg_id', 'in', '(169786)')
     })
   })
 
@@ -203,7 +303,8 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
         name: 'My Board Game Café',
         owner_email: 'owner@example.com',
         verification_status: 'approved',
-        bgg_username: 'mybgguser'
+        bgg_username: 'mybgguser',
+        bgg_last_synced_at: '2026-06-26T10:00:00.000Z'
       }
 
       const mockGames = [
@@ -239,6 +340,7 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
       expect(screen.getByText(/Sincronizar con BoardGameGeek/i)).toBeInTheDocument()
       expect(screen.getByPlaceholderText(/Usuario de BGG/i)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /Sincronizar/i })).toBeInTheDocument()
+      expect(screen.getByTestId('bgg-last-synced')).toBeInTheDocument()
 
       // Verify the cover arts grid displays the imported games
       expect(screen.getByText('Catan')).toBeInTheDocument()

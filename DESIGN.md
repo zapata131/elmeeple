@@ -52,7 +52,7 @@
 * **Framework:** Next.js (App Router) acting as a monolith for both frontend UI and backend server actions/API routes.
 * **Styling:** Tailwind CSS combined with a lean UI component library (such as DaisyUI or Shadcn).
 * **Database (Supabase and PostgreSQL):** Core tables include:
-  * `venues`: Tracks venue metadata, ownership, unique url `slug` column, and `bgg_username`.
+  * `venues`: Tracks venue metadata, ownership, unique url `slug` column, `bgg_username`, and `bgg_last_synced_at` (sync timestamp).
   * `venue_games`: Idempotent bulk upsert of games linked to `venues` (`bgg_id`, `name`, `thumbnail`, player counts, playing time). Unique constraint on `(venue_id, bgg_id)`.
   * `reviews`: Community reviews with `rating` (1-5), `comment`, `vibe_tags` text arrays, and `user_email`.
 * **Row-level security (RLS):** Strict security policies enabled on all tables:
@@ -105,8 +105,8 @@ This section documents the technical successes, failures, blockers, and architec
    Instead of separating store owners and players into distinct tables (which would force dual-role users to create duplicate accounts), we implemented a single `public.profiles` table extending Supabase Auth. A `role` enum (`player`, `partner`, `admin`) manages access controls. This makes queries clean, simplifies NextAuth session handling, and allows seamless role upgrades.
 2. **Client-side image auto-cropping and canvas compression:**
    To prevent high-resolution store logos and operating permits from bloat-loading or exhausting database storage, we built an invisible HTML5 canvas processor in the browser. Logos are auto-cropped to a perfect `150x150px` square, and permit JPEGs are compressed to a maximum dimension of `400x300px` at 70% quality, keeping file uploads strictly under `15 KB` as base64 strings.
-3. **Idempotent BoardGameGeek (BGG) XML synchronization:**
-   Rather than manually typing in catalogs, store owners sync their library in 1 click using their BGG username. The server-side action parses BGG's XML payload using `fast-xml-parser` and performs a bulk upsert into `venue_games` with a unique constraint on `(venue_id, bgg_id)`.
+3. **Idempotent BoardGameGeek (BGG) XML synchronization & Polling Resilience:**
+   Rather than manually typing in catalogs, store owners sync their library in 1 click using their BGG username. The server-side action parses BGG's XML payload using `fast-xml-parser`, performs a bulk upsert into `venue_games` with a unique constraint on `(venue_id, bgg_id)`, and executes a full sync (deleting local games no longer present on BGG). To handle BGG XML API2 queuing, the server action detects HTTP `202 Accepted` states and returns a queued status (`isQueued: true`), prompting the frontend dashboard (`BggSyncForm`) to start a 5-second countdown auto-retry loop (up to 3 attempts) for a smooth, friction-free sync experience. If BGG is rate-limited (`429`), it gracefully reports it in production, falling back to cached local XML mock in sandboxed testing.
 4. **Resilient local mock infrastructure:**
    By designing a custom mock Supabase server (`mock-supabase.js`) and local BGG XML caching, we created a high-fidelity local developer environment that runs completely independently of live third-party APIs.
 5. **Server-side partner dashboard security overhaul:**

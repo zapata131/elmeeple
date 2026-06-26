@@ -37,6 +37,7 @@ let venues = [
     contact_email: "owner@example.com",
     contact_phone: "+525512345678",
     bgg_username: "mybgguser",
+    bgg_last_synced_at: new Date().toISOString(),
     venue_tags: [
       { tags: { name: "Eurogames" } },
       { tags: { name: "TCGs" } },
@@ -71,6 +72,7 @@ let venues = [
     verification_proof: "data:image/jpeg;base64,mockcroppedlogo2",
     contact_email: "duende@example.com",
     contact_phone: "+525587654321",
+    bgg_last_synced_at: null,
     venue_tags: [
       { tags: { name: "TCGs" } },
       { tags: { name: "Magic: The Gathering" } },
@@ -104,6 +106,7 @@ let venues = [
     verification_proof: "data:image/jpeg;base64,mockcroppedlogo3",
     contact_email: "ravenfolks@example.com",
     contact_phone: "+525599887766",
+    bgg_last_synced_at: null,
     venue_tags: [
       { tags: { name: "Eurogames" } },
       { tags: { name: "Café" } },
@@ -509,6 +512,24 @@ const server = http.createServer((req, res) => {
         } catch (e) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: e.message }));
+        }
+      } else if (method === 'DELETE') {
+        const venueIdFilter = getFilterValue(parsedUrl.query, 'venue_id');
+        const bggIdParam = parsedUrl.query['bgg_id'];
+        
+        if (venueIdFilter) {
+          if (bggIdParam && bggIdParam.startsWith('not.in.')) {
+            const idsStr = bggIdParam.substring(8, bggIdParam.length - 1);
+            const ids = idsStr.split(',').map(id => parseInt(id.trim(), 10)).filter(Boolean);
+            venue_games = venue_games.filter(g => !(g.venue_id === venueIdFilter && !ids.includes(g.bgg_id)));
+          } else {
+            venue_games = venue_games.filter(g => g.venue_id !== venueIdFilter);
+          }
+          res.writeHead(204);
+          res.end();
+        } else {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing venue_id parameter' }));
         }
       } else {
         res.writeHead(404);

@@ -265,7 +265,11 @@ export default async function OwnerDashboard() {
                   <div className="w-full lg:w-96 flex flex-col gap-6 justify-start">
                     {status === 'approved' ? (
                       <>
-                        <BggSyncForm venueId={venue.id} initialUsername={venue.bgg_username} />
+                        <BggSyncForm
+                          venueId={venue.id}
+                          initialUsername={venue.bgg_username}
+                          initialLastSyncedAt={venue.bgg_last_synced_at}
+                        />
                         <AnnouncementForm venueId={venue.id} />
                       </>
                     ) : (

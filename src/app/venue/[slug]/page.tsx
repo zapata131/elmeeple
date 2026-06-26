@@ -39,6 +39,7 @@ export default async function VenueProfilePage({ params }: PageProps) {
         discord,
         logo_url,
         verification_status,
+        bgg_last_synced_at,
         venue_tags (
           tags (
             name
@@ -93,7 +94,7 @@ export default async function VenueProfilePage({ params }: PageProps) {
     : []
 
   // Construct the formatted venue object
-  const formattedVenue: Venue & { venue_games: any[]; reviews: any[] } = {
+  const formattedVenue: Venue & { venue_games: any[]; reviews: any[]; bgg_last_synced_at: string | null } = {
     id: venueData.id,
     name: venueData.name,
     slug: venueData.slug,
@@ -108,7 +109,8 @@ export default async function VenueProfilePage({ params }: PageProps) {
     discord: venueData.discord || undefined,
     logoUrl: venueData.logo_url || undefined,
     venue_games: venueData.venue_games || [],
-    reviews: venueData.reviews || []
+    reviews: venueData.reviews || [],
+    bgg_last_synced_at: venueData.bgg_last_synced_at || null
   }
 
   return <VenueProfileClient venue={formattedVenue} />

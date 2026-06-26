@@ -197,3 +197,10 @@ You must strictly adhere to the following proven engineering conventions to prev
 * **The problem:** If an autonomous subagent attempts to create or edit files in a directory containing `/brain/<parent-id>/` (such as a shared git worktree), the Jetski high-level file tools (`write_to_file`, `replace_file_content`) may throw a security exception, stating: `"files must be written to the correct artifact directory"`. This happens because the path validator flags any path containing `/brain/` that does not match the subagent`s conversation ID.
 * **The convention:** Bypass the high-level write/edit tools when operating in subagent worktrees. Write or modify files by executing Python scripts or shell commands inside the terminal via `run_command`. This avoids the node-level validator check and allows flawless codebase edits.
 
+### 13. BoardGameGeek API 202 Accepted status polling
+* **The problem:** When querying a BGG collection for the first time, BGG's XML API2 returns a 202 Accepted response while it generates the XML cache, resulting in empty tables if not handled.
+* **The convention:** The server action detects HTTP 202 and returns `isQueued: true` with a retry delay. The frontend sync form (`BggSyncForm`) runs an automatic countdown polling loop (up to 3 times every 5 seconds) with a clean progress spinner to ensure zero friction.
+
+### 14. Playwright mobile viewport hidden tab element clicks
+* **The problem:** Stacked mobile layouts wrap some sections into navigation tabs (such as the Community review form under the `[ Comunidad ]` tab). E2E walkthroughs using Playwright will hang and timeout if they try to click elements inside hidden tabs on mobile viewports.
+* **The convention:** E2E scripts must check `vp.isMobile` and explicitly trigger the tab button click (e.g. `await page.click('button:has-text("Comunidad")')`) before interacting with elements contained in mobile-hidden containers.

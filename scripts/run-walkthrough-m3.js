@@ -191,6 +191,12 @@ async function run() {
       // Fill out "Escribir Reseña" form
       console.log(`[${vp.name}] Filling out review form...`);
       
+      if (vp.isMobile) {
+        console.log(`[${vp.name}] Clicking Comunidad tab on mobile to reveal review form...`);
+        await playerPage.click('button:has-text("Comunidad")');
+        await playerPage.waitForTimeout(300);
+      }
+      
       // Click 5th star
       const stars = playerPage.locator('button:has-text("★")');
       if (await stars.count() >= 5) {
