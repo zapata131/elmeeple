@@ -76,6 +76,39 @@ let venues = [
       { tags: { name: "Magic: The Gathering" } },
       { tags: { name: "Torneos" } }
     ]
+  },
+  {
+    id: "3",
+    name: "Ravenfolks",
+    slug: "ravenfolks",
+    owner_name: "Raven Owner",
+    owner_email: "owner@example.com",
+    description: "El primer board game café de la Ciudad de México. Cientos de juegos de mesa, comida deliciosa y excelente café de especialidad.",
+    schedule: {
+      mon: null,
+      tue: { open: "14:00", close: "22:00" },
+      wed: { open: "14:00", close: "22:00" },
+      thu: { open: "14:00", close: "22:00" },
+      fri: { open: "14:00", close: "22:00" },
+      sat: { open: "14:00", close: "22:00" },
+      sun: { open: "14:00", close: "22:00" }
+    },
+    lat: 19.4184,
+    lng: -99.1627,
+    type: "cafe",
+    instagram: "ravenfolks",
+    logo_url: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop",
+    verification_status: "approved",
+    verified: true,
+    business_tax_id: "RFC-998877-3C",
+    verification_proof: "data:image/jpeg;base64,mockcroppedlogo3",
+    contact_email: "ravenfolks@example.com",
+    contact_phone: "+525599887766",
+    venue_tags: [
+      { tags: { name: "Eurogames" } },
+      { tags: { name: "Café" } },
+      { tags: { name: "Ludoteca" } }
+    ]
   }
 ];
 
@@ -153,6 +186,28 @@ let venue_games = [
     min_players: 1,
     max_players: 5,
     playing_time: 115,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "g-init-3",
+    venue_id: "3",
+    bgg_id: 13,
+    name: "Catan",
+    thumbnail: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop",
+    min_players: 3,
+    max_players: 4,
+    playing_time: 75,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "g-init-4",
+    venue_id: "3",
+    bgg_id: 822,
+    name: "Carcassonne",
+    thumbnail: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop",
+    min_players: 2,
+    max_players: 5,
+    playing_time: 45,
     created_at: new Date().toISOString()
   }
 ];

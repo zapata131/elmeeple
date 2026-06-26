@@ -319,12 +319,26 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                 {selectedVenue.reviewer_comment && (
                   <div 
                     data-testid="reviewer-comment-box"
-                    className="flex flex-col gap-1.5 p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl"
+                    className="flex flex-col gap-2.5 p-4 bg-[#F5F0E9] border border-[#3A3A3A]/15 rounded-xl shadow-sm relative overflow-hidden text-left"
                   >
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#3A3A3A]/60">
-                      Mensaje del Propietario
-                    </span>
-                    <p className="text-xs text-[#3A3A3A] italic leading-relaxed font-semibold">
+                    {/* Brand Left Accent Border in Malva */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#8367C7]" />
+                    <div className="flex items-center gap-2 pl-1">
+                      <svg 
+                        className="w-4 h-4 text-[#8367C7] flex-shrink-0" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2.5" 
+                        viewBox="0 0 24 24" 
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                      </svg>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#3A3A3A]/70">
+                        Comentario del Propietario
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#3A3A3A]/85 italic leading-relaxed font-semibold pl-1">
                       &ldquo;{selectedVenue.reviewer_comment}&rdquo;
                     </p>
                   </div>
