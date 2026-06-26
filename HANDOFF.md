@@ -6,7 +6,7 @@ We have successfully merged and closed **Issue #48** (Skeleton loader for map ti
 
 ## 1. Active sprint status and goal
 *   **Active branches:**
-    *   `feature/issue-49-onboarding-trust-badge` (Subagent 1)
+    *   `feature/issue-49-onboarding-trust-badge` (Subagent 1) -> **Completed, PR opened**
     *   `feature/issue-50-zero-state-search` (Subagent 2)
     *   `feature/issue-51-reviewer-comment-field` (Subagent 3)
 *   **Sprint status:** **Parallel Execution Active**
@@ -33,7 +33,9 @@ We have launched three concurrent subagents to implement the following features:
 
 1.  **[Issue #49](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/HANDOFF.md#L49)**: `security(onboarding): add secure encryption trust badge to operating permit uploader`
     *   *Branch*: `feature/issue-49-onboarding-trust-badge`
-    *   *Scope*: Add emerald-green secure lock icon and caption on Step 3 of onboarding under TDD.
+    *   *Scope*: Add emerald-green secure lock icon and caption on Step 5 (Verificación de propiedad) under TDD.
+    *   *Status*: **100% Completed & Verified**
+    *   *Details*: Added custom premium SVG lock icon and copywriting under the operating permit uploader. Created dedicated test suite `src/__tests__/onboarding-badge.test.tsx`. Jest unit and integration tests are 100% green.
 2.  **[Issue #50](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/HANDOFF.md#L50)**: `feature(ux): implement interactive zero-state card for empty game searches`
     *   *Branch*: `feature/issue-50-zero-state-search`
     *   *Scope*: Render an interactive zero-state overlay card on the map when search queries return empty, with quick filter resets, under TDD.
