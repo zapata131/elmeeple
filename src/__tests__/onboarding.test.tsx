@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import OnboardingPage from '@/app/onboarding/page'
 import React from 'react'
@@ -258,6 +258,9 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
     
     await user.type(screen.getByLabelText(/Identificación fiscal/i), 'RFC-ZAPJ900101-1A1')
     
+    // Type optional comment for reviewer
+    await user.type(screen.getByLabelText(/Comentarios para el revisor/i), 'Comprobante temporal, el definitivo se emite el lunes.')
+
     const permitFile = new File(['permit-content'], 'permit.png', { type: 'image/png' })
     const permitInput = screen.getByLabelText(/Permiso de operación/i)
     await user.upload(permitInput, permitFile)
@@ -276,7 +279,8 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
       name: 'Meeple Oasis CDMX',
       businessTaxId: 'RFC-ZAPJ900101-1A1',
       verificationProof: 'data:image/jpeg;base64,mockcroppedlogo',
-      tags: ['Eurogames']
+      tags: ['Eurogames'],
+      reviewerComment: 'Comprobante temporal, el definitivo se emite el lunes.'
     }))
 
     // Success screen

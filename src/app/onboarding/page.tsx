@@ -79,7 +79,8 @@ export default function Onboarding() {
     businessTaxId: '',
     verificationProof: '',
     contactEmail: '',
-    contactPhone: ''
+    contactPhone: '',
+    reviewerComment: ''
   })
 
   useEffect(() => {
@@ -90,12 +91,20 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (session?.user) {
+      const user = session.user
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(prev => ({
-        ...prev,
-        ownerName: prev.ownerName || session.user?.name || '',
-        ownerEmail: prev.ownerEmail || session.user?.email || '',
-      }))
+      setFormData(prev => {
+        const nextName = prev.ownerName || user.name || ''
+        const nextEmail = prev.ownerEmail || user.email || ''
+        if (prev.ownerName === nextName && prev.ownerEmail === nextEmail) {
+          return prev
+        }
+        return {
+          ...prev,
+          ownerName: nextName,
+          ownerEmail: nextEmail,
+        }
+      })
     }
   }, [session])
 
@@ -1037,6 +1046,22 @@ export default function Onboarding() {
                     Tu documento se encripta de extremo a extremo y se guarda de forma segura. Solo son visibles para la administración de El Meeple.
                   </span>
                 </div>
+              </div>
+
+              {/* Reviewer Comment Field */}
+              <div className="flex flex-col gap-1.5 mt-2">
+                <label htmlFor="reviewerComment" className="text-xs font-bold text-[#3A3A3A]/85">
+                  Comentarios para el revisor (opcional)
+                </label>
+                <textarea
+                  id="reviewerComment"
+                  name="reviewerComment"
+                  value={formData.reviewerComment || ''}
+                  onChange={handleChange}
+                  placeholder="Ej. El permiso está en trámite de renovación, adjunto acuse de recibo."
+                  rows={3}
+                  className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors resize-none"
+                />
               </div>
             </div>
 

@@ -20,6 +20,7 @@ export interface OnboardingData {
   verificationProof?: string
   contactEmail?: string
   contactPhone?: string
+  reviewerComment?: string
 }
 
 export async function createVenue(data: OnboardingData) {
@@ -69,7 +70,8 @@ export async function createVenue(data: OnboardingData) {
         verification_status: 'pending',
         verified: false, // Default to false (requires admin approval)
         contact_email: data.contactEmail,
-        contact_phone: data.contactPhone
+        contact_phone: data.contactPhone,
+        reviewer_comment: data.reviewerComment
       })
 
       .select()

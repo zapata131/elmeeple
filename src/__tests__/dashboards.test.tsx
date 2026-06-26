@@ -304,7 +304,8 @@ describe('Platform Admin Dashboard (/admin)', () => {
       owner_email: 'ana@ludoteca.com',
       business_tax_id: 'RFC-ANA90',
       verification_proof: 'data:image/jpeg;base64,pendingpermitimage1',
-      verification_status: 'pending'
+      verification_status: 'pending',
+      reviewer_comment: 'El permiso definitivo se emite el lunes.'
     }
   ]
 
@@ -340,6 +341,12 @@ describe('Platform Admin Dashboard (/admin)', () => {
     expect(screen.getByText(/Permiso de Operación/i)).toBeInTheDocument()
     const permitImg = screen.getByAltText('Permiso de Operación') as HTMLImageElement
     expect(permitImg.src).toContain('pendingpermitimage1')
+
+    // Verify reviewer comment box is present and displays the text
+    const commentBox = screen.getByTestId('reviewer-comment-box')
+    expect(commentBox).toBeInTheDocument()
+    expect(commentBox.textContent).toContain('El permiso definitivo se emite el lunes.')
+    expect(commentBox.textContent).not.toMatch(/💬|📝|⚠️/) // No emojis
 
     // Approve Action
     const approveBtn = screen.getByRole('button', { name: /Aprobar/i })

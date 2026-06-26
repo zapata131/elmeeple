@@ -2,6 +2,7 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { getServerSession } from 'next-auth'
 import { syncBggCollection } from '@/app/actions/bgg'
 import { submitReview } from '@/app/actions/reviews'
 import OwnerDashboard from '@/app/dashboard/page'
@@ -21,7 +22,24 @@ jest.mock('next/navigation', () => ({
     refresh: mockRefresh,
   }),
   usePathname: () => '/dashboard',
+  redirect: jest.fn(),
 }))
+
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({
+    data: {
+      user: {
+        name: 'Owner User',
+        email: 'owner@example.com',
+        role: 'partner',
+      },
+    },
+    status: 'authenticated',
+  })),
+  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
+
 
 // Mock Leaflet/map components to avoid canvas/DOM errors in JSDOM
 jest.mock('react-leaflet', () => ({
@@ -47,6 +65,13 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     ;(global as any).fetch = jest.fn()
+    ;(getServerSession as jest.Mock).mockResolvedValue({
+      user: {
+        name: 'Owner User',
+        email: 'owner@example.com',
+        role: 'partner'
+      }
+    })
   })
 
   // 1. BoardGameGeek Synchronization Server Action
@@ -128,6 +153,14 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
   // 2. Reviews Server Action
   describe('Reviews Server Action', () => {
     it('validates rating range, checks authentication, and writes review to Supabase', async () => {
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: {
+          name: 'Player One',
+          email: 'player@example.com',
+          role: 'player',
+        },
+      })
+
       const mockInsert = jest.fn().mockResolvedValue({ error: null })
       ;(global as any).mockSupabaseServerInstance.from = jest.fn().mockImplementation((table: string) => {
         if (table === 'reviews') {

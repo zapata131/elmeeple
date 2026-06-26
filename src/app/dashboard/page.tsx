@@ -14,16 +14,19 @@ export default async function OwnerDashboard() {
   // Server-side authentication and authorization check
   if (!session?.user) {
     redirect('/login?callbackUrl=/dashboard')
+    return null
   }
 
   const role = (session.user as any).role
   if (role !== 'partner' && role !== 'admin') {
     redirect('/login?callbackUrl=/dashboard')
+    return null
   }
 
   const email = session.user.email
   if (!email) {
     redirect('/login?callbackUrl=/dashboard')
+    return null
   }
 
   const supabase = await createClient()

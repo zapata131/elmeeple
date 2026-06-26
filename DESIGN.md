@@ -134,3 +134,10 @@ We follow a strict zero-state policy. When a search or list query yields 0 resul
 3. An interactive primary button to "Limpiar filtros" or reset search parameters.
 4. Clean vector SVGs (no emojis) matching brand typography and soft outlines.
 
+### 9.5 Owner-Reviewer Messaging Channel (Onboarding Comments)
+To reduce back-and-forth email friction during store onboarding, partners can provide contextual remarks (e.g., "permiso en renovación") right next to their tax uploads:
+1. **Database Schema**: Added an optional `reviewer_comment` column of type `TEXT` to the `venues` table.
+2. **Form Onboarding Wizard (Step 5)**: Embedded an optional `reviewerComment` textarea bound to the global wizard state.
+3. **Auditing Interface**: Pending registration cards inside the Admin Dashboard details modal render a warning-colored (`bg-amber-500/10`) card displaying this message to administrators for contextual audits.
+4. **Safety & Stability**: Implemented loop-protection states inside the session prefill hook to prevent cascade renders inside Jest and react runtime environments.
+

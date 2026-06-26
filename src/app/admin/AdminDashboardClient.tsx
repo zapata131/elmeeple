@@ -316,6 +316,20 @@ export default function AdminDashboardClient({ initialVenues }: AdminDashboardCl
                   </div>
                 )}
 
+                {selectedVenue.reviewer_comment && (
+                  <div 
+                    data-testid="reviewer-comment-box"
+                    className="flex flex-col gap-1.5 p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl"
+                  >
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#3A3A3A]/60">
+                      Mensaje del Propietario
+                    </span>
+                    <p className="text-xs text-[#3A3A3A] italic leading-relaxed font-semibold">
+                      &ldquo;{selectedVenue.reviewer_comment}&rdquo;
+                    </p>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-2">
                   <span className="text-xs font-bold text-[#3A3A3A]/80">Permiso de Operación</span>
                   {selectedVenue.verification_proof ? (

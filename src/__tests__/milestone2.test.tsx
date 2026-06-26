@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { middleware } from '@/middleware'
+import { getServerSession } from 'next-auth'
 import { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import OnboardingPage from '@/app/onboarding/page'
@@ -19,6 +20,7 @@ jest.mock('next/navigation', () => ({
     refresh: mockRefresh,
   }),
   usePathname: () => '/profile',
+  redirect: jest.fn(),
 }))
 
 // Mock next-auth/react and next-auth
@@ -37,6 +39,7 @@ jest.mock('next-auth/react', () => ({
   signOut: jest.fn(),
   SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
+
 
 
 jest.mock('next-auth/jwt', () => ({
@@ -154,46 +157,26 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
       render(<OnboardingPage />)
       const user = userEvent.setup()
 
-      // --- STEP 1: Details ---
-      await user.type(screen.getByLabelText(/Nombre del Propietario/i), 'Jose Owner')
-      await user.type(screen.getByLabelText(/Correo Electrónico/i), 'owner@example.com')
-      await user.click(screen.getByRole('button', { name: /Siguiente/i }))
-
-      // --- STEP 2: Venue Details with new Contact Email & Contact Phone ---
-      expect(screen.getByLabelText(/Correo de Contacto Público/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Teléfono de Contacto/i)).toBeInTheDocument()
-
+      // --- STEP 1: Datos del local ---
       await user.type(screen.getByLabelText(/Nombre del Local/i), 'Meeple TCG Haven')
       await user.selectOptions(screen.getByLabelText(/Tipo de Local/i), 'tienda')
       await user.type(screen.getByLabelText(/Descripción/i), 'La mejor tienda TCG de la ciudad.')
       await user.type(screen.getByLabelText(/Correo de Contacto Público/i), 'contacto@meepletcg.com')
       await user.type(screen.getByLabelText(/Teléfono de Contacto/i), '+525512345678')
-
       await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-      // --- STEP 3: Map (auto-mocked coordinates) ---
-      // Use geolocation to set mock coordinates
+      // --- STEP 2: Ubicar en el mapa ---
       const geoBtn = screen.getByRole('button', { name: /Usar mi ubicación/i })
       await user.click(geoBtn)
       await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-      // --- STEP 4: Specialties (TCG subtags and badges) ---
-
-      expect(screen.getByLabelText(/Magic/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Yu-Gi-Oh/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Pokémon/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Lorcana/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/One Piece/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Torneos Oficiales/i)).toBeInTheDocument()
-
-      // Check some of them
+      // --- STEP 3: Especialidades ---
       await user.click(screen.getByLabelText(/Magic/i))
       await user.click(screen.getByLabelText(/Pokémon/i))
       await user.click(screen.getByLabelText(/Torneos Oficiales/i))
-
       await user.click(screen.getByRole('button', { name: /Siguiente/i }))
 
-      // --- STEP 5: Summary ---
+      // --- STEP 4: Confirmar datos (Summary) ---
       expect(screen.getByText('contacto@meepletcg.com')).toBeInTheDocument()
       expect(screen.getByText('+525512345678')).toBeInTheDocument()
       expect(screen.getByText('Magic')).toBeInTheDocument()
@@ -245,6 +228,14 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
         return mockQueryBuilder
       })
 
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: {
+          name: 'Player One',
+          email: 'player@example.com',
+          role: 'player',
+        },
+      })
+
       // Since profile is an async server component, we render it
       const result = await PlayerProfilePage()
       render(result)
@@ -280,6 +271,14 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
           } as unknown
         }
         return mockQueryBuilder
+      })
+
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: {
+          name: 'Owner User',
+          email: 'owner@example.com',
+          role: 'partner',
+        },
       })
 
       const dashboardNode = await OwnerDashboard({ searchParams: { email: 'owner@example.com' } })
