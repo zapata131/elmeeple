@@ -34,11 +34,14 @@ We have launched three concurrent subagents to implement the following features:
 1.  **[Issue #49](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/HANDOFF.md#L49)**: `security(onboarding): add secure encryption trust badge to operating permit uploader`
     *   *Branch*: `feature/issue-49-onboarding-trust-badge`
     *   *Scope*: Add emerald-green secure lock icon and caption on Step 5 (Verificación de propiedad) under TDD.
-    *   *Status*: **100% Completed & Verified**
+    *   *Status*: **100% Completed & Merged into main**
     *   *Details*: Added custom premium SVG lock icon and copywriting under the operating permit uploader. Created dedicated test suite `src/__tests__/onboarding-badge.test.tsx`. Jest unit and integration tests are 100% green.
 2.  **[Issue #50](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/HANDOFF.md#L50)**: `feature(ux): implement interactive zero-state card for empty game searches`
     *   *Branch*: `feature/issue-50-zero-state-search`
     *   *Scope*: Render an interactive zero-state overlay card on the map when search queries return empty, with quick filter resets, under TDD.
+    *   *Status*: **100% Completed & Verified**
+    *   *Details*: Implemented a beautiful zero-state search overlay card inside the map sidebar when searches yield 0 results, allowing users to clear filters. Updated `game-search.test.tsx` and created a dedicated test suite `src/__tests__/zero-state-search.test.tsx`. Jest tests are 100% green.
 3.  **[Issue #51](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/HANDOFF.md#L51)**: `feature(onboarding): add reviewer comment field during venue onboarding`
     *   *Branch*: `feature/issue-51-reviewer-comment-field`
     *   *Scope*: Add optional "Comentario para el revisor" textarea in the onboarding stepper and render it in the Admin portal request cards, under TDD.
+    *   *Status*: **Pending implementation**

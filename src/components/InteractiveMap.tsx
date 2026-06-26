@@ -336,22 +336,40 @@ export default function InteractiveMap() {
                 </button>
               ))}
               {filteredVenues.length === 0 && (
-                <div className="text-center py-8">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2.5}
-                    stroke="currentColor"
-                    className="w-8 h-8 text-[#3A3A3A] opacity-40 mx-auto mb-2"
+                <div 
+                  data-testid="zero-state-search"
+                  className="flex flex-col items-center text-center p-6 bg-white border border-[#3A3A3A]/10 rounded-2xl shadow-sm gap-4"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#8367C7]/5 border border-[#8367C7]/15 flex items-center justify-center text-[#8367C7]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2.0}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <h4 className="font-extrabold text-sm text-[#3A3A3A]">
+                      No se encontraron resultados
+                    </h4>
+                    <p className="text-xs text-[#3A3A3A]/70 leading-relaxed max-w-[240px]">
+                      No hay establecimientos que coincidan con tu búsqueda. Intenta limpiar tus filtros para ver todos los locales disponibles.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="w-full py-2 px-4 bg-[#8367C7] hover:bg-[#6f53b3] text-[#F5F0E9] text-xs font-black rounded-xl transition-all duration-150 shadow-sm cursor-pointer border border-transparent"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                    />
-                  </svg>
-                  <p className="text-xs font-semibold text-[#3A3A3A]/50">No se encontraron locales.</p>
+                    Limpiar filtros
+                  </button>
                 </div>
               )}
             </>
