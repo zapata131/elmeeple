@@ -112,6 +112,40 @@ let venues = [
       { tags: { name: "Café" } },
       { tags: { name: "Ludoteca" } }
     ]
+  },
+  {
+    id: "4",
+    name: "La Matatena",
+    slug: "la-matatena",
+    owner_name: "Owner User",
+    owner_email: "owner@example.com",
+    description: "Café de juegos y punto de encuentro cultural en el corazón de Guadalajara, con una colección curada de juegos modernos.",
+    schedule: {
+      mon: null,
+      tue: { open: "15:00", close: "23:00" },
+      wed: { open: "15:00", close: "23:00" },
+      thu: { open: "15:00", close: "23:00" },
+      fri: { open: "15:00", close: "23:00" },
+      sat: { open: "12:00", close: "23:00" },
+      sun: { open: "12:00", close: "20:00" }
+    },
+    lat: 20.6736,
+    lng: -103.3672,
+    type: "cafe",
+    instagram: "lamatatena_gdl",
+    logo_url: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop",
+    verification_status: "approved",
+    verified: true,
+    business_tax_id: "RFC-887766-4D",
+    verification_proof: "data:image/jpeg;base64,mockcroppedlogo4",
+    contact_email: "owner@example.com",
+    contact_phone: "+523312345678",
+    bgg_username: "zapata131",
+    bgg_last_synced_at: null,
+    venue_tags: [
+      { tags: { name: "Eurogames" } },
+      { tags: { name: "Café" } }
+    ]
   }
 ];
 

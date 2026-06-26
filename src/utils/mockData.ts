@@ -80,5 +80,28 @@ export const MOCK_VENUES: Venue[] = [
       { id: 'g5', name: 'Carcassonne', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 2, max_players: 5, playing_time: 45 },
       { id: 'g6', name: 'Dixit', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 12, playing_time: 30 }
     ]
+  },
+  {
+    id: '4',
+    name: 'La Matatena',
+    slug: 'la-matatena',
+    lat: 20.6736,
+    lng: -103.3672,
+    address: 'Colonia Americana, Guadalajara',
+    tags: ['Eurogames', 'Familiar', 'Café'],
+    schedule: {
+      mon: null,
+      tue: { open: '15:00', close: '23:00' },
+      wed: { open: '15:00', close: '23:00' },
+      thu: { open: '15:00', close: '23:00' },
+      fri: { open: '15:00', close: '23:00' },
+      sat: { open: '12:00', close: '23:00' },
+      sun: { open: '12:00', close: '20:00' }
+    },
+    description: 'Café de juegos y punto de encuentro cultural en el corazón de Guadalajara, con una colección curada de juegos modernos.',
+    type: 'cafe',
+    instagram: 'lamatatena_gdl',
+    logoUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop',
+    venue_games: []
   }
 ]

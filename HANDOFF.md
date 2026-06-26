@@ -5,7 +5,7 @@ We have successfully finished and verified all backlog items in this sprint rela
 ---
 
 ## 1. Active sprint status and goal
-*   **Active branch:** `feature/issue-55-bgg-library-integration`
+*   **Active branch:** `feature/issue-57-mock-venue-la-matatena`
 *   **Sprint status:** **Backlog Completed**
 *   **Milestone goal:** Implement full-sync BGG catalogue integration, resilient 202/429 status handling, automated retry polling UI, and performance auditing tools.
 
@@ -31,6 +31,7 @@ We have successfully finished and verified all backlog items in this sprint rela
     *   Sync timestamp rendering in the owner dashboard.
 7.  **E2E walkthrough mobile fix**: Corrected `scripts/run-walkthrough-m3.js` to click the "Comunidad" tab on mobile viewports to ensure reviews form visibility.
 8.  **Performance Auditing tool**: Developed `scripts/performance-audit.js` using CDP (Chrome DevTools Protocol) to measure navigation speed and heap memory.
+9.  **La Matatena in Guadalajara Mock Venue (Issue #57)**: Appended \"La Matatena\" mock venue in Guadalajara with pre-configured BGG username \`zapata131\` to both static frontend and backend mock servers to support real integration walkthrough tests.
 
 ### Verification Status
 *   **Jest Unit & Integration Tests**: 100% green (16 suites, 68 tests passed).
