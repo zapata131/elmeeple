@@ -535,7 +535,7 @@ const server = http.createServer((req, res) => {
               venue_games[existingIdx] = { ...venue_games[existingIdx], ...item };
             } else {
               venue_games.push({
-                id: `game-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                id: `game-${item.venue_id}-${item.bgg_id}`,
                 created_at: new Date().toISOString(),
                 ...item
               });

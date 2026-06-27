@@ -16,8 +16,7 @@ export async function syncBggCollection(venueId: string, bggUsername: string) {
     
     const headers: Record<string, string> = {}
     if (apiKey) {
-      url += `&apikey=${encodeURIComponent(apiKey)}`
-      headers['X-BGG-API-Key'] = apiKey
+      headers['Authorization'] = `Bearer ${apiKey}`
     }
 
     const response = await fetch(url, { headers })

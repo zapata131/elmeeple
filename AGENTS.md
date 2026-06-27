@@ -131,7 +131,11 @@ This document defines the specialized AI agents responsible for developing **El 
 You must validate every feature release across three distinct testing tiers before it can be approved for merge into `main`:
 1. **Unit testing (Jest and JSDOM):** Verify the isolated behavior of individual utility functions, custom hooks, helper classes, and basic UI rendering states.
 2. **Integration testing (Jest and mock-supabase):** Verify multi-component coordination, state synchronization, and mock Server Action execution, ensuring that database updates are successfully simulated.
-3. **System and E2E testing (Chrome DevTools MCP or browser subagent):** Run a live browser walkthrough on both **desktop (1280x800)** and **mobile (390x844)** viewports. Simulate complete user journeys (such as logging in, filling out stepper onboarding, uploading assets, and submitting ratings/favorites) to verify layout responsiveness and visual alignment, and ensure the browser console is free of runtime errors.
+3. **System and E2E testing (Playwright & Local Mocks):** Run the unified feature walkthrough runner:
+   ```bash
+   ./scripts/test-all-features.sh
+   ```
+   This automatically boots the mock database and Next.js servers, runs automated Playwright walkthroughs on both **desktop (1280x800)** and **mobile (390x844)** viewports, captures screenshots in `visual-qa-results/`, and verifies that the browser console is completely free of runtime errors or Leaflet warnings. Alternatively, launch a `browser_subagent` to manually trigger and verify specific user journeys.
 
 ---
 

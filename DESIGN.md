@@ -74,6 +74,7 @@
   * Automated end-to-end browser walkthroughs run on **Desktop (1280x800)** and **Mobile (390x844)** viewports.
   * Verifies complete user journeys: owner BGG sync, player search filters, visual grids, and real-time review updates.
   * Captures high-resolution screenshots saved to `visual-qa-results/` and audits browser console logs for zero runtime errors or warnings.
+  * **Unified Runner:** Run `./scripts/test-all-features.sh` to automatically boot the mock database and Next.js servers, run all E2E walkthroughs, and clean up background processes on exit.
 * **Resilient local QA architecture:**
   * A custom mock Supabase server (`scripts/mock-supabase.js`) listening on local port `54321` simulates PostgreSQL endpoints, RLS policies, PATCH updates, and complex relational embeddings (`select=*,venue_games(*),reviews(*)`).
   * We implemented robust mock database support for unique `slug` query filtering, dynamic SHA-256 password validation matching NextAuth, and `vnd.pgrst.object` Accept header checking to return single JSON objects (supporting `.single()` queries) instead of arrays.
@@ -107,6 +108,7 @@ This section documents the technical successes, failures, blockers, and architec
    To prevent high-resolution store logos and operating permits from bloat-loading or exhausting database storage, we built an invisible HTML5 canvas processor in the browser. Logos are auto-cropped to a perfect `150x150px` square, and permit JPEGs are compressed to a maximum dimension of `400x300px` at 70% quality, keeping file uploads strictly under `15 KB` as base64 strings.
 3. **Idempotent BoardGameGeek (BGG) XML synchronization & Polling Resilience:**
    Rather than manually typing in catalogs, store owners sync their library in 1 click using their BGG username. The server-side action parses BGG's XML payload using `fast-xml-parser`, performs a bulk upsert into `venue_games` with a unique constraint on `(venue_id, bgg_id)`, and executes a full sync (deleting local games no longer present on BGG). To handle BGG XML API2 queuing, the server action detects HTTP `202 Accepted` states and returns a queued status (`isQueued: true`), prompting the frontend dashboard (`BggSyncForm`) to start a 5-second countdown auto-retry loop (up to 3 attempts) for a smooth, friction-free sync experience. If BGG is rate-limited (`429`), it gracefully reports it in production, falling back to cached local XML mock in sandboxed testing.
+   * **Bearer Token Authorization:** Authenticates requests to the BGG XML API2 using `Authorization: Bearer <token>` header, aligning with BGG's updated security policy to prevent 401 Unauthorized errors during real syncs.
 4. **Resilient local mock infrastructure:**
    By designing a custom mock Supabase server (`mock-supabase.js`) and local BGG XML caching, we created a high-fidelity local developer environment that runs completely independently of live third-party APIs.
 5. **Server-side partner dashboard security overhaul:**

@@ -29,9 +29,10 @@ Before committing any code, you must execute and pass the following quality gate
     npm run lint
     ```
 3.  **System & E2E Walkthroughs (Visual QA)**:
-    *   Spin up the dev server (`npm run dev`) on an isolated port.
-    *   Run automated Playwright walkthroughs or launch a browser subagent to click through the affected flows on both **Desktop (1280x800)** and **Mobile (390x844)** viewports.
-    *   Capture screenshots of the main views and save them to the artifacts folder.
+    *   Run the unified walkthrough test runner to automatically verify all main features on both **Desktop (1280x800)** and **Mobile (390x844)** viewports:
+        ```bash
+        ./scripts/test-all-features.sh
+        ```
     *   Verify that the browser console is completely free of runtime errors, Leaflet image 404s, or NextAuth context warnings.
 
 ### Step 2.2: Documentation Synchronization (Mandatory Post-Flight)
