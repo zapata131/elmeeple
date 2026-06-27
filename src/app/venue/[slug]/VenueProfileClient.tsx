@@ -35,6 +35,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPlayerCount, setSelectedPlayerCount] = useState<'all' | 'solo' | '2' | '3-4' | '5+'>('all')
   const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   // Reviews state
   const [reviews, setReviews] = useState<any[]>(venue.reviews)
@@ -343,9 +344,42 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                   </p>
                 )}
               </div>
-              <span className="px-3 py-1 text-xs font-black bg-[#8367C7]/10 text-[#8367C7] rounded-full">
-                {filteredGames.length} juegos
-              </span>
+              <div className="flex items-center gap-3">
+                {/* View Mode Toggle Buttons (Grid vs List) */}
+                <div className="flex bg-[#3A3A3A]/5 p-0.5 rounded-lg border border-[#3A3A3A]/10">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1 rounded-md transition-all cursor-pointer ${
+                      viewMode === 'grid'
+                        ? 'bg-[#8367C7] text-white shadow-sm'
+                        : 'text-[#3A3A3A]/50 hover:text-[#3A3A3A]'
+                    }`}
+                    title="Vista de cuadrícula"
+                    data-testid="view-mode-grid"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25A2.25 2.25 0 0 1 13.5 8.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1 rounded-md transition-all cursor-pointer ${
+                      viewMode === 'list'
+                        ? 'bg-[#8367C7] text-white shadow-sm'
+                        : 'text-[#3A3A3A]/50 hover:text-[#3A3A3A]'
+                    }`}
+                    title="Vista de lista"
+                    data-testid="view-mode-list"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 5.25h16.5m-16.5-10.5h16.5" />
+                    </svg>
+                  </button>
+                </div>
+                <span className="px-3 py-1 text-xs font-black bg-[#8367C7]/10 text-[#8367C7] rounded-full">
+                  {filteredGames.length} juegos
+                </span>
+              </div>
             </div>
 
             {/* Filter controls */}
@@ -407,13 +441,13 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
               </div>
             </div>
 
-            {/* Visual Games Grid */}
+            {/* Visual Games Grid/List */}
             {filteredGames.length === 0 ? (
               <div className="text-center py-12 bg-[#3A3A3A]/5 rounded-2xl border border-dashed border-[#3A3A3A]/10">
                 <p className="text-xs font-extrabold text-[#3A3A3A]/60">No se encontraron juegos con los filtros seleccionados.</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            ) : viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" data-testid="games-grid">
                 {filteredGames.map((game) => (
                   <div
                     key={game.id}
@@ -445,7 +479,6 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                           {game.name}
                         </span>
                         
-                        {/* BoardGameGeek Link */}
                         <a
                           href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
                           target="_blank"
@@ -471,6 +504,61 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                           </span>
                         )}
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2" data-testid="games-list">
+                {filteredGames.map((game) => (
+                  <div
+                    key={game.id}
+                    className="flex items-center justify-between gap-3 bg-[#3A3A3A]/5 p-2.5 rounded-xl border border-[#3A3A3A]/10 hover:bg-white transition-all duration-200"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {game.thumbnail ? (
+                        <img
+                          src={game.thumbnail}
+                          alt={game.name}
+                          className="w-10 h-10 object-cover rounded-lg flex-shrink-0 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-[#8367C7]/15 text-[#8367C7] rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" className="w-4 h-4">
+                            <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+                          </svg>
+                        </div>
+                      )}
+                      <span className="text-xs font-bold text-[#3A3A3A] truncate" title={game.name}>
+                        {game.name}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="flex gap-1 text-[9px] font-bold text-[#3A3A3A]/60">
+                        <span className="bg-[#3A3A3A]/5 px-2 py-0.5 rounded">
+                          {game.min_players && game.max_players
+                            ? `${game.min_players}-${game.max_players} jug.`
+                            : game.min_players
+                              ? `${game.min_players}+ jug.`
+                              : 'N/A jug.'}
+                        </span>
+                        {game.playing_time && (
+                          <span className="bg-[#3A3A3A]/5 px-2 py-0.5 rounded">
+                            {game.playing_time} min
+                          </span>
+                        )}
+                      </div>
+
+                      <a
+                        href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[9px] font-black text-[#8367C7] hover:underline bg-[#8367C7]/10 px-2 py-0.5 rounded"
+                        title="Ver en BoardGameGeek"
+                      >
+                        BGG ↗
+                      </a>
                     </div>
                   </div>
                 ))}

@@ -205,4 +205,29 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     expect(catalogTabBtn).toHaveClass('border-transparent')
     expect(reviewsTabBtn).toHaveClass('border-[#8367C7]')
   })
+
+  it('allows toggling between grid and list views for the game catalog', async () => {
+    render(<VenueProfileClient venue={mockVenue} />)
+    const user = userEvent.setup()
+
+    // Grid view should be rendered by default
+    expect(screen.getByTestId('games-grid')).toBeInTheDocument()
+    expect(screen.queryByTestId('games-list')).not.toBeInTheDocument()
+
+    // Toggle to List View
+    const listToggleBtn = screen.getByTestId('view-mode-list')
+    await user.click(listToggleBtn)
+
+    // List view should now be rendered, grid should be gone
+    expect(screen.getByTestId('games-list')).toBeInTheDocument()
+    expect(screen.queryByTestId('games-grid')).not.toBeInTheDocument()
+
+    // Toggle back to Grid View
+    const gridToggleBtn = screen.getByTestId('view-mode-grid')
+    await user.click(gridToggleBtn)
+
+    // Grid view should be rendered again, list gone
+    expect(screen.getByTestId('games-grid')).toBeInTheDocument()
+    expect(screen.queryByTestId('games-list')).not.toBeInTheDocument()
+  })
 })
