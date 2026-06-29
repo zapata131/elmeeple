@@ -62,7 +62,6 @@ export default function Onboarding() {
     description: '',
     type: 'cafe',
     instagram: '',
-    discord: '',
     logoUrl: '',
     schedule: {
       mon: null,
@@ -598,18 +597,6 @@ export default function Onboarding() {
                   className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="discord" className="text-xs font-bold text-[#3A3A3A]/85">Enlace de Discord</label>
-                <input
-                  id="discord"
-                  name="discord"
-                  type="url"
-                  value={formData.discord}
-                  onChange={handleChange}
-                  placeholder="Ej. https://discord.gg/..."
-                  className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
-                />
-              </div>
             </div>
 
             {/* Premium File Upload & Auto-Crop Logo Area */}
@@ -905,20 +892,12 @@ export default function Onboarding() {
                 </div>
                 <span className="text-[11px] text-[#3A3A3A]/85 leading-relaxed mt-1">{formData.description}</span>
                 
-                {(formData.instagram || formData.discord) && (
+                {formData.instagram && (
                   <div className="flex gap-3 mt-2 text-[11px] font-semibold text-[#3A3A3A]/70">
-                    {formData.instagram && (
-                      <span className="flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                        @{formData.instagram}
-                      </span>
-                    )}
-                    {formData.discord && (
-                      <span className="flex items-center gap-1 truncate">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                        {formData.discord}
-                      </span>
-                    )}
+                    <span className="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                      @{formData.instagram}
+                    </span>
                   </div>
                 )}
 
@@ -942,7 +921,9 @@ export default function Onboarding() {
                     [Editar]
                   </button>
                 </div>
-                <span className="font-semibold text-[#3A3A3A] mt-1">{formData.lat}, {formData.lng}</span>
+                <span className="font-semibold text-[#3A3A3A] mt-1">
+                  {formData.lat && formData.lng ? `${formData.lat}, ${formData.lng}` : 'Ubicación variable (Comunidad)'}
+                </span>
               </div>
 
               <div className="flex flex-col gap-1 border-b border-[#3A3A3A]/10 pb-2.5 relative">

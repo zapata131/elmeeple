@@ -90,8 +90,6 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     // Verify social links exist
     const instaLink = screen.getByRole('link', { name: 'Instagram' })
     expect(instaLink).toHaveAttribute('href', 'https://instagram.com/orcs_stories')
-    const discordLink = screen.getByRole('link', { name: 'Discord' })
-    expect(discordLink).toHaveAttribute('href', 'https://discord.gg/orcs')
   })
 
   it('renders the game catalog with cover cards and stats, and filters them via the search bar', async () => {

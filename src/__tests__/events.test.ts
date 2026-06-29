@@ -19,16 +19,16 @@ describe('Events Server Actions', () => {
   })
 
   describe('getEvents', () => {
-    it('fetches events for a given venue sorted by date', async () => {
+    it('fetches events where venue is organizer OR physical host sorted by date', async () => {
       const mockEvents = [
-        { id: 'evt-1', title: 'Tournament 1', date: '2026-07-01T18:00:00Z' },
-        { id: 'evt-2', title: 'Tournament 2', date: '2026-07-02T18:00:00Z' },
+        { id: 'evt-1', title: 'Tournament 1', date: '2026-07-01T18:00:00Z', organizer_venue_id: 'venue-123' },
+        { id: 'evt-2', title: 'Tournament 2', date: '2026-07-02T18:00:00Z', venue_id: 'venue-123', organizer_venue_id: 'venue-456' },
       ]
 
       const mockSupabase = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
+        or: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockEvents, error: null }),
       }
       ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
@@ -38,7 +38,7 @@ describe('Events Server Actions', () => {
       expect(result.data).toEqual(mockEvents)
 
       expect(mockSupabase.from).toHaveBeenCalledWith('events')
-      expect(mockSupabase.eq).toHaveBeenCalledWith('venue_id', 'venue-123')
+      expect(mockSupabase.or).toHaveBeenCalledWith('venue_id.eq.venue-123,organizer_venue_id.eq.venue-123')
       expect(mockSupabase.order).toHaveBeenCalledWith('date', { ascending: true })
     })
 
@@ -46,7 +46,7 @@ describe('Events Server Actions', () => {
       const mockSupabase = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
+        or: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: null, error: { message: 'Query failed' } }),
       }
       ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
@@ -66,7 +66,7 @@ describe('Events Server Actions', () => {
       expect(result.error).toContain('iniciar sesión')
     })
 
-    it('returns error if user is not the owner of the venue', async () => {
+    it('returns error if user is not the owner of the organizer venue', async () => {
       ;(getServerSession as jest.Mock).mockResolvedValue({
         user: { email: 'wrong@example.com' },
       })
@@ -84,7 +84,7 @@ describe('Events Server Actions', () => {
       expect(result.error).toContain('No tiene permisos')
     })
 
-    it('creates event successfully if owner checks pass', async () => {
+    it('creates event successfully with all optional fields provided', async () => {
       ;(getServerSession as jest.Mock).mockResolvedValue({
         user: { email: 'owner@example.com' },
       })
@@ -100,17 +100,71 @@ describe('Events Server Actions', () => {
       }
       ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
 
-      const result = await createEvent('venue-123', 'Tournament 1', 'Magic', 'Desc', '2026-07-01T18:00:00Z', 150.50, 16)
+      const result = await createEvent(
+        'venue-123',
+        'Tournament 1',
+        'Magic',
+        'Desc',
+        '2026-07-01T18:00:00Z',
+        150.50,
+        16,
+        'collaborator-456',
+        'https://registration.com'
+      )
       expect(result.success).toBe(true)
 
       expect(mockSupabase.insert).toHaveBeenCalledWith({
-        venue_id: 'venue-123',
+        organizer_venue_id: 'venue-123',
+        venue_id: 'collaborator-456',
         title: 'Tournament 1',
         game: 'Magic',
         description: 'Desc',
         date: '2026-07-01T18:00:00Z',
         entry_fee: 150.50,
         max_participants: 16,
+        registration_url: 'https://registration.com'
+      })
+    })
+
+    it('creates event successfully with null venue_id and registration_url', async () => {
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: { email: 'owner@example.com' },
+      })
+
+      const mockVenue = { id: 'venue-123', owner_email: 'owner@example.com' }
+
+      const mockSupabase = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: mockVenue, error: null }),
+        insert: jest.fn().mockResolvedValue({ error: null }),
+      }
+      ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+
+      const result = await createEvent(
+        'venue-123',
+        'Tournament 1',
+        'Magic',
+        'Desc',
+        '2026-07-01T18:00:00Z',
+        150.50,
+        16,
+        null,
+        null
+      )
+      expect(result.success).toBe(true)
+
+      expect(mockSupabase.insert).toHaveBeenCalledWith({
+        organizer_venue_id: 'venue-123',
+        venue_id: null,
+        title: 'Tournament 1',
+        game: 'Magic',
+        description: 'Desc',
+        date: '2026-07-01T18:00:00Z',
+        entry_fee: 150.50,
+        max_participants: 16,
+        registration_url: null
       })
     })
   })
@@ -138,6 +192,8 @@ describe('Events Server Actions', () => {
       const result = await deleteEvent('evt-999', 'venue-123')
       expect(result.success).toBe(true)
 
+      expect(mockSupabase.from).toHaveBeenCalledWith('venues')
+      expect(mockSupabase.eq).toHaveBeenCalledWith('id', 'venue-123')
       expect(mockSupabase.delete).toHaveBeenCalled()
       expect(mockDeleteEq).toHaveBeenLastCalledWith('id', 'evt-999')
     })

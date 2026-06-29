@@ -147,6 +147,8 @@ Every feature release must be validated across three distinct testing tiers:
     * Compress operating permit verification images to a maximum dimension of `400x300px` at 70% quality, keeping file sizes `< 15 KB`.
 * **Tailwind CSS v4 Class Compilation**: Ad-hoc classes that are not part of the standard Tailwind CSS colors (e.g., `text-gray-350`) fail to compile under Tailwind CSS v4, silently falling back to default text colors.
   * *Convention*: Never invent non-standard Tailwind colors. For lighter elements or opacity states, always use standard classes (e.g. `text-gray-300`) or leverage our customized theme color opacity tokens (e.g. `text-brand-dark/20` or `text-brand-primary/10`).
+* **Dynamic Event-Siting for Communities**: Communities (venues of type `comunidad`) do not have a fixed physical location (`lat`/`lng` are null). On the interactive map, their temporary coordinates are dynamically resolved on the client side by parsing their upcoming events, finding the next event's physical host coordinates, and placing the community pin there. If no events are scheduled, they remain in the sidebar list but are excluded from rendering map markers. On the map, they render using a custom community icon styled in brand Turquesa `#73D8D4` with a group SVG (no emojis).
+
 
 ### 6.3 Database & APIs
 * **Resilient Database Fallbacks**: If the database is not configured (e.g., placeholder `.env.local`), the app must not crash or get stuck in an infinite loading state.
@@ -163,6 +165,8 @@ Every feature release must be validated across three distinct testing tiers:
   * *Convention*: Always run the test runner in serial mode using the `--runInBand` (or `-i`) and `--forceExit` flags (e.g., `npm run test -- --runInBand --forceExit`). This runs all tests in a single Node process, reducing memory overhead by over 70%, preventing OOM crashes, and cutting the execution time down to under 90 seconds.
 * **Playwright Mobile Viewport Hidden Tab Element Clicks**: Stacked mobile layouts wrap some sections into navigation tabs. E2E walkthroughs using Playwright will hang and timeout if they try to click elements inside hidden tabs on mobile viewports.
   * *Convention*: E2E scripts must check `vp.isMobile` and explicitly trigger the tab button click (e.g. `await page.click('button:has-text("Comunidad")')`) before interacting with elements contained in mobile-hidden containers.
+* **Mocking Supabase `.or()` filters**: When updating Server Actions to use complex Supabase query filters (such as `.or()`), ensure that `or: jest.fn().mockReturnThis()` is mocked on both `mockQueryBuilder` and `mockQueryBuilderServer` inside `jest.setup.js` to avoid `TypeError: ...or is not a function` runtime crashes in other unrelated integration tests.
+
 
 ### 6.5 Agent Capabilities
 * **Jetski Path-Writing Security Validator**: If an autonomous subagent attempts to create or edit files in a directory containing `/brain/<parent-id>/` (such as a shared git worktree), the Jetski high-level file tools (`write_to_file`, `replace_file_content`) may throw a security exception.

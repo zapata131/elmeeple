@@ -29,7 +29,44 @@ const Map = dynamic(() => import('@/components/Map'), {
   loading: () => <MapSkeleton />,
 })
 
-import { MOCK_VENUES } from '@/utils/mockData'
+import { MOCK_VENUES, MOCK_EVENTS } from '@/utils/mockData'
+
+// Helper function to dynamically resolve community coordinates to their next upcoming event's host venue
+function resolveVenueCoordinates(venuesList: any[]): any[] {
+  return venuesList.map((venue) => {
+    const venueTypes = venue.type ? venue.type.split(',') : []
+    const isCommunity = venueTypes.includes('comunidad')
+    const hasNoCoords = venue.lat === undefined || venue.lng === undefined || venue.lat === null || venue.lng === null
+
+    if (isCommunity && hasNoCoords) {
+      const now = new Date()
+      const upcomingEvents = (venue.events || [])
+        .filter((e: any) => new Date(e.date) > now && e.venue_id)
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+      if (upcomingEvents.length > 0) {
+        const nextEvent = upcomingEvents[0]
+        const hostVenue = venuesList.find((h) => h.id === nextEvent.venue_id)
+        if (hostVenue && hostVenue.lat !== undefined && hostVenue.lng !== undefined && hostVenue.lat !== null && hostVenue.lng !== null) {
+          return {
+            ...venue,
+            lat: hostVenue.lat,
+            lng: hostVenue.lng,
+            address: `En ${hostVenue.name} (${hostVenue.address})`
+          }
+        }
+      }
+    }
+    return venue
+  })
+}
+
+const RESOLVED_MOCK_VENUES = resolveVenueCoordinates(
+  MOCK_VENUES.map(v => ({
+    ...v,
+    events: MOCK_EVENTS.filter(e => e.organizer_venue_id === v.id)
+  }))
+)
 
 // Haversine formula to calculate distance in km between two coordinates
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -112,13 +149,19 @@ export default function InteractiveMap() {
               comment,
               vibe_tags,
               created_at
+            ),
+            events:events!organizer_venue_id (
+              id,
+              title,
+              date,
+              venue_id
             )
           `)
           .eq('verification_status', 'approved')
 
         if (error) {
           console.warn('Supabase not configured or query error. Falling back to local mock venues.', error)
-          setVenues(MOCK_VENUES)
+          setVenues(RESOLVED_MOCK_VENUES)
           return
         }
 
@@ -144,19 +187,22 @@ export default function InteractiveMap() {
             discord: v.discord,
             logoUrl: v.logo_url || undefined,
             venue_games: v.venue_games || [],
-            reviews: v.reviews || []
+            reviews: v.reviews || [],
+            events: v.events || []
           }
         })
 
+        const resolved = resolveVenueCoordinates(formatted)
+
         // If database is connected but empty, also fall back to mock venues so local testing has pins
-        if (formatted.length === 0) {
-          setVenues(MOCK_VENUES)
+        if (resolved.length === 0) {
+          setVenues(RESOLVED_MOCK_VENUES)
         } else {
-          setVenues(formatted)
+          setVenues(resolved)
         }
       } catch (err) {
         console.warn('Unexpected error connecting to Supabase. Falling back to local mock venues.', err)
-        setVenues(MOCK_VENUES)
+        setVenues(RESOLVED_MOCK_VENUES)
       } finally {
         setLoading(false)
       }

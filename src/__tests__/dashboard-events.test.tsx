@@ -82,12 +82,55 @@ describe('EventManager Component (Owner Dashboard)', () => {
         '',
         expect.any(String), // ISO Date string
         150,
-        32
+        32,
+        null,
+        null
       )
     })
 
     // Check success message and form closed
     expect(await screen.findByText('¡Evento creado con éxito!')).toBeInTheDocument()
+  })
+
+  it('submits a new event with optional host venue and registration URL', async () => {
+    ;(createEvent as jest.Mock).mockResolvedValue({ success: true })
+    render(<EventManager venueId={venueId} />)
+    const user = userEvent.setup()
+
+    // Open form
+    const newBtn = screen.getByRole('button', { name: '+ Nuevo' })
+    await user.click(newBtn)
+
+    // Fill fields
+    await user.type(screen.getByLabelText('Título del Evento'), 'Noche de Euros')
+    await user.type(screen.getByLabelText('Juego / Categoría'), 'Catan')
+    fireEvent.change(screen.getByLabelText('Fecha y Hora'), { target: { value: '2026-07-12T18:00' } })
+    
+    // Select host venue in dropdown
+    const hostSelect = await screen.findByLabelText('Sede Física (Opcional)')
+    await user.selectOptions(hostSelect, '3') // '3' is Ravenfolks
+
+    // Set registration URL
+    const regUrlInput = screen.getByLabelText('URL de Registro (Opcional)')
+    await user.type(regUrlInput, 'https://eventbrite.com/my-event')
+
+    // Submit
+    const submitBtn = screen.getByRole('button', { name: 'Crear Evento' })
+    await user.click(submitBtn)
+
+    await waitFor(() => {
+      expect(createEvent).toHaveBeenCalledWith(
+        venueId,
+        'Noche de Euros',
+        'Catan',
+        '',
+        expect.any(String),
+        0,
+        undefined,
+        '3',
+        'https://eventbrite.com/my-event'
+      )
+    })
   })
 
   it('calls deleteEvent when clicking the delete button', async () => {

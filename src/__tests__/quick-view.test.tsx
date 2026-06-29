@@ -46,7 +46,8 @@ describe('Quick View Card Integration', () => {
   it('renders the markers on the map for the default venues in CDMX', async () => {
     render(<Home />)
     // "Orcs Stories" (CDMX Roma Norte): 19.4165, -99.1620
-    expect(await screen.findByTestId('mock-marker-19.4165--99.162')).toBeInTheDocument()
+    const orcsMarkers = await screen.findAllByTestId('mock-marker-19.4165--99.162')
+    expect(orcsMarkers.length).toBeGreaterThan(0)
     // "El Duende" (CDMX Coyoacán): 19.3750, -99.1780
     expect(await screen.findByTestId('mock-marker-19.375--99.178')).toBeInTheDocument()
     // "Ravenfolks" (CDMX Roma Norte): 19.4184, -99.1627
@@ -58,8 +59,8 @@ describe('Quick View Card Integration', () => {
     const user = userEvent.setup()
 
     // Click the marker for "Orcs Stories"
-    const orcsMarker = await screen.findByTestId('mock-marker-19.4165--99.162')
-    await user.click(orcsMarker)
+    const orcsMarkers = await screen.findAllByTestId('mock-marker-19.4165--99.162')
+    await user.click(orcsMarkers[0])
 
     // Check that the card is now visible
     const card = screen.getByTestId('quick-view-card')
@@ -75,7 +76,6 @@ describe('Quick View Card Integration', () => {
     expect(cardContent.getByText('Café de juegos • Tienda de juegos y TCG')).toBeInTheDocument()
     expect(cardContent.getByAltText('Logo Orcs Stories')).toBeInTheDocument()
     expect(cardContent.getByRole('link', { name: /visit-instagram/i })).toHaveAttribute('href', 'https://instagram.com/orcs_stories')
-    expect(cardContent.getByRole('link', { name: /visit-discord/i })).toHaveAttribute('href', 'https://discord.gg/orcsstories')
     expect(cardContent.getByText('Eurogames')).toBeInTheDocument()
     expect(cardContent.getByText('TCGs')).toBeInTheDocument()
     expect(cardContent.getByText('Café')).toBeInTheDocument()
@@ -86,8 +86,8 @@ describe('Quick View Card Integration', () => {
     const user = userEvent.setup()
 
     // Click the marker to open it
-    const orcsMarker = await screen.findByTestId('mock-marker-19.4165--99.162')
-    await user.click(orcsMarker)
+    const orcsMarkers = await screen.findAllByTestId('mock-marker-19.4165--99.162')
+    await user.click(orcsMarkers[0])
     expect(await screen.findByTestId('quick-view-card')).toBeInTheDocument()
 
     // Click the close button

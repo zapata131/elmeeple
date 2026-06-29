@@ -103,18 +103,44 @@ export const MOCK_VENUES: Venue[] = [
     instagram: 'lamatatena_gdl',
     logoUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop',
     venue_games: []
+  },
+  {
+    id: '5',
+    name: 'Club de Rol La Torre',
+    slug: 'club-de-rol-la-torre',
+    lat: undefined,
+    lng: undefined,
+    address: 'CDMX, México (Sedes variables)',
+    tags: ['Rol (RPGs)', 'Wargames', 'Comunidad'],
+    schedule: {
+      mon: null,
+      tue: null,
+      wed: null,
+      thu: null,
+      fri: null,
+      sat: null,
+      sun: null
+    },
+    description: 'Comunidad de juegos de rol, wargames y juegos de mesa en la CDMX. Nos reunimos semanalmente en locales colaboradores.',
+    type: 'comunidad',
+    instagram: 'latorrerpg',
+    discord: 'https://discord.gg/latorre',
+    logoUrl: 'https://images.unsplash.com/photo-1560942485-b2a11cc13456?w=150&h=150&fit=crop',
+    venue_games: []
   }
 ]
 
 export interface Event {
   id: string
-  venue_id: string
+  venue_id: string | null
+  organizer_venue_id: string
   title: string
   game: string
   description: string | null
   date: string
   entry_fee: number
   max_participants: number | null
+  registration_url?: string | null
   created_at: string
 }
 
@@ -122,6 +148,7 @@ export const MOCK_EVENTS: Event[] = [
   {
     id: 'evt-1',
     venue_id: '1',
+    organizer_venue_id: '1',
     title: 'Torneo de Lanzamiento Magic: Duskmourn',
     game: 'Magic: The Gathering',
     description: 'Únete a nosotros para el torneo de presentación de la nueva expansión. Sobres de juego incluidos con la inscripción.',
@@ -133,6 +160,7 @@ export const MOCK_EVENTS: Event[] = [
   {
     id: 'evt-2',
     venue_id: '1',
+    organizer_venue_id: '1',
     title: 'Noche de Eurogames: Catan y Carcassonne',
     game: 'Catan',
     description: 'Ven a jugar y conocer a otros entusiastas de los juegos de mesa. Entrada libre, consumo mínimo sugerido.',
@@ -144,12 +172,37 @@ export const MOCK_EVENTS: Event[] = [
   {
     id: 'evt-3',
     venue_id: '2',
+    organizer_venue_id: '2',
     title: 'Store Championship Yu-Gi-Oh!',
     game: 'Yu-Gi-Oh!',
     description: 'Torneo oficial con premios exclusivos para el Top 8 y tapete de campeonato para el primer lugar.',
     date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     entry_fee: 200.00,
     max_participants: 32,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'evt-4',
+    venue_id: '1',
+    organizer_venue_id: '5',
+    title: 'Noche de Rol: D&D 5e',
+    game: 'Dungeons & Dragons',
+    description: 'Una noche de aventuras en las mesas de Orcs Stories. Campañas cortas para principiantes y veteranos.',
+    date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    entry_fee: 50.00,
+    max_participants: 12,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'evt-5',
+    venue_id: null,
+    organizer_venue_id: '5',
+    title: 'Sesión de Comunidad Online',
+    game: 'Discord',
+    description: 'Nos reunimos en nuestro canal de Discord para jugar juegos de mesa en Tabletop Simulator.',
+    date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+    entry_fee: 0.00,
+    max_participants: null,
     created_at: new Date().toISOString()
   }
 ]

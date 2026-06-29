@@ -161,6 +161,38 @@ jest.mock('@/utils/supabase/client', () => {
         { id: 'g5', name: 'Carcassonne', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 2, max_players: 5, playing_time: 45 },
         { id: 'g6', name: 'Dixit', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 12, playing_time: 30 }
       ]
+    },
+    {
+      id: '5',
+      name: 'Club de Rol La Torre',
+      lat: null,
+      lng: null,
+      venue_tags: [
+        { tags: { name: 'Rol (RPGs)' } },
+        { tags: { name: 'Wargames' } }
+      ],
+      schedule: {},
+      description: 'Comunidad de juegos de rol, wargames y juegos de mesa en la CDMX. Nos reunimos semanalmente en locales colaboradores.',
+      type: 'comunidad',
+      instagram: 'latorrerpg',
+      discord: 'https://discord.gg/latorre',
+      logo_url: 'https://images.unsplash.com/photo-1560942485-b2a11cc13456?w=150&h=150&fit=crop',
+      verified: true,
+      venue_games: [],
+      events: [
+        {
+          id: 'evt-4',
+          venue_id: '1',
+          organizer_venue_id: '5',
+          title: 'Noche de Rol: D&D 5e',
+          game: 'Dungeons & Dragons',
+          description: 'Una noche de aventuras en las mesas de Orcs Stories.',
+          date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+          entry_fee: 50.00,
+          max_participants: 12,
+          created_at: new Date().toISOString()
+        }
+      ]
     }
   ]
 
@@ -168,6 +200,7 @@ jest.mock('@/utils/supabase/client', () => {
   const mockQueryBuilder = {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
+    or: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),
     single: jest.fn().mockReturnThis(),
     insert: jest.fn().mockResolvedValue({ error: null }),
@@ -222,12 +255,45 @@ jest.mock('@/utils/supabase/server', () => {
         { id: 'g7', name: 'Terraforming Mars', thumbnail: 'https://cf.geekdo-images.com/thumb/tfm.jpg', min_players: 1, max_players: 5, playing_time: 120 },
         { id: 'g8', name: 'Catan', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 4, playing_time: 75 }
       ]
+    },
+    {
+      id: '5',
+      name: 'Club de Rol La Torre',
+      lat: null,
+      lng: null,
+      venue_tags: [
+        { tags: { name: 'Rol (RPGs)' } },
+        { tags: { name: 'Wargames' } }
+      ],
+      schedule: {},
+      description: 'Comunidad de juegos de rol, wargames y juegos de mesa en la CDMX. Nos reunimos semanalmente en locales colaboradores.',
+      type: 'comunidad',
+      instagram: 'latorrerpg',
+      discord: 'https://discord.gg/latorre',
+      logo_url: 'https://images.unsplash.com/photo-1560942485-b2a11cc13456?w=150&h=150&fit=crop',
+      verified: true,
+      venue_games: [],
+      events: [
+        {
+          id: 'evt-4',
+          venue_id: '1',
+          organizer_venue_id: '5',
+          title: 'Noche de Rol: D&D 5e',
+          game: 'Dungeons & Dragons',
+          description: 'Una noche de aventuras en las mesas de Orcs Stories.',
+          date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+          entry_fee: 50.00,
+          max_participants: 12,
+          created_at: new Date().toISOString()
+        }
+      ]
     }
   ]
 
   const mockQueryBuilderServer = {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
+    or: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),
     single: jest.fn().mockReturnThis(),
     insert: jest.fn().mockResolvedValue({ error: null }),

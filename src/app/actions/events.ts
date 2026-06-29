@@ -9,7 +9,7 @@ export async function getEvents(venueId: string) {
     const { data, error } = await supabase
       .from('events')
       .select('*')
-      .eq('venue_id', venueId)
+      .or(`venue_id.eq.${venueId},organizer_venue_id.eq.${venueId}`)
       .order('date', { ascending: true })
 
     if (error) {
@@ -27,13 +27,15 @@ export async function getEvents(venueId: string) {
 }
 
 export async function createEvent(
-  venueId: string,
+  organizerVenueId: string,
   title: string,
   game: string,
   description: string,
   date: string,
   entryFee: number,
-  maxParticipants?: number
+  maxParticipants?: number,
+  venueId?: string | null,
+  registrationUrl?: string | null
 ) {
   try {
     // 1. Check authentication
@@ -44,12 +46,12 @@ export async function createEvent(
 
     const email = session.user.email
 
-    // 2. Verify venue ownership
+    // 2. Verify organizer venue ownership
     const supabase = await createClient()
     const { data: venue, error: venueError } = await supabase
       .from('venues')
       .select('id, owner_email')
-      .eq('id', venueId)
+      .eq('id', organizerVenueId)
       .eq('owner_email', email)
       .single()
 
@@ -61,13 +63,15 @@ export async function createEvent(
     const { error: insertError } = await supabase
       .from('events')
       .insert({
-        venue_id: venueId,
+        organizer_venue_id: organizerVenueId,
+        venue_id: venueId || null,
         title: title.trim(),
         game: game.trim(),
         description: description?.trim() || null,
         date,
         entry_fee: entryFee,
         max_participants: maxParticipants || null,
+        registration_url: registrationUrl || null,
       })
 
     if (insertError) {
@@ -84,7 +88,7 @@ export async function createEvent(
   }
 }
 
-export async function deleteEvent(eventId: string, venueId: string) {
+export async function deleteEvent(eventId: string, organizerVenueId: string) {
   try {
     // 1. Check authentication
     const session = await getServerSession()
@@ -94,12 +98,12 @@ export async function deleteEvent(eventId: string, venueId: string) {
 
     const email = session.user.email
 
-    // 2. Verify venue ownership
+    // 2. Verify organizer venue ownership
     const supabase = await createClient()
     const { data: venue, error: venueError } = await supabase
       .from('venues')
       .select('id, owner_email')
-      .eq('id', venueId)
+      .eq('id', organizerVenueId)
       .eq('owner_email', email)
       .single()
 

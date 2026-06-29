@@ -200,4 +200,82 @@ describe('Left Sidebar Directory Layout', () => {
       configurable: true,
     })
   })
+
+  it('renders a community without physical coordinates on the map at its next upcoming event location', async () => {
+    render(<Home />)
+
+    // Wait for the community "Club de Rol La Torre" to load in the sidebar list
+    expect(await screen.findByText('Club de Rol La Torre')).toBeInTheDocument()
+
+    // The community has lat: null, lng: null. But its next upcoming event (evt-4) is hosted at venue_id: "1" (Orcs Stories).
+    // Orcs Stories has lat: 19.4165, lng: -99.1620.
+    // So the map should render a marker at [19.4165, -99.1620] representing the community!
+    const markers = screen.getAllByTestId('mock-marker-19.4165--99.162')
+    expect(markers.length).toBe(2) // One for Orcs Stories, one for Club de Rol La Torre
+  })
+
+  it('excludes a community from the map if it has no upcoming events, but keeps it in the sidebar list', async () => {
+    const activeCommunity = {
+      id: '5',
+      name: 'Club de Rol La Torre',
+      lat: null,
+      lng: null,
+      type: 'comunidad',
+      venue_tags: [],
+      events: [{ id: 'evt-4', venue_id: '1', date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString() }]
+    }
+    const inactiveCommunity = {
+      id: '6',
+      name: 'Comunidad Inactiva',
+      lat: null,
+      lng: null,
+      type: 'comunidad',
+      venue_tags: [],
+      events: []
+    }
+    const physicalStore = {
+      id: '1',
+      name: 'Orcs Stories',
+      lat: 19.4165,
+      lng: -99.1620,
+      type: 'cafe',
+      venue_tags: [],
+      events: []
+    }
+
+    const customMockVenues = [physicalStore, activeCommunity, inactiveCommunity]
+    
+    const originalInstance = global.mockSupabaseInstance
+    global.mockSupabaseInstance = {
+      ...originalInstance,
+      from: jest.fn().mockImplementation((table) => {
+        if (table === 'venues') {
+          return {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            order: jest.fn().mockReturnThis(),
+            then: jest.fn((onFulfilled) => onFulfilled({ data: customMockVenues, error: null }))
+          }
+        }
+        return originalInstance.from(table)
+      })
+    }
+
+    render(<Home />)
+
+    // Both should be in the sidebar
+    expect(await screen.findByText('Club de Rol La Torre')).toBeInTheDocument()
+    expect(screen.getByText('Comunidad Inactiva')).toBeInTheDocument()
+
+    // Active community should have a marker at Orcs Stories' coordinates
+    const activeMarkers = screen.getAllByTestId('mock-marker-19.4165--99.162')
+    expect(activeMarkers.length).toBe(2) // One for Orcs Stories, one for active community
+
+    // Inactive community has no events, so it should NOT have a marker.
+    expect(screen.queryByTestId('mock-marker-null-null')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('mock-marker-undefined-undefined')).not.toBeInTheDocument()
+
+    // Restore original mock
+    global.mockSupabaseInstance = originalInstance
+  })
 })

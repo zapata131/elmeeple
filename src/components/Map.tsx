@@ -22,6 +22,7 @@ if (typeof window !== 'undefined') {
 
 // Custom brand-purple vector SVG marker icon
 let purpleIcon: L.DivIcon | undefined
+let communityIcon: L.DivIcon | undefined
 
 if (typeof window !== 'undefined') {
   purpleIcon = L.divIcon({
@@ -33,6 +34,19 @@ if (typeof window !== 'undefined') {
       </div>
     `,
     className: 'custom-purple-icon',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  })
+
+  communityIcon = L.divIcon({
+    html: `
+      <div style="display: flex; align-items: center; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#73D8D4" style="width: 32px; height: 32px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.83 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+        </svg>
+      </div>
+    `,
+    className: 'custom-community-icon',
     iconSize: [32, 32],
     iconAnchor: [16, 32],
   })
@@ -108,20 +122,22 @@ export default function Map({
         {/* Helper component to animate camera pan when a venue is selected or center changes */}
         <MapController selectedVenue={selectedVenue} center={center} />
 
-        {venues.map((venue) => (
-          <Marker
-            key={venue.id}
-            position={[venue.lat, venue.lng]}
-            icon={purpleIcon}
-            eventHandlers={{
-              click: () => {
-                if (onSelectVenue) {
-                  onSelectVenue(venue)
+        {venues
+          .filter((v) => v.lat !== undefined && v.lng !== undefined && v.lat !== null && v.lng !== null)
+          .map((venue) => (
+            <Marker
+              key={venue.id}
+              position={[venue.lat!, venue.lng!]}
+              icon={venue.type?.split(',').includes('comunidad') ? communityIcon : purpleIcon}
+              eventHandlers={{
+                click: () => {
+                  if (onSelectVenue) {
+                    onSelectVenue(venue)
+                  }
                 }
-              }
-            }}
-          />
-        ))}
+              }}
+            />
+          ))}
       </MapContainer>
     </div>
   )

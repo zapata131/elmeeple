@@ -271,18 +271,7 @@ export default function VenueProfileClient({ venue, initialEvents = [] }: VenueP
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
               </a>
             )}
-            
-            {venue.discord && (
-              <a
-                href={venue.discord}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 bg-white dark:bg-[#2D2D2D] border border-[#3A3A3A]/15 dark:border-[#F5F0E9]/15 hover:border-[#8367C7] hover:text-[#8367C7] text-[#3A3A3A]/70 dark:text-[#F5F0E9]/70 rounded-xl transition-all flex items-center justify-center shadow-sm"
-                aria-label="Discord"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-              </a>
-            )}
+
           </div>
 
         </div>

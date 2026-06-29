@@ -173,7 +173,6 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
     expect(screen.getByText(/Tipo de local/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Descripción/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Usuario de Instagram/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Enlace de Discord/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Subir imagen de logo/i)).toBeInTheDocument()
   })
 
@@ -191,7 +190,6 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
 
     // Set Social Links
     await user.type(screen.getByLabelText(/Usuario de Instagram/i), 'meeple_oasis')
-    await user.type(screen.getByLabelText(/Enlace de Discord/i), 'https://discord.gg/meepleoasis')
 
     // Upload Logo and check humanized status copy
     const file = new File(['logo-content'], 'logo-oasis.png', { type: 'image/png' })
@@ -285,6 +283,62 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
 
     // Success screen
     expect(screen.getByRole('heading', { name: /¡Registro completado con éxito!/i })).toBeInTheDocument()
+  })
+
+  it('allows a pure community to complete onboarding without specifying a map location', async () => {
+    render(<OnboardingPage />)
+    const user = userEvent.setup()
+
+    // --- STEP 1: Datos del local ---
+    expect(screen.getByRole('heading', { name: /Paso 1: datos del local/i })).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/Nombre del local/i), 'Club de Rol La Torre')
+    await user.type(screen.getByLabelText(/Descripción/i), 'Comunidad de rol.')
+    
+    // Select Comunidad
+    await user.click(screen.getByLabelText(/Café de juegos/i)) // Uncheck Café
+    await user.click(screen.getByLabelText(/Club y comunidad/i)) // Check Comunidad
+
+    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
+
+    // --- STEP 2: Ubicar en el mapa ---
+    expect(screen.getByRole('heading', { name: /Paso 2: ubicar en el mapa/i })).toBeInTheDocument()
+    
+    // Since it's a pure community, the coordinates are optional. The "Siguiente" button should NOT be disabled.
+    const nextBtnStep2 = screen.getByRole('button', { name: /Siguiente/i })
+    expect(nextBtnStep2).not.toBeDisabled()
+    await user.click(nextBtnStep2)
+
+    // --- STEP 3: Especialidades ---
+    expect(screen.getByRole('heading', { name: /Paso 3: especialidades/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
+
+    // --- STEP 4: Confirmar datos (Summary) ---
+    expect(screen.getByRole('heading', { name: /Paso 4: confirmar datos/i })).toBeInTheDocument()
+    expect(screen.getByText('Ubicación en el mapa')).toBeInTheDocument()
+    expect(screen.getByText('Ubicación variable (Comunidad)')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Siguiente/i }))
+
+    // --- STEP 5: Verificación de propiedad ---
+    expect(screen.getByRole('heading', { name: /Paso 5: verificación de propiedad/i })).toBeInTheDocument()
+    await user.type(screen.getByLabelText(/Identificación fiscal/i), 'RFC-TORRE-123')
+    
+    const permitFile = new File(['permit-content'], 'permit.png', { type: 'image/png' })
+    const permitInput = screen.getByLabelText(/Permiso de operación/i)
+    await user.upload(permitInput, permitFile)
+
+    const submitBtn = screen.getByRole('button', { name: /Confirmar y Registrar/i })
+    await user.click(submitBtn)
+
+    // Verify server action was called with undefined lat/lng
+    expect(mockCreateVenue).toHaveBeenCalledWith(expect.objectContaining({
+      ownerName: 'Jose Zapata',
+      ownerEmail: 'jose@elmeeple.com',
+      name: 'Club de Rol La Torre',
+      type: 'comunidad',
+      lat: undefined,
+      lng: undefined
+    }))
   })
 
   it('redirects to login page if the user is unauthenticated', () => {

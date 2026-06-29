@@ -25,18 +25,19 @@ export interface Venue {
   id: string
   name: string
   slug?: string
-  lat: number
-  lng: number
+  lat?: number | null
+  lng?: number | null
   tags: string[]
   schedule: StructuredSchedule | string
   address: string
   description: string
-  type?: 'cafe' | 'tienda' | 'hibrido' | 'comunidad'
+  type?: string
   instagram?: string
   discord?: string
   logoUrl?: string
   venue_games?: any[]
   reviews?: any[]
+  events?: any[]
 }
 
 interface QuickViewCardProps {
@@ -353,32 +354,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           </a>
         )}
 
-        {/* Discord Link */}
-        {venue.discord && (
-          <a
-            href={venue.discord}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="visit-discord"
-            className="p-2.5 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:border-[#8367C7] text-[#3A3A3A] hover:text-[#8367C7] rounded-xl transition-all duration-200 flex items-center justify-center cursor-pointer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-5 h-5"
-            >
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-          </a>
-        )}
+
 
         {/* Premium Full Profile Link CTA */}
         <a

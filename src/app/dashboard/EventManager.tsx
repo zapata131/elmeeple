@@ -5,13 +5,15 @@ import { getEvents, createEvent, deleteEvent } from '@/app/actions/events'
 
 export interface Event {
   id: string
-  venue_id: string
+  venue_id: string | null
+  organizer_venue_id: string
   title: string
   game: string
   description: string | null
   date: string
   entry_fee: number
   max_participants: number | null
+  registration_url?: string | null
   created_at: string
 }
 
@@ -31,6 +33,9 @@ export default function EventManager({ venueId }: EventManagerProps) {
   const [date, setDate] = useState('')
   const [entryFee, setEntryFee] = useState('0')
   const [maxParticipants, setMaxParticipants] = useState('')
+  const [selectedHostVenueId, setSelectedHostVenueId] = useState<string>('')
+  const [registrationUrl, setRegistrationUrl] = useState('')
+  const [venuesList, setVenuesList] = useState<{ id: string, name: string }[]>([])
   
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -55,6 +60,30 @@ export default function EventManager({ venueId }: EventManagerProps) {
     loadEvents()
   }, [loadEvents])
 
+  useEffect(() => {
+    async function loadHostVenues() {
+      try {
+        const { createClient } = await import('@/utils/supabase/client')
+        const supabase = createClient()
+        const { data } = await supabase
+          .from('venues')
+          .select('id, name, type')
+          .eq('verification_status', 'approved')
+        
+        if (data) {
+          const physicalVenues = data.filter((v: any) => {
+            const types = v.type ? v.type.split(',') : []
+            return types.includes('cafe') || types.includes('tienda')
+          })
+          setVenuesList(physicalVenues)
+        }
+      } catch (err) {
+        console.error('Error loading host venues:', err)
+      }
+    }
+    loadHostVenues()
+  }, [])
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim() || !game.trim() || !date) return
@@ -65,7 +94,9 @@ export default function EventManager({ venueId }: EventManagerProps) {
 
     try {
       const fee = parseFloat(entryFee) || 0
-      const maxParts = parseInt(maxParticipants, 10) || undefined
+      const maxParts = parseInt(maxParticipants, 10) || null
+      const hostId = selectedHostVenueId || null
+      const regUrl = registrationUrl.trim() || null
 
       const res = await createEvent(
         venueId,
@@ -74,7 +105,9 @@ export default function EventManager({ venueId }: EventManagerProps) {
         description,
         new Date(date).toISOString(),
         fee,
-        maxParts
+        maxParts === null ? undefined : maxParts,
+        hostId,
+        regUrl
       )
 
       if (res.success) {
@@ -85,6 +118,8 @@ export default function EventManager({ venueId }: EventManagerProps) {
         setDate('')
         setEntryFee('0')
         setMaxParticipants('')
+        setSelectedHostVenueId('')
+        setRegistrationUrl('')
         setShowForm(false)
         await loadEvents()
       } else {
@@ -216,6 +251,37 @@ export default function EventManager({ venueId }: EventManagerProps) {
                 value={maxParticipants}
                 onChange={(e) => setMaxParticipants(e.target.value)}
                 placeholder="Sin límite"
+                className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="event-host" className="text-xs font-bold text-[#3A3A3A]/85">Sede Física (Opcional)</label>
+              <select
+                id="event-host"
+                value={selectedHostVenueId}
+                onChange={(e) => setSelectedHostVenueId(e.target.value)}
+                className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] cursor-pointer"
+              >
+                <option value="">Sin sede física (Online / Variable)</option>
+                {venuesList.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="event-reg-url" className="text-xs font-bold text-[#3A3A3A]/85">URL de Registro (Opcional)</label>
+              <input
+                id="event-reg-url"
+                type="url"
+                value={registrationUrl}
+                onChange={(e) => setRegistrationUrl(e.target.value)}
+                placeholder="https://ejemplo.com/registro"
                 className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-xs text-[#3A3A3A] focus:outline-none focus:border-[#8367C7]"
               />
             </div>
