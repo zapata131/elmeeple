@@ -60,6 +60,7 @@
   * Public read access (`SELECT`) permitted on all public venue, game, and review tables.
   * Authenticated write access (`INSERT`/`UPDATE`) restricted to validated users or owners using session checks.
 * **BoardGameGeek integration:** Public XML API collection sync (`https://boardgamegeek.com/xmlapi2/collection?username=<username>&own=1`) parsed securely on the server side using `fast-xml-parser`.
+  * **Weekly CRON Sync:** A background CRON route `/api/cron/sync` (secured via `CRON_SECRET` Bearer token) automatically queries approved venues and triggers sequential BGG catalog syncs weekly, implementing a 1-second polite delay between requests.
 * **Authentication:** NextAuth (Auth.js) with custom credentials role resolution, dynamic SHA-256 database password hashing, and global context wrappers.
 * **Emails (Transactional):** Resend or Mailgun (for onboarding verifications).
 * **Hosting/deployment:** Vercel for zero-config CI/CD and edge deployments.

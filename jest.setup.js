@@ -301,8 +301,9 @@ jest.mock('@/app/actions/admin', () => ({
 const mockSyncBggCollection = jest.fn().mockResolvedValue({ success: true, count: 2 })
 global.mockSyncBggCollection = mockSyncBggCollection
 jest.mock('@/app/actions/bgg', () => ({
-  syncBggCollection: (venueId, bggUsername) => mockSyncBggCollection(venueId, bggUsername),
-}), { virtual: true })
+  __esModule: true,
+  syncBggCollection: jest.fn().mockImplementation((venueId, bggUsername) => global.mockSyncBggCollection(venueId, bggUsername)),
+}))
 
 const mockSubmitReview = jest.fn().mockResolvedValue({ success: true })
 global.mockSubmitReview = mockSubmitReview
