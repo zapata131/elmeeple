@@ -83,7 +83,13 @@ function MapController({
   }, [center, map])
 
   useEffect(() => {
-    if (selectedVenue) {
+    if (
+      selectedVenue &&
+      selectedVenue.lat !== undefined &&
+      selectedVenue.lng !== undefined &&
+      selectedVenue.lat !== null &&
+      selectedVenue.lng !== null
+    ) {
       map.setView([selectedVenue.lat, selectedVenue.lng], 15, {
         animate: true,
         duration: 1.0, // 1 second smooth animation

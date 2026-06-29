@@ -248,7 +248,7 @@ describe('Owner Dashboard (/dashboard)', () => {
     })
 
     // Render server component
-    const dashboardJSX = await OwnerDashboard({ searchParams: {} })
+    const dashboardJSX = await OwnerDashboard()
     render(dashboardJSX)
 
     // Verify profile section has resolved from session
@@ -272,7 +272,7 @@ describe('Owner Dashboard (/dashboard)', () => {
     // 1. Mock session to null
     ;(getServerSession as jest.Mock).mockResolvedValue(null)
 
-    await OwnerDashboard({ searchParams: {} })
+    await OwnerDashboard()
 
     // 2. Verify redirect is called immediately
     expect(mockRedirect).toHaveBeenCalledWith('/login?callbackUrl=/dashboard')
@@ -288,7 +288,7 @@ describe('Owner Dashboard (/dashboard)', () => {
       }
     })
 
-    await OwnerDashboard({ searchParams: {} })
+    await OwnerDashboard()
 
     // 2. Verify redirect is called immediately
     expect(mockRedirect).toHaveBeenCalledWith('/login?callbackUrl=/dashboard')

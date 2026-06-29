@@ -171,7 +171,7 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
 
     it('returns error when BGG API returns 429 status in production', async () => {
       const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
 
       const spyFetch = jest.fn().mockResolvedValue({
         status: 429,
@@ -185,7 +185,7 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
         expect(res.success).toBe(false)
         expect(res.error).toContain('La API de BoardGameGeek está experimentando un tráfico alto')
       } finally {
-        process.env.NODE_ENV = originalEnv
+        ;(process.env as any).NODE_ENV = originalEnv
       }
     })
 
@@ -333,7 +333,7 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
       })
 
       // Render the Dashboard (async Server Component)
-      const dashboardNode = await OwnerDashboard({ searchParams: { email: 'owner@example.com' } })
+      const dashboardNode = await OwnerDashboard()
       render(dashboardNode)
 
       // Verify sync panel elements exist

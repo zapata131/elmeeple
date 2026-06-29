@@ -245,8 +245,8 @@ describe('Left Sidebar Directory Layout', () => {
 
     const customMockVenues = [physicalStore, activeCommunity, inactiveCommunity]
     
-    const originalInstance = global.mockSupabaseInstance
-    global.mockSupabaseInstance = {
+    const originalInstance = (global as any).mockSupabaseInstance
+    ;(global as any).mockSupabaseInstance = {
       ...originalInstance,
       from: jest.fn().mockImplementation((table) => {
         if (table === 'venues') {
@@ -276,6 +276,6 @@ describe('Left Sidebar Directory Layout', () => {
     expect(screen.queryByTestId('mock-marker-undefined-undefined')).not.toBeInTheDocument()
 
     // Restore original mock
-    global.mockSupabaseInstance = originalInstance
+    ;(global as any).mockSupabaseInstance = originalInstance
   })
 })

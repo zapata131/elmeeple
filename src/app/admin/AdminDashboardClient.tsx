@@ -19,6 +19,7 @@ interface Venue {
   verified: boolean
   contact_email?: string
   contact_phone?: string
+  reviewer_comment?: string | null
 }
 
 interface AdminDashboardClientProps {

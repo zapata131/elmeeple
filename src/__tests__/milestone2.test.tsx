@@ -282,7 +282,7 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
         },
       })
 
-      const dashboardNode = await OwnerDashboard({ searchParams: { email: 'owner@example.com' } })
+      const dashboardNode = await OwnerDashboard()
       render(dashboardNode)
 
 
