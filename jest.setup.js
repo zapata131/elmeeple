@@ -91,7 +91,7 @@ jest.mock('@/utils/supabase/client', () => {
         sun: { open: '14:00', close: '22:00' }
       },
       description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.',
-      type: 'hibrido',
+      type: 'cafe,tienda',
       instagram: 'orcs_stories',
       discord: 'https://discord.gg/orcsstories',
       logo_url: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop',
@@ -212,7 +212,7 @@ jest.mock('@/utils/supabase/server', () => {
       ],
       schedule: {},
       description: 'Café de especialidad con una increíble ludoteca de juegos de mesa y comunidad activa de TCGs.',
-      type: 'hibrido',
+      type: 'cafe,tienda',
       instagram: 'orcs_stories',
       discord: 'https://discord.gg/orcsstories',
       logo_url: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop',

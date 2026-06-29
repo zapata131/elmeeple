@@ -9,10 +9,10 @@ export interface OnboardingData {
   name: string
   description: string
   schedule: StructuredSchedule
-  lat: number
-  lng: number
+  lat?: number
+  lng?: number
   tags: string[]
-  type: 'cafe' | 'tienda' | 'hibrido' | 'comunidad'
+  type: string
   instagram?: string
   discord?: string
   logoUrl?: string
@@ -31,13 +31,19 @@ export async function createVenue(data: OnboardingData) {
     !data.name ||
     !data.description ||
     !data.type ||
-    !data.schedule ||
-    data.lat === undefined ||
-    data.lng === undefined
+    !data.schedule
   ) {
     return {
       success: false,
       error: 'Por favor, completa todos los campos requeridos.'
+    }
+  }
+
+  const isPureCommunity = data.type === 'comunidad';
+  if (!isPureCommunity && (data.lat === undefined || data.lng === undefined || data.lat === null || data.lng === null)) {
+    return {
+      success: false,
+      error: 'La ubicación en el mapa es requerida para locales físicos.'
     }
   }
 

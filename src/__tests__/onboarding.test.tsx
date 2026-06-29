@@ -170,7 +170,7 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
 
     // Store Inputs should be present in Step 1
     expect(screen.getByLabelText(/Nombre del local/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Tipo de local/i)).toBeInTheDocument()
+    expect(screen.getByText(/Tipo de local/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Descripción/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Usuario de Instagram/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Enlace de Discord/i)).toBeInTheDocument()
@@ -186,9 +186,8 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
     await user.type(screen.getByLabelText(/Nombre del local/i), 'Meeple Oasis CDMX')
     await user.type(screen.getByLabelText(/Descripción/i), 'Un oasis de juegos de mesa en la Roma.')
     
-    // Select Venue Type
-    const typeSelect = screen.getByLabelText(/Tipo de local/i)
-    await user.selectOptions(typeSelect, 'hibrido')
+    // Select Venue Type (Café is checked by default, so we also check Tienda to select both)
+    await user.click(screen.getByLabelText(/Tienda de juegos y TCG/i))
 
     // Set Social Links
     await user.type(screen.getByLabelText(/Usuario de Instagram/i), 'meeple_oasis')
@@ -233,7 +232,8 @@ describe('Optimized 5-Step Owner Onboarding Flow', () => {
     
     // Verify details are rendered
     expect(screen.getByText('Meeple Oasis CDMX')).toBeInTheDocument()
-    expect(screen.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
+    expect(screen.getByText(/Café de juegos/i)).toBeInTheDocument()
+    expect(screen.getByText(/Tienda de juegos/i)).toBeInTheDocument()
     expect(screen.getByText('19.4155, -99.1622')).toBeInTheDocument()
     expect(screen.getByText('Eurogames')).toBeInTheDocument()
 

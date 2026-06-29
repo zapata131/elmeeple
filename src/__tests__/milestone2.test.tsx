@@ -159,7 +159,8 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
 
       // --- STEP 1: Datos del local ---
       await user.type(screen.getByLabelText(/Nombre del Local/i), 'Meeple TCG Haven')
-      await user.selectOptions(screen.getByLabelText(/Tipo de Local/i), 'tienda')
+      await user.click(screen.getByLabelText(/Café de juegos/i))
+      await user.click(screen.getByLabelText(/Tienda de juegos y TCG/i))
       await user.type(screen.getByLabelText(/Descripción/i), 'La mejor tienda TCG de la ciudad.')
       await user.type(screen.getByLabelText(/Correo de Contacto Público/i), 'contacto@meepletcg.com')
       await user.type(screen.getByLabelText(/Teléfono de Contacto/i), '+525512345678')
@@ -199,7 +200,7 @@ describe('Milestone 2: Auth, Profiles, TCG tags, Dashboards, Bulletin Board', ()
                   venues: {
                     id: 'venue-1',
                     name: 'Orcs Stories',
-                    type: 'hibrido',
+                    type: 'cafe,tienda',
                     logo_url: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09',
                   },
                 },

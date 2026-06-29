@@ -148,3 +148,20 @@ To reduce back-and-forth email friction during store onboarding, partners can pr
 3. **Auditing Interface**: Pending registration cards inside the Admin Dashboard details modal render a warning-colored (`bg-amber-500/10`) card displaying this message to administrators for contextual audits.
 4. **Safety & Stability**: Implemented loop-protection states inside the session prefill hook to prevent cascade renders inside Jest and react runtime environments.
 
+### 9.6 Communities, Event Siting, and Multiple Types Decisions (Milestone 5)
+To support informal gaming clubs and communities alongside physical stores and cafés, we introduced the following design decisions:
+
+1. **Multiple Venue Types**:
+   * *Decision:* Store multiple types as a comma-separated string (e.g. `"cafe,tienda"`) within the existing `type` column.
+   * *Rationale:* This preserves 100% backward compatibility with the existing schema and prevents breaking existing PostgreSQL Row-Level Security (RLS) policies or third-party client integrations. It avoids the overhead of managing a separate relational table for a simple, low-cardinality attribute, while allowing simple client-side `.split(',')` parsing and SQL pattern matching.
+   * *Onboarding UX:* Changed the single-type dropdown to multiple checkboxes. If a user selects *only* "Comunidad/Club", the address and map coordinates become optional. If they select "Café" or "Tienda" (even in combination with "Comunidad"), a physical address is required.
+
+2. **Dynamic Map Siting for Communities**:
+   * *Decision:* Communities do not have a fixed address. On the map, their pin is positioned dynamically at the coordinates of their **next upcoming event**. If a community has no upcoming events, it is hidden from the map but remains fully searchable and visible in the sidebar list.
+   * *Rationale:* Placing a community at a dummy coordinate (like the city center) would confuse users. Positioning them at their next event's location shows users exactly where and when they can interact with them. Hiding them from the map when inactive prevents cluttering the map with non-addressable pins, while keeping them in the sidebar ensures they remain discoverable.
+
+3. **Optional Event Siting & Registration URLs**:
+   * *Decision:* Made `venue_id` (the physical venue hosting the event) and `registration_url` optional attributes in the events schema.
+   * *Rationale:* This allows communities to host events at established partner venues (creating cross-promotion), in public spaces, or online. It also removes friction by not forcing external registration URLs for casual, open-invite events.
+
+

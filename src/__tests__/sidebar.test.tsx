@@ -50,7 +50,7 @@ describe('Left Sidebar Directory Layout', () => {
     expect(screen.getByRole('button', { name: /todos/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /cafés/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /tiendas/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /híbridos/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /comunidades/i })).toBeInTheDocument()
   })
 
   it('renders a scrollable list of matching venues', async () => {
@@ -106,18 +106,18 @@ describe('Left Sidebar Directory Layout', () => {
     const tiendasChip = screen.getByRole('button', { name: /tiendas/i })
     await user.click(tiendasChip)
 
-    // Only "El Duende" should show up (type === 'tienda')
+    // "El Duende" (type === 'tienda') and "Orcs Stories" (type === 'cafe,tienda') should show up
     expect(screen.getByText('El Duende')).toBeInTheDocument()
-    expect(screen.queryByText('Orcs Stories')).not.toBeInTheDocument()
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
 
     // Click "Cafés" chip
     const cafesChip = screen.getByRole('button', { name: /cafés/i })
     await user.click(cafesChip)
 
-    // Only "Ravenfolks" should show up (type === 'cafe')
+    // "Ravenfolks" (type === 'cafe') and "Orcs Stories" (type === 'cafe,tienda') should show up
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
-    expect(screen.queryByText('Orcs Stories')).not.toBeInTheDocument()
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
 
     // Click "Todos" chip

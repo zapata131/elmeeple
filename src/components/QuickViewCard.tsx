@@ -47,7 +47,6 @@ interface QuickViewCardProps {
 const VENUE_TYPE_LABELS = {
   cafe: 'Café de juegos',
   tienda: 'Tienda de juegos y TCG',
-  hibrido: 'Híbrido (café y tienda)',
   comunidad: 'Club y comunidad'
 }
 
@@ -118,7 +117,11 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
     : null
 
   const formattedSchedule = formatSchedule(venue.schedule)
-  const typeLabel = venue.type ? VENUE_TYPE_LABELS[venue.type] : null
+  const typeLabel = venue.type 
+    ? venue.type.split(',')
+        .map(t => VENUE_TYPE_LABELS[t as keyof typeof VENUE_TYPE_LABELS] || t)
+        .join(' • ')
+    : null
 
   // Fetch announcements and favorites dynamically on component mount
   useEffect(() => {
