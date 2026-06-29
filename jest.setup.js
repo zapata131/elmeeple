@@ -402,6 +402,35 @@ if (typeof window !== 'undefined') {
     })),
   })
 }
-
-
-
+// Mock react-leaflet globally for JSDOM
+jest.mock('react-leaflet', () => {
+  const React = require('react')
+  return {
+    MapContainer: ({ children }) => React.createElement('div', { 'data-testid': 'mock-map-container' }, children),
+    TileLayer: () => React.createElement('div', { 'data-testid': 'mock-tile-layer' }),
+    ZoomControl: () => React.createElement('div', { 'data-testid': 'mock-zoom-control' }),
+    Marker: ({ children, eventHandlers }) => 
+      React.createElement('div', { 'data-testid': 'mock-marker', onClick: eventHandlers?.click }, children),
+    Tooltip: ({ children }) => React.createElement('div', { 'data-testid': 'mock-tooltip' }, children),
+    useMap: () => ({
+      setView: jest.fn(),
+      flyTo: jest.fn(),
+      getBounds: () => ({
+        getSouthWest: () => ({ lat: 19.30, lng: -99.22 }),
+        getNorthEast: () => ({ lat: 19.50, lng: -99.10 }),
+      }),
+      getZoom: () => 13,
+      on: jest.fn(),
+      off: jest.fn(),
+    }),
+    useMapEvents: () => ({
+      setView: jest.fn(),
+      flyTo: jest.fn(),
+      getBounds: () => ({
+        getSouthWest: () => ({ lat: 19.30, lng: -99.22 }),
+        getNorthEast: () => ({ lat: 19.50, lng: -99.10 }),
+      }),
+      getZoom: () => 13,
+    })
+  }
+})

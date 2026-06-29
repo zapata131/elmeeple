@@ -3,19 +3,6 @@ import { render, screen } from '@testing-library/react'
 import Home from '@/app/page'
 import Map from '@/components/Map'
 
-// Mock react-leaflet so that it doesn't break in JSDOM
-jest.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-map-container">{children}</div>
-  ),
-  TileLayer: () => <div data-testid="mock-tile-layer" />,
-  ZoomControl: () => <div data-testid="mock-zoom-control" />,
-  Marker: () => <div data-testid="mock-marker" />,
-  useMap: () => ({
-    setView: jest.fn(),
-  }),
-}))
-
 describe('Map Component', () => {
   it('renders the map container and tile layer', () => {
     render(<Map />)

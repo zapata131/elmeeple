@@ -42,6 +42,16 @@ jest.mock('react-leaflet', () => ({
     setView: mockSetView,
     flyTo: mockFlyTo,
   }),
+  Tooltip: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-tooltip">{children}</div>,
+  useMapEvents: () => ({
+    setView: jest.fn(),
+    flyTo: jest.fn(),
+    getBounds: () => ({
+      getSouthWest: () => ({ lat: 19.30, lng: -99.22 }),
+      getNorthEast: () => ({ lat: 19.50, lng: -99.10 }),
+    }),
+    getZoom: () => 13,
+  }),
 }))
 
 const mockSuggestions = [
@@ -54,7 +64,7 @@ const mockSuggestions = [
   {
     place_id: 2,
     display_name: 'Roma Sur, Ciudad de México, México',
-    lat: '19.4050',
+    lat: '19.3050',
     lon: '-99.1650',
   },
 ]

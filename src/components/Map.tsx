@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from 'react-leaflet'
+import { useEffect, useState } from 'react'
+import { MapContainer, TileLayer, Marker, ZoomControl, useMap, useMapEvents, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Venue } from './QuickViewCard'
@@ -58,16 +58,125 @@ interface MapProps {
   venues?: Venue[]
   onSelectVenue?: (venue: Venue) => void
   selectedVenue?: Venue | null
+  onBoundsChange?: (bounds: [number, number, number, number]) => void
 }
 
 const DEFAULT_CENTER: [number, number] = [19.432608, -99.133209] // Mexico City (CDMX) as default center
 const DEFAULT_ZOOM = 13
 
-// Component to programmatically pan and center the map on the selected venue or searched location
-function MapController({ 
-  selectedVenue, 
-  center 
-}: { 
+// Distance-based clustering algorithm
+function getClusters(venues: Venue[], zoom: number) {
+  // At zoom 15+ (very zoomed in), we do not cluster markers to allow precise selection
+  if (zoom >= 15) {
+    return venues.map((v) => ({
+      isCluster: false,
+      id: v.id,
+      lat: v.lat!,
+      lng: v.lng!,
+      venues: [v],
+    }))
+  }
+
+  // Degree-based cluster radius, scaling with zoom level
+  const clusterRadius = 0.04 / Math.pow(2, zoom - 10)
+  const clusters: Array<{
+    isCluster: boolean
+    id: string
+    lat: number
+    lng: number
+    venues: Venue[]
+  }> = []
+  const processed = new Set<string>()
+
+  for (const venue of venues) {
+    const vLat = venue.lat
+    const vLng = venue.lng
+    if (vLat === undefined || vLng === undefined || vLat === null || vLng === null) continue
+    if (processed.has(venue.id)) continue
+
+    // Find all nearby venues within the radius
+    const neighbors = venues.filter((other) => {
+      if (other.lat === undefined || other.lng === undefined || other.lat === null || other.lng === null) return false
+      if (processed.has(other.id)) return false
+
+      const latDiff = Math.abs(vLat - other.lat)
+      const lngDiff = Math.abs(vLng - other.lng)
+      return latDiff < clusterRadius && lngDiff < clusterRadius
+    })
+
+    if (neighbors.length > 1) {
+      // Calculate centroid of the cluster
+      const avgLat = neighbors.reduce((sum, n) => sum + (n.lat ?? 0), 0) / neighbors.length
+      const avgLng = neighbors.reduce((sum, n) => sum + (n.lng ?? 0), 0) / neighbors.length
+
+      clusters.push({
+        isCluster: true,
+        id: `cluster-${venue.id}`,
+        lat: avgLat,
+        lng: avgLng,
+        venues: neighbors,
+      })
+      neighbors.forEach((n) => processed.add(n.id))
+    } else {
+      clusters.push({
+        isCluster: false,
+        id: venue.id,
+        lat: vLat,
+        lng: vLng,
+        venues: [venue],
+      })
+      processed.add(venue.id)
+    }
+  }
+
+  return clusters
+}
+
+// Component to handle Map bounds and zoom events
+function MapEvents({
+  onBoundsChange,
+  onZoomChange,
+}: {
+  onBoundsChange?: (bounds: [number, number, number, number]) => void
+  onZoomChange?: (zoom: number) => void
+}) {
+  const map = useMapEvents({
+    moveend: () => {
+      triggerUpdate()
+    },
+    zoomend: () => {
+      triggerUpdate()
+    },
+  })
+
+  const triggerUpdate = () => {
+    const bounds = map.getBounds()
+    if (onBoundsChange) {
+      onBoundsChange([
+        bounds.getSouthWest().lat,
+        bounds.getSouthWest().lng,
+        bounds.getNorthEast().lat,
+        bounds.getNorthEast().lng,
+      ])
+    }
+    if (onZoomChange) {
+      onZoomChange(map.getZoom())
+    }
+  }
+
+  // Trigger once on mount
+  useEffect(() => {
+    triggerUpdate()
+  }, [])
+
+  return null
+}
+
+// Component to programmatically pan and center the map
+function MapController({
+  selectedVenue,
+  center,
+}: {
   selectedVenue: Venue | null
   center?: [number, number]
 }) {
@@ -92,7 +201,7 @@ function MapController({
     ) {
       map.setView([selectedVenue.lat, selectedVenue.lng], 15, {
         animate: true,
-        duration: 1.0, // 1 second smooth animation
+        duration: 1.0,
       })
     }
   }, [selectedVenue, map])
@@ -100,14 +209,108 @@ function MapController({
   return null
 }
 
-export default function Map({ 
-  center, 
-  zoom = DEFAULT_ZOOM, 
-  venues = [], 
+// Component to render markers and clusters
+function MapMarkers({
+  venues,
   onSelectVenue,
-  selectedVenue = null
+  currentZoom,
+}: {
+  venues: Venue[]
+  onSelectVenue?: (venue: Venue) => void
+  currentZoom: number
+}) {
+  const map = useMap()
+  const validVenues = venues.filter(
+    (v) => v.lat !== undefined && v.lng !== undefined && v.lat !== null && v.lng !== null
+  )
+  const clusters = getClusters(validVenues, currentZoom)
+
+  return (
+    <>
+      {clusters.map((cluster) => {
+        if (cluster.isCluster) {
+          const totalEvents = cluster.venues.reduce((sum, v) => sum + (v.events?.length || 0), 0)
+
+          const clusterIcon = L.divIcon({
+            html: `
+              <div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-[#8367C7] text-white font-bold border-2 border-white shadow-lg cursor-pointer transform hover:scale-105 transition-transform duration-150">
+                <span>${cluster.venues.length}</span>
+                ${
+                  totalEvents > 0
+                    ? `
+                  <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#73D8D4] opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#73D8D4]"></span>
+                  </span>
+                `
+                    : ''
+                }
+              </div>
+            `,
+            className: 'custom-cluster-icon',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+          })
+
+          return (
+            <Marker
+              key={cluster.id}
+              position={[cluster.lat, cluster.lng]}
+              icon={clusterIcon}
+              eventHandlers={{
+                click: () => {
+                  map.setView([cluster.lat, cluster.lng], Math.min(map.getZoom() + 2, 18), {
+                    animate: true,
+                    duration: 0.5,
+                  })
+                },
+              }}
+            >
+              <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
+                <div className="p-1 text-xs font-sans text-[#3A3A3A] bg-[#F5F0E9] rounded border border-gray-200/50">
+                  <p className="font-bold border-b border-gray-250/30 pb-0.5 mb-1 text-[#3A3A3A]">
+                    {cluster.venues.length} Locales
+                  </p>
+                  <p className="text-gray-600 font-medium">{totalEvents} Eventos programados</p>
+                  <p className="text-[10px] text-[#8367C7] mt-0.5 italic font-semibold">
+                    Haz click para ampliar
+                  </p>
+                </div>
+              </Tooltip>
+            </Marker>
+          )
+        } else {
+          const venue = cluster.venues[0]
+          return (
+            <Marker
+              key={venue.id}
+              position={[venue.lat!, venue.lng!]}
+              icon={venue.type?.split(',').includes('comunidad') ? communityIcon! : purpleIcon!}
+              eventHandlers={{
+                click: () => {
+                  if (onSelectVenue) {
+                    onSelectVenue(venue)
+                  }
+                },
+              }}
+            />
+          )
+        }
+      })}
+    </>
+  )
+}
+
+export default function Map({
+  center,
+  zoom = DEFAULT_ZOOM,
+  venues = [],
+  onSelectVenue,
+  selectedVenue = null,
+  onBoundsChange,
 }: MapProps) {
   const initialCenter = center || DEFAULT_CENTER
+  const [currentZoom, setCurrentZoom] = useState(zoom)
 
   return (
     <div className="w-full h-full relative z-0" data-testid="map-container">
@@ -115,7 +318,7 @@ export default function Map({
         center={initialCenter}
         zoom={zoom}
         scrollWheelZoom={true}
-        zoomControl={false} // Disable default top-left zoom controls
+        zoomControl={false}
         className="w-full h-full"
         style={{ height: '100%', width: '100%' }}
       >
@@ -123,27 +326,12 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
-        <ZoomControl position="topright" /> {/* Re-add zoom controls in top-right */}
-        
-        {/* Helper component to animate camera pan when a venue is selected or center changes */}
-        <MapController selectedVenue={selectedVenue} center={center} />
+        <ZoomControl position="topright" />
 
-        {venues
-          .filter((v) => v.lat !== undefined && v.lng !== undefined && v.lat !== null && v.lng !== null)
-          .map((venue) => (
-            <Marker
-              key={venue.id}
-              position={[venue.lat!, venue.lng!]}
-              icon={venue.type?.split(',').includes('comunidad') ? communityIcon : purpleIcon}
-              eventHandlers={{
-                click: () => {
-                  if (onSelectVenue) {
-                    onSelectVenue(venue)
-                  }
-                }
-              }}
-            />
-          ))}
+        <MapController selectedVenue={selectedVenue} center={center} />
+        <MapEvents onBoundsChange={onBoundsChange} onZoomChange={setCurrentZoom} />
+
+        <MapMarkers venues={venues} onSelectVenue={onSelectVenue} currentZoom={currentZoom} />
       </MapContainer>
     </div>
   )

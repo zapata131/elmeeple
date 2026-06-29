@@ -34,6 +34,16 @@ jest.mock('react-leaflet', () => ({
   useMap: () => ({
     setView: jest.fn(),
   }),
+  Tooltip: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-tooltip">{children}</div>,
+  useMapEvents: () => ({
+    setView: jest.fn(),
+    flyTo: jest.fn(),
+    getBounds: () => ({
+      getSouthWest: () => ({ lat: 19.30, lng: -99.22 }),
+      getNorthEast: () => ({ lat: 19.50, lng: -99.10 }),
+    }),
+    getZoom: () => 13,
+  }),
 }))
 
 describe('Global Game Search & Mode Toggle', () => {

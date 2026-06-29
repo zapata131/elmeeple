@@ -91,6 +91,7 @@ export default function InteractiveMap() {
   const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [selectedRadius, setSelectedRadius] = useState<number | 'all'>('all')
+  const [mapBounds, setMapBounds] = useState<[number, number, number, number] | null>(null)
 
   // Request user location on component mount
   useEffect(() => {
@@ -233,6 +234,13 @@ export default function InteractiveMap() {
       if (distance > selectedRadius) return false
     }
 
+    // Visible Map Area Filter (Always filter by visible area on the map by default)
+    if (mapBounds && venue.lat !== null && venue.lng !== null && venue.lat !== undefined && venue.lng !== undefined) {
+      const [south, west, north, east] = mapBounds
+      const inBounds = venue.lat >= south && venue.lat <= north && venue.lng >= west && venue.lng <= east
+      if (!inBounds) return false
+    }
+
     // Search Filter
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase()
@@ -269,6 +277,7 @@ export default function InteractiveMap() {
           venues={filteredVenues}
           onSelectVenue={setSelectedVenue}
           selectedVenue={selectedVenue}
+          onBoundsChange={setMapBounds}
         />
       </div>
 

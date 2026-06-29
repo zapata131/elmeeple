@@ -32,8 +32,24 @@ jest.mock('react-leaflet', () => ({
       Marker at {position[0]}, {position[1]}
     </button>
   ),
+  Tooltip: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-tooltip">{children}</div>,
   useMap: () => ({
     setView: jest.fn(),
+    flyTo: jest.fn(),
+    getBounds: () => ({
+      getSouthWest: () => ({ lat: 19.30, lng: -99.22 }),
+      getNorthEast: () => ({ lat: 19.50, lng: -99.10 }),
+    }),
+    getZoom: () => 15,
+  }),
+  useMapEvents: () => ({
+    setView: jest.fn(),
+    flyTo: jest.fn(),
+    getBounds: () => ({
+      getSouthWest: () => ({ lat: 19.30, lng: -99.22 }),
+      getNorthEast: () => ({ lat: 19.50, lng: -99.10 }),
+    }),
+    getZoom: () => 15,
   }),
 }))
 
