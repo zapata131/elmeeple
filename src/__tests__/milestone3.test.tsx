@@ -92,11 +92,54 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
     `
 
     it('correctly fetches BGG XML, parses it, and bulk upserts games into Supabase', async () => {
+      const mockThingXml = `
+        <items>
+          <item id="13">
+            <name type="primary" value="Catan" />
+            <name type="alternate" value="Los Colonos de Catan" />
+            <thumbnail>https://cf.geekdo-images.com/thumb/catan.jpg</thumbnail>
+            <minplayers value="3" />
+            <maxplayers value="4" />
+            <playingtime value="90" />
+            <statistics>
+              <ratings>
+                <averageweight value="2.3" />
+              </ratings>
+            </statistics>
+          </item>
+          <item id="167791">
+            <name type="primary" value="Terraforming Mars" />
+            <thumbnail>https://cf.geekdo-images.com/thumb/tfm.jpg</thumbnail>
+            <minplayers value="1" />
+            <maxplayers value="5" />
+            <playingtime value="120" />
+            <statistics>
+              <ratings>
+                <averageweight value="3.24" />
+              </ratings>
+            </statistics>
+          </item>
+        </items>
+      `
+
       // Mock global fetch to return the XML
-      const spyFetch = jest.fn().mockResolvedValue({
-        ok: true,
-        text: () => Promise.resolve(mockBggXml),
-      } as Response)
+      const spyFetch = jest.fn().mockImplementation((url: string) => {
+        if (url.includes('/collection')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(mockBggXml),
+          })
+        }
+        if (url.includes('/thing')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(mockThingXml),
+          })
+        }
+        return Promise.reject(new Error(`Unknown URL: ${url}`))
+      })
       ;(global as any).fetch = spyFetch
 
       // Mock Supabase client
@@ -120,6 +163,8 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
         return {
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
+          or: jest.fn().mockReturnThis(),
+          order: jest.fn().mockReturnThis(),
           single: jest.fn().mockResolvedValue({ data: { id: 'venue-123', owner_email: 'owner@example.com' }, error: null })
         }
       })
@@ -128,7 +173,7 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
 
       expect(res.success).toBe(true)
       expect(spyFetch).toHaveBeenCalledWith(
-        'https://boardgamegeek.com/xmlapi2/collection?username=testuser&own=1',
+        'https://boardgamegeek.com/xmlapi2/collection?username=testuser&own=1&stats=1',
         { headers: {} }
       )
       
@@ -142,6 +187,8 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
           min_players: 3,
           max_players: 4,
           playing_time: 90,
+          complexity: 2.3,
+          alternate_names: 'Los Colonos de Catan',
         },
         {
           venue_id: 'venue-123',
@@ -151,7 +198,9 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
           min_players: 1,
           max_players: 5,
           playing_time: 120,
-        }
+          complexity: 3.24,
+          alternate_names: null,
+        },
       ], { onConflict: 'venue_id,bgg_id' })
     })
 
@@ -199,10 +248,40 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
           </item>
         </items>
       `
-      const spyFetch = jest.fn().mockResolvedValue({
-        ok: true,
-        text: () => Promise.resolve(mockSingleGameXml),
-      } as Response)
+      const mockSingleGameThingXml = `
+        <items>
+          <item id="169786">
+            <name type="primary" value="Scythe" />
+            <thumbnail>https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop</thumbnail>
+            <minplayers value="1" />
+            <maxplayers value="5" />
+            <playingtime value="115" />
+            <statistics>
+              <ratings>
+                <averageweight value="3.4" />
+              </ratings>
+            </statistics>
+          </item>
+        </items>
+      `
+
+      const spyFetch = jest.fn().mockImplementation((url: string) => {
+        if (url.includes('/collection')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(mockSingleGameXml),
+          })
+        }
+        if (url.includes('/thing')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(mockSingleGameThingXml),
+          })
+        }
+        return Promise.reject(new Error(`Unknown URL: ${url}`))
+      })
       ;(global as any).fetch = spyFetch
 
       const mockUpsert = jest.fn().mockResolvedValue({ error: null })
@@ -225,6 +304,8 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
         return {
           select: jest.fn().mockReturnThis(),
           eq: jest.fn().mockReturnThis(),
+          or: jest.fn().mockReturnThis(),
+          order: jest.fn().mockReturnThis(),
           single: jest.fn().mockResolvedValue({ data: { id: 'venue-123', owner_email: 'owner@example.com' }, error: null })
         }
       })
@@ -241,6 +322,8 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
           min_players: 1,
           max_players: 5,
           playing_time: 115,
+          complexity: 3.4,
+          alternate_names: null,
         }
       ], { onConflict: 'venue_id,bgg_id' })
 

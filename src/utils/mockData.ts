@@ -23,9 +23,9 @@ export const MOCK_VENUES: Venue[] = [
     instagram: 'orcs_stories',
     logoUrl: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop',
     venue_games: [
-      { id: 'g1', name: 'Scythe', thumbnail: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop', min_players: 1, max_players: 5, playing_time: 115 },
-      { id: 'g7', name: 'Terraforming Mars', thumbnail: 'https://cf.geekdo-images.com/thumb/tfm.jpg', min_players: 1, max_players: 5, playing_time: 120 },
-      { id: 'g8', name: 'Catan', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 4, playing_time: 75 }
+      { id: 'g1', name: 'Scythe', thumbnail: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=150&h=150&fit=crop', min_players: 1, max_players: 5, playing_time: 115, complexity: 3.4, alternate_names: 'Scythe' },
+      { id: 'g7', name: 'Terraforming Mars', thumbnail: 'https://cf.geekdo-images.com/thumb/tfm.jpg', min_players: 1, max_players: 5, playing_time: 120, complexity: 3.24, alternate_names: 'Terraforming Mars' },
+      { id: 'g8', name: 'Catan', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 4, playing_time: 75, complexity: 2.3, alternate_names: 'Catan, Los Colonos de Catan' }
     ]
   },
   {
@@ -50,8 +50,8 @@ export const MOCK_VENUES: Venue[] = [
     instagram: 'elduendetcg',
     logoUrl: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop',
     venue_games: [
-      { id: 'g2', name: 'Magic: The Gathering', thumbnail: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop', min_players: 2, max_players: 4, playing_time: 45 },
-      { id: 'g3', name: 'Keyforge', thumbnail: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop', min_players: 2, max_players: 2, playing_time: 30 }
+      { id: 'g2', name: 'Magic: The Gathering', thumbnail: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop', min_players: 2, max_players: 4, playing_time: 45, complexity: 3.1, alternate_names: 'MTG, Magic' },
+      { id: 'g3', name: 'Keyforge', thumbnail: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop', min_players: 2, max_players: 2, playing_time: 30, complexity: 2.8, alternate_names: 'Keyforge' }
     ]
   },
   {
@@ -76,9 +76,9 @@ export const MOCK_VENUES: Venue[] = [
     instagram: 'ravenfolks',
     logoUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop',
     venue_games: [
-      { id: 'g4', name: 'Catan', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 4, playing_time: 75 },
-      { id: 'g5', name: 'Carcassonne', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 2, max_players: 5, playing_time: 45 },
-      { id: 'g6', name: 'Dixit', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 12, playing_time: 30 }
+      { id: 'g4', name: 'Catan', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 4, playing_time: 75, complexity: 2.3, alternate_names: 'Catan, Los Colonos de Catan' },
+      { id: 'g5', name: 'Carcassonne', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 2, max_players: 5, playing_time: 45, complexity: 1.9, alternate_names: 'Carcassonne' },
+      { id: 'g6', name: 'Dixit', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 12, playing_time: 30, complexity: 1.2, alternate_names: 'Dixit' }
     ]
   },
   {
@@ -124,7 +124,6 @@ export const MOCK_VENUES: Venue[] = [
     description: 'Comunidad de juegos de rol, wargames y juegos de mesa en la CDMX. Nos reunimos semanalmente en locales colaboradores.',
     type: 'comunidad',
     instagram: 'latorrerpg',
-    discord: 'https://discord.gg/latorre',
     logoUrl: 'https://images.unsplash.com/photo-1560942485-b2a11cc13456?w=150&h=150&fit=crop',
     venue_games: []
   }

@@ -140,7 +140,9 @@ export default function InteractiveMap() {
               thumbnail,
               min_players,
               max_players,
-              playing_time
+              playing_time,
+              complexity,
+              alternate_names
             ),
             reviews (
               id,
@@ -241,7 +243,11 @@ export default function InteractiveMap() {
         return matchesName || matchesAddress || matchesTags
       } else {
         const matchesGames = venue.venue_games
-          ? (venue.venue_games as any[]).some((g: any) => g.name?.toLowerCase().includes(query))
+          ? (venue.venue_games as any[]).some(
+              (g: any) =>
+                g.name?.toLowerCase().includes(query) ||
+                g.alternate_names?.toLowerCase().includes(query)
+            )
           : false
         return matchesGames
       }

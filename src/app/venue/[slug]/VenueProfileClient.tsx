@@ -156,8 +156,10 @@ export default function VenueProfileClient({ venue, initialEvents = [] }: VenueP
   const filteredGames = games.filter((game) => {
     // 1. Text Search Filter
     if (searchQuery.trim() !== '') {
-      const query = searchQuery.toLowerCase()
-      if (!game.name?.toLowerCase().includes(query)) return false
+      const query = searchQuery.toLowerCase().trim()
+      const nameMatch = game.name?.toLowerCase().includes(query)
+      const altNamesMatch = game.alternate_names?.toLowerCase().includes(query)
+      if (!nameMatch && !altNamesMatch) return false
     }
 
     // 2. Player Count Filter
@@ -512,6 +514,11 @@ export default function VenueProfileClient({ venue, initialEvents = [] }: VenueP
                             {game.playing_time} min
                           </span>
                         )}
+                        {game.complexity && (
+                          <span className="bg-[#8367C7]/5 text-[#8367C7] px-2 py-0.5 rounded border border-[#8367C7]/15 font-bold" title="Complejidad / Peso (BGG)">
+                            Peso: {Number(game.complexity).toFixed(1)}/5
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -555,6 +562,11 @@ export default function VenueProfileClient({ venue, initialEvents = [] }: VenueP
                         {game.playing_time && (
                           <span className="bg-[#3A3A3A]/5 px-2 py-0.5 rounded">
                             {game.playing_time} min
+                          </span>
+                        )}
+                        {game.complexity && (
+                          <span className="bg-[#8367C7]/5 text-[#8367C7] px-2 py-0.5 rounded border border-[#8367C7]/15 font-bold" title="Complejidad / Peso (BGG)">
+                            Peso: {Number(game.complexity).toFixed(1)}/5
                           </span>
                         )}
                       </div>

@@ -309,6 +309,8 @@ let venue_games = [
     min_players: 1,
     max_players: 5,
     playing_time: 120,
+    complexity: 3.24,
+    alternate_names: "Terraforming Mars",
     created_at: new Date().toISOString()
   },
   {
@@ -320,6 +322,8 @@ let venue_games = [
     min_players: 1,
     max_players: 5,
     playing_time: 115,
+    complexity: 3.4,
+    alternate_names: "Scythe",
     created_at: new Date().toISOString()
   },
   {
@@ -331,6 +335,8 @@ let venue_games = [
     min_players: 3,
     max_players: 4,
     playing_time: 75,
+    complexity: 2.3,
+    alternate_names: "Catan, Los Colonos de Catan",
     created_at: new Date().toISOString()
   },
   {

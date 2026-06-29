@@ -1,41 +1,48 @@
-# Sprint handoff and continuity memo: Milestone 5 (Communities, Event Siting & Discord Removal) Completed
+# Sprint handoff and continuity memo: Milestone 5 & BGG Game Details Completed
 
-We have successfully implemented and verified all features under **Milestone 5**, covering **Issue #75**, **Issue #76**, and **Issue #73**. All 93 unit, integration, and JSDOM tests are 100% green.
+We have successfully implemented and verified all features under **Milestone 5**, as well as the new game details features under **Issue #77** (BGG Real API complexity/weight integration) and **Issue #78** (Alternate Spanish names search). All 93 unit, integration, and JSDOM tests are 100% green with zero console warnings.
 
 ---
 
 ## 1. Active sprint status and goal
 *   **Active branch:** `feature/issue-75-communities-onboarding-map`
 *   **Sprint status:** **Completed & Verified (Ready for Review/Merge)**
-*   **Milestone goal:** Support informal gaming clubs and communities without fixed addresses by making location details optional during onboarding, positioning them dynamically on the map at their next upcoming event, making event venue and registration URLs optional, and removing Discord as a contact method.
+*   **Sprint goals:**
+    1. Informal gaming clubs/communities without fixed addresses are dynamically sited on the map at their next upcoming event, and Discord is removed as a contact method.
+    2. Retrieve real game complexity (weight) and alternate Spanish names in bulk from BGG `/thing` API during storefront ludoteca sync.
+    3. Render premium complexity badges in the storefront catalog (grid and list views) and support Spanish name searches on both the homepage map and storefront catalog.
 
 ---
 
 ## 2. Completed work
 
-1.  **Dynamic Map Siting for Communities (Issue #75)**:
-    *   Updated the Supabase select query in [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx) to fetch the community's organized events via `events:events!organizer_venue_id(...)`.
-    *   Implemented `resolveVenueCoordinates` helper in [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx) to dynamically resolve a community's map coordinates to the coordinates of the physical host venue of their next upcoming event.
-    *   Filtered out venues without coordinates in [Map.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/Map.tsx) to prevent Leaflet coordinate crashes, and added a custom community pin icon styled in brand Turquesa `#73D8D4` with a group SVG.
-    *   Wrote JSDOM integration tests in [sidebar.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/sidebar.test.tsx) asserting that active communities render at their event's location and inactive communities (no events) are kept in the sidebar but omitted from the map.
+1.  **BGG Real API Integration & Game Complexity/Weight (Issue #77)**:
+    *   Created SQL migration [20260629_add_game_details.sql](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/supabase/migrations/20260629_add_game_details.sql) adding `complexity` (`NUMERIC(3,2)`) and `alternate_names` (`TEXT`) to the `venue_games` table.
+    *   Updated the BGG sync server action `syncBggCollection` in [bgg.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/actions/bgg.ts):
+        *   Appended `&stats=1` to the collection fetch URL.
+        *   Implemeted bulk fetching from BGG `/thing?id=id1,id2...&stats=1` in batches of 200.
+        *   Parsed `averageweight` (complexity), play times, and alternate names, saving them to the database.
+        *   Wrapped the bulk fetch in a resilient `try-catch` block that falls back to basic `/collection` data if BGG `/thing` is offline or rate-limiting.
+    *   Rendered a premium complexity badge (e.g., `Peso: 2.3/5`) styled in brand Malva `#8367C7` with a low opacity background and subtle border next to play times in the storefront profile catalog [VenueProfileClient.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/venue/%5Bslug%5D/VenueProfileClient.tsx) (both Grid and List views).
+    *   Updated Jest unit tests in [milestone3.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/milestone3.test.tsx) to mock both `/collection` and `/thing` API responses, verifying that complexity and alternate names are parsed and upserted.
 
-2.  **Make Event Venue and Registration URL Optional (Issue #76)**:
-    *   Created [update_events_schema.sql](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/supabase/migrations/update_events_schema.sql) adding `organizer_venue_id` (not null), making `venue_id` (physical host) nullable, and adding `registration_url` (nullable) to the `events` table.
-    *   Updated the server actions `getEvents`, `createEvent`, and `deleteEvent` in [events.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/actions/events.ts) and their unit tests in [events.test.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/events.test.ts) to match the new schema and ownership verification checks.
-    *   Updated the dashboard event posting form in [EventManager.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/dashboard/EventManager.tsx) to include optional physical host selection (populated from approved cafés/tiendas) and an optional registration URL field. Added corresponding unit tests to [dashboard-events.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/dashboard-events.test.tsx).
+2.  **Alternate Spanish Names Search (Issue #78)**:
+    *   Updated the client-side catalog text filter in [VenueProfileClient.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/venue/%5Bslug%5D/VenueProfileClient.tsx) to match queries against both the primary game name and BGG `alternate_names`.
+    *   Updated the select query and client-side game search filter in [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx) to fetch `alternate_names` and match against it, allowing Spanish name searches on the main map.
 
-3.  **Remove Discord as Contact Method (Issue #73)**:
-    *   Removed `discord` from the initial state, Step 1 input fields, and Step 4 summary page of the onboarding wizard in [page.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/onboarding/page.tsx).
-    *   Removed the Discord link and icon from [QuickViewCard.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/QuickViewCard.tsx) and the public storefront in [VenueProfileClient.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/venue/%5Bslug%5D/VenueProfileClient.tsx).
-    *   Updated [onboarding.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/onboarding.test.tsx), [quick-view.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/quick-view.test.tsx), and [venue-profile.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/venue-profile.test.tsx) to remove Discord-related assertions.
+3.  **Local Mock Databases & Test Hygiene**:
+    *   Updated [mock-supabase.js](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/scripts/mock-supabase.js), [mockData.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/utils/mockData.ts), and [jest.setup.js](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/jest.setup.js) to include `complexity` and `alternate_names` in the mock games, and removed all legacy `discord` field definitions.
+    *   Added `.or()` and `.order()` mock methods to the fallback query builder inside [milestone3.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/milestone3.test.tsx), resolving all console runtime warnings.
 
-4.  **Local Mock Databases & Test Hygiene**:
-    *   Updated [mock-supabase.js](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/scripts/mock-supabase.js) and [mockData.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/utils/mockData.ts) to match the new events table schema, added a mock community and mock events, and parsed Supabase `.or()` query filters.
-    *   Updated [jest.setup.js](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/jest.setup.js) to mock the `.or()` query builder method and added the community venue and events.
+4.  **Milestone 5 Features (Issues #75, #76, #73)**:
+    *   Dynamic map positioning of communities at their next upcoming event.
+    *   Nullable event hosts and registration URLs.
+    *   Removal of Discord from onboarding, quick views, and profiles.
 
 ---
 
 ## 3. Verification status
+*   **TypeScript Compiler:** 100% green (`npx tsc --noEmit` compiles with 0 errors).
 *   **Unit & Integration Tests:** 100% green (`93/93` tests passed).
 *   **Visual QA:** Ready for browser walkthrough verification.
 
@@ -44,7 +51,6 @@ We have successfully implemented and verified all features under **Milestone 5**
 ## 4. Next steps
 1.  **Open Pull Request**: Open a pull request against `main` for code review.
 2.  **Visual Walkthrough (Reviewer)**: Run `chrome-devtools` or `browser_subagent` walkthroughs on both desktop and mobile viewports to verify:
-    *   Onboarding a community without location coordinates.
-    *   Posting community events with/without physical hosts and registration URLs.
-    *   Interactive map rendering the community pin dynamically at its event's host.
+    *   Complexity badges rendering next to play times in the storefront.
+    *   Searching for games using Spanish alternate names (e.g. searching "Colonistas" or "Capítulos" matches Catan or 3 Chapters).
 3.  **Merge & Deploy**: Merge the PR into `main` to trigger the Vercel deployment.
