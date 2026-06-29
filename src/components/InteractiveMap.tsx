@@ -31,6 +31,19 @@ const Map = dynamic(() => import('@/components/Map'), {
 
 import { MOCK_VENUES } from '@/utils/mockData'
 
+// Haversine formula to calculate distance in km between two coordinates
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371 // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
 export default function InteractiveMap() {
   const [venues, setVenues] = useState<Venue[]>([])
   const [loading, setLoading] = useState(true)
@@ -39,6 +52,24 @@ export default function InteractiveMap() {
   const [searchMode, setSearchMode] = useState<'venues' | 'games'>('venues')
   const [selectedCategory, setSelectedCategory] = useState('Todos')
   const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined)
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [selectedRadius, setSelectedRadius] = useState<number | 'all'>('all')
+
+  // Request user location on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+          setUserLocation([latitude, longitude])
+          setMapCenter([latitude, longitude])
+        },
+        (error) => {
+          console.log('Geolocation permission denied or error. Using default center.')
+        }
+      )
+    }
+  }, [])
 
   // Fetch verified venues dynamically on component mount
   useEffect(() => {
@@ -135,12 +166,20 @@ export default function InteractiveMap() {
   }, [])
 
 
-  // Filter venues based on search query and selected category chip
+  // Filter venues based on search query, category, and radius
   const filteredVenues = venues.filter((venue) => {
     // Category Filter
     if (selectedCategory === 'Cafés' && venue.type !== 'cafe') return false
     if (selectedCategory === 'Tiendas' && venue.type !== 'tienda') return false
     if (selectedCategory === 'Híbridos' && venue.type !== 'hibrido') return false
+
+    // Radius / Distance Filter
+    if (selectedRadius !== 'all') {
+      const refLat = mapCenter ? mapCenter[0] : (userLocation ? userLocation[0] : 19.4326)
+      const refLng = mapCenter ? mapCenter[1] : (userLocation ? userLocation[1] : -99.1332)
+      const distance = calculateDistance(refLat, refLng, venue.lat, venue.lng)
+      if (distance > selectedRadius) return false
+    }
 
     // Search Filter
     if (searchQuery.trim() !== '') {
@@ -243,6 +282,32 @@ export default function InteractiveMap() {
                 {cat}
               </button>
             ))}
+          </div>
+
+          {/* Radius Filter Chips */}
+          <div className="flex flex-col gap-1.5 mt-1.5">
+            <div className="text-[10px] uppercase tracking-wider text-[#3A3A3A]/50 font-black">Distancia máxima</div>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {[
+                { label: 'Sin límite', value: 'all' },
+                { label: '2 km', value: 2 },
+                { label: '5 km', value: 5 },
+                { label: '10 km', value: 10 },
+                { label: '20 km', value: 20 },
+              ].map((r) => (
+                <button
+                  key={r.label}
+                  onClick={() => setSelectedRadius(r.value as number | 'all')}
+                  className={`px-3 py-1 text-xs font-bold rounded-full border transition-all duration-150 cursor-pointer whitespace-nowrap ${
+                    selectedRadius === r.value
+                      ? 'bg-[#8367C7] border-[#8367C7] text-[#F5F0E9] shadow-sm'
+                      : 'bg-white border-[#3A3A3A]/20 text-[#3A3A3A] hover:border-[#8367C7]/50'
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

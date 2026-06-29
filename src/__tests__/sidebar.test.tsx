@@ -34,6 +34,7 @@ jest.mock('react-leaflet', () => ({
   ),
   useMap: () => ({
     setView: jest.fn(),
+    flyTo: jest.fn(),
   }),
 }))
 
@@ -140,5 +141,63 @@ describe('Left Sidebar Directory Layout', () => {
     // Verify Quick View Card is rendered with Ravenfolks details
     expect(await screen.findByTestId('quick-view-card')).toBeInTheDocument()
     expect(screen.getAllByText('Ravenfolks')).toHaveLength(2) // One in list, one in Quick View Card
+  })
+
+  it('filters the list of venues by distance when selecting a radius filter chip', async () => {
+    // Mock navigator.geolocation
+    const mockGeolocation = {
+      getCurrentPosition: jest.fn().mockImplementation((success) =>
+        success({
+          coords: {
+            latitude: 19.4165, // Coords of Orcs Stories
+            longitude: -99.1620,
+          },
+        })
+      ),
+    }
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: mockGeolocation,
+      writable: true,
+      configurable: true,
+    })
+
+    render(<Home />)
+    const user = userEvent.setup()
+
+    // Wait for initial venues to load
+    expect(await screen.findByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
+
+    // Check radius filter chips exist
+    expect(screen.getByRole('button', { name: '2 km' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '5 km' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '10 km' })).toBeInTheDocument()
+
+    // Click '2 km' chip
+    const twoKmChip = screen.getByRole('button', { name: '2 km' })
+    await user.click(twoKmChip)
+
+    // Orcs Stories (0 km) and Ravenfolks (0.2 km) should be visible.
+    // El Duende (4.9 km) should be filtered out.
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
+    expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
+
+    // Click '5 km' chip
+    const fiveKmChip = screen.getByRole('button', { name: '5 km' })
+    await user.click(fiveKmChip)
+
+    // All three CDMX venues should be visible
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+
+    // Clean up mock
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: undefined,
+      writable: true,
+      configurable: true,
+    })
   })
 })
