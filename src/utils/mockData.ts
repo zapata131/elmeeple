@@ -105,3 +105,51 @@ export const MOCK_VENUES: Venue[] = [
     venue_games: []
   }
 ]
+
+export interface Event {
+  id: string
+  venue_id: string
+  title: string
+  game: string
+  description: string | null
+  date: string
+  entry_fee: number
+  max_participants: number | null
+  created_at: string
+}
+
+export const MOCK_EVENTS: Event[] = [
+  {
+    id: 'evt-1',
+    venue_id: '1',
+    title: 'Torneo de Lanzamiento Magic: Duskmourn',
+    game: 'Magic: The Gathering',
+    description: 'Únete a nosotros para el torneo de presentación de la nueva expansión. Sobres de juego incluidos con la inscripción.',
+    date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    entry_fee: 450.00,
+    max_participants: 24,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'evt-2',
+    venue_id: '1',
+    title: 'Noche de Eurogames: Catan y Carcassonne',
+    game: 'Catan',
+    description: 'Ven a jugar y conocer a otros entusiastas de los juegos de mesa. Entrada libre, consumo mínimo sugerido.',
+    date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    entry_fee: 0.00,
+    max_participants: 16,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'evt-3',
+    venue_id: '2',
+    title: 'Store Championship Yu-Gi-Oh!',
+    game: 'Yu-Gi-Oh!',
+    description: 'Torneo oficial con premios exclusivos para el Top 8 y tapete de campeonato para el primer lugar.',
+    date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    entry_fee: 200.00,
+    max_participants: 32,
+    created_at: new Date().toISOString()
+  }
+]

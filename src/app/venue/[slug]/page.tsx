@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import VenueProfileClient from './VenueProfileClient'
 import { Venue } from '@/components/QuickViewCard'
+import { getEvents } from '@/app/actions/events'
+import { MOCK_EVENTS } from '@/utils/mockData'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -83,7 +85,19 @@ export default async function VenueProfilePage({ params }: PageProps) {
       venue_games: mockVenue.venue_games || [],
       reviews: mockVenue.reviews || []
     }
-    return <VenueProfileClient venue={formattedVenue} />
+    const venueEvents = MOCK_EVENTS.filter(e => e.venue_id === mockVenue.id)
+    return <VenueProfileClient venue={formattedVenue} initialEvents={venueEvents} />
+  }
+
+  // Fetch events for this venue
+  let venueEvents: any[] = []
+  try {
+    const eventsResult = await getEvents(venueData.id)
+    if (eventsResult.success && eventsResult.data) {
+      venueEvents = eventsResult.data
+    }
+  } catch (err) {
+    console.warn('Error fetching events for venue profile:', err)
   }
 
   // Format the tags to a clean array
@@ -113,5 +127,5 @@ export default async function VenueProfilePage({ params }: PageProps) {
     bgg_last_synced_at: venueData.bgg_last_synced_at || null
   }
 
-  return <VenueProfileClient venue={formattedVenue} />
+  return <VenueProfileClient venue={formattedVenue} initialEvents={venueEvents} />
 }

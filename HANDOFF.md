@@ -1,30 +1,42 @@
-# Sprint handoff and continuity memo: Radius Filter Completed
+# Sprint handoff and continuity memo: Tournaments & Event Listings Completed
 
-We have successfully completed and verified the **Localized Search Radius Filter** (**Issue #62**). The codebase is 100% passing all tests and E2E walkthroughs.
+We have successfully completed and verified the **Tournaments & Event Listings** (**Issue #63**). The codebase is 100% passing all tests and E2E walkthroughs.
 
 ---
 
 ## 1. Active sprint status and goal
-*   **Active branch:** `main` (No active feature branch)
-*   **Sprint status:** **All Backlog Items Completed & Verified**
-*   **Milestone goal:** Implement a localized search radius filter on the map homepage search panel using the Haversine formula and browser Geolocation.
+*   **Active branch:** `feature/issue-63-events-listings`
+*   **Sprint status:** **Tournaments & Event Listings Completed & Verified**
+*   **Milestone goal:** Allow verified owners to publish tournaments and events from their dashboard, and players to view them on the storefront profile page (under a new "Eventos" tab) and on the homepage Map.
 
 ---
 
 ## 2. Completed work
 
-1.  **Distance Calculation**: Added the `calculateDistance` helper using the Haversine formula in `src/components/InteractiveMap.tsx`.
-2.  **Geolocation Integration**: Integrated a `useEffect` hook to request the user's location on mount, centering the map and establishing a distance reference point.
-3.  **Distance Filter Logic**: Updated the `filteredVenues` calculation to filter out venues exceeding the selected radius from either the user's current location or the map center.
-4.  **Radius UI Chips**: Added a set of distance selection chips (`Sin límite`, `2 km`, `5 km`, `10 km`, `20 km`) styled in brand colors beneath the category chips.
-5.  **Unit Tests**: Added a new test case in `src/__tests__/sidebar.test.tsx` mocking `navigator.geolocation` and asserting correct distance-based filtering.
-6.  **Full Verification**: Verified with `npm run test` (100% green) and `./scripts/test-all-features.sh` (100% success).
+1.  **Database Migration**: Created `supabase/migrations/add_events_table.sql` defining the `events` table structure with strict RLS policies.
+2.  **Mock Supabase Server**: Updated `scripts/mock-supabase.js` with mock events data and `/rest/v1/events` REST router supporting GET, POST, and DELETE.
+3.  **Server Actions**: Implemented `getEvents`, `createEvent`, and `deleteEvent` in `src/app/actions/events.ts` with session authentication and ownership validation.
+4.  **Static Mock Fallback**: Added `MOCK_EVENTS` array to `src/utils/mockData.ts` for graceful offline fallback.
+5.  **Storefront Profile Integration**:
+    *   Updated `src/app/venue/[slug]/page.tsx` to fetch events and pass them as `initialEvents`.
+    *   Updated `src/app/venue/[slug]/VenueProfileClient.tsx` to render a responsive tabbed events section. On mobile, it appears as a top-level tab. On desktop, it is a sub-tab inside the right column.
+6.  **Owner Dashboard Integration**:
+    *   Created the `EventManager.tsx` client component to view, create, and delete events.
+    *   Integrated `<EventManager />` into the owner's venue cards in `src/app/dashboard/page.tsx`.
+7.  **Testing & Verification**:
+    *   Written server actions unit tests (`src/__tests__/events.test.ts`).
+    *   Written storefront profile events UI unit tests (`src/__tests__/venue-profile.test.tsx`).
+    *   Written owner dashboard events manager unit tests (`src/__tests__/dashboard-events.test.tsx`).
+    *   All 85 Jest tests passing.
+    *   All E2E Playwright walkthroughs passing on both desktop and mobile viewports.
 
 ---
 
 ## 3. Next steps and recommendations
 
-Now that the core backlog is fully completed, we recommend the following next steps:
-1.  **Tournament & Event Listings (Milestone 5)**: Allow verified official tournament stores (WPN/OTS) to list upcoming local tournaments and events.
-2.  **Advanced TCG Subtags**: Filter venues by specific TCGs (e.g. Magic: The Gathering, Pokémon, Yu-Gi-Oh!).
-3.  **Visual Refinements / Dark Mode**: Implement a gorgeous premium dark mode theme.
+Now that Issue #63 is complete, the next backlog item is:
+1.  **Advanced TCG Filtering and Badges (Issue #64)**:
+    *   Add specific TCG badges to venue cards (e.g. *Magic: The Gathering*, *Pokémon*, *Yu-Gi-Oh!*).
+    *   Allow filtering by specific TCGs on the homepage map sidebar.
+2.  **Premium Dark Mode Theme (Issue #65)**:
+    *   Implement dark mode support using Tailwind `dark:` classes, controlled by a theme toggle button (Sun/Moon) in the global header.

@@ -11,6 +11,7 @@ import { Venue, formatSchedule } from '@/components/QuickViewCard'
 
 interface VenueProfileClientProps {
   venue: Venue & { venue_games: any[]; reviews: any[]; bgg_last_synced_at?: string | null }
+  initialEvents?: any[]
 }
 
 const VENUE_TYPE_LABELS = {
@@ -22,16 +23,22 @@ const VENUE_TYPE_LABELS = {
 
 const VIBE_TAGS_PRESETS = ['Eurogames', 'TCGs', 'Café', 'Comida', 'Familiar', 'Torneos', 'Rol']
 
-export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
+export default function VenueProfileClient({ venue, initialEvents = [] }: VenueProfileClientProps) {
   const { data: session } = useSession()
   const [isFavorite, setIsFavorite] = useState(false)
   const [loadingFavorite, setLoadingFavorite] = useState(false)
 
   // Mobile active tab state
-  const [activeMobileTab, setActiveMobileTab] = useState<'catalog' | 'reviews'>('catalog')
+  const [activeMobileTab, setActiveMobileTab] = useState<'catalog' | 'reviews' | 'events'>('catalog')
+
+  // Desktop right column tab state
+  const [activeRightColTab, setActiveRightColTab] = useState<'events' | 'reviews'>('events')
+
+  // Events state
+  const events = initialEvents
 
   // Catalog state
-  const [games, setGames] = useState<any[]>(venue.venue_games)
+  const games = venue.venue_games
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPlayerCount, setSelectedPlayerCount] = useState<'all' | 'solo' | '2' | '3-4' | '5+'>('all')
   const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all')
@@ -121,7 +128,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
       } else {
         setFormError(res.error || 'No se pudo enviar tu reseña. Por favor, inténtalo de nuevo.')
       }
-    } catch (err) {
+    } catch {
       setFormError('Error de conexión. No se pudo enviar tu reseña.')
     } finally {
       setSubmittingReview(false)
@@ -292,6 +299,16 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             Ludoteca
           </button>
           <button
+            onClick={() => setActiveMobileTab('events')}
+            className={`flex-1 py-4 text-center text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeMobileTab === 'events'
+                ? 'border-[#8367C7] text-[#8367C7]'
+                : 'border-transparent text-[#3A3A3A]/60'
+            }`}
+          >
+            Eventos ({events.length})
+          </button>
+          <button
             onClick={() => setActiveMobileTab('reviews')}
             className={`flex-1 py-4 text-center text-sm font-bold border-b-2 transition-all cursor-pointer ${
               activeMobileTab === 'reviews'
@@ -299,7 +316,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                 : 'border-transparent text-[#3A3A3A]/60'
             }`}
           >
-            Comunidad
+            Comunidad ({reviews.length})
           </button>
         </div>
       </div>
@@ -570,9 +587,92 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
         </div>
 
         {/* =======================================================
-            RIGHT COLUMN (40% / 5 Cols): Rich Reviews & Vibe Hub
+            RIGHT COLUMN (40% / 5 Cols): Events & Community Hub
            ======================================================= */}
-        <div className={`lg:col-span-5 flex flex-col gap-6 ${activeMobileTab === 'reviews' ? 'flex' : 'hidden lg:flex'}`}>
+        <div className={`lg:col-span-5 flex flex-col gap-6 ${activeMobileTab !== 'catalog' ? 'flex' : 'hidden lg:flex'}`}>
+          
+          {/* Desktop Sub-Tabs */}
+          <div className="hidden lg:flex border-b border-[#3A3A3A]/10 mb-2">
+            <button
+              onClick={() => setActiveRightColTab('events')}
+              className={`pb-3 text-sm font-black border-b-2 mr-6 transition-all cursor-pointer ${
+                activeRightColTab === 'events'
+                  ? 'border-[#8367C7] text-[#8367C7]'
+                  : 'border-transparent text-[#3A3A3A]/50 hover:text-[#3A3A3A]'
+              }`}
+            >
+              Eventos ({events.length})
+            </button>
+            <button
+              onClick={() => setActiveRightColTab('reviews')}
+              className={`pb-3 text-sm font-black border-b-2 transition-all cursor-pointer ${
+                activeRightColTab === 'reviews'
+                  ? 'border-[#8367C7] text-[#8367C7]'
+                  : 'border-transparent text-[#3A3A3A]/50 hover:text-[#3A3A3A]'
+              }`}
+            >
+              Comunidad ({reviews.length})
+            </button>
+          </div>
+
+          {/* Events Container */}
+          <div className={`flex flex-col gap-4 ${activeMobileTab === 'events' ? 'flex' : 'hidden'} lg:${activeRightColTab === 'events' ? 'flex' : 'hidden'}`}>
+            <h3 className="text-sm font-extrabold text-[#3A3A3A]/50 tracking-wider border-b border-[#3A3A3A]/5 pb-2 lg:hidden">
+              Próximos eventos
+            </h3>
+            {events.length === 0 ? (
+              <div className="text-center py-10 px-4 bg-white rounded-2xl border border-[#3A3A3A]/10 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mx-auto text-[#3A3A3A]/30 mb-3"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+                <p className="text-sm font-bold text-[#3A3A3A]/70">No hay eventos programados</p>
+                <p className="text-xs text-[#3A3A3A]/50 mt-1">Este local no tiene torneos o actividades próximamente.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {events.map((event) => {
+                  const eventDate = new Date(event.date)
+                  return (
+                    <div key={event.id} className="bg-white p-5 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-3 hover:border-[#8367C7]/40 transition-all">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <span className="px-2 py-0.5 text-[10px] font-black bg-[#8367C7]/10 text-[#8367C7] rounded-md uppercase tracking-wider">
+                            {event.game}
+                          </span>
+                          <h4 className="font-bold text-base text-[#3A3A3A] mt-1">{event.title}</h4>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-sm font-black text-[#8367C7]">
+                            {event.entry_fee > 0 ? `$${event.entry_fee.toFixed(2)}` : 'Gratis'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {event.description && (
+                        <p className="text-xs text-[#3A3A3A]/80 leading-relaxed">{event.description}</p>
+                      )}
+                      
+                      <div className="flex items-center justify-between border-t border-[#3A3A3A]/5 pt-3 mt-1 text-xs text-[#3A3A3A]/60 font-semibold">
+                        <div className="flex items-center gap-1.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#8367C7]"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                          <span>
+                            {eventDate.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })} - {eventDate.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        {event.max_participants && (
+                          <div className="flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#8367C7]"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.079-13.137a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                            <span>Cupo: {event.max_participants}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Reviews Container */}
+          <div className={`flex flex-col gap-6 ${activeMobileTab === 'reviews' ? 'flex' : 'hidden'} lg:${activeRightColTab === 'reviews' ? 'flex' : 'hidden'}`}>
           
           {/* Ratings Summary Card */}
           <div className="bg-white p-6 rounded-2xl border border-[#3A3A3A]/10 shadow-sm flex flex-col gap-4">
@@ -750,6 +850,7 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
                 ))}
               </div>
             )}
+          </div>
           </div>
 
         </div>

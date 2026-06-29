@@ -187,15 +187,18 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     render(<VenueProfileClient venue={mockVenue} />)
     const user = userEvent.setup()
 
-    // Query mobile tab buttons
-    const catalogTabBtn = screen.getByRole('button', { name: /Ludoteca/i })
-    const reviewsTabBtn = screen.getByRole('button', { name: /Comunidad/i })
+    // Query mobile tab buttons (they are the first elements in the DOM with these names)
+    const catalogTabBtn = screen.getAllByRole('button', { name: /Ludoteca/i })[0]
+    const eventsTabBtn = screen.getAllByRole('button', { name: /Eventos/i })[0]
+    const reviewsTabBtn = screen.getAllByRole('button', { name: /Comunidad/i })[0]
 
     expect(catalogTabBtn).toBeInTheDocument()
+    expect(eventsTabBtn).toBeInTheDocument()
     expect(reviewsTabBtn).toBeInTheDocument()
 
-    // Catalog tab should be active initially, and Community inactive
+    // Catalog tab should be active initially, others inactive
     expect(catalogTabBtn).toHaveClass('border-[#8367C7]')
+    expect(eventsTabBtn).toHaveClass('border-transparent')
     expect(reviewsTabBtn).toHaveClass('border-transparent')
 
     // Click on Comunidad tab
@@ -229,5 +232,44 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     // Grid view should be rendered again, list gone
     expect(screen.getByTestId('games-grid')).toBeInTheDocument()
     expect(screen.queryByTestId('games-list')).not.toBeInTheDocument()
+  })
+
+  describe('Event Listings Tab', () => {
+    const mockEvents = [
+      {
+        id: 'evt-1',
+        venue_id: 'venue-123',
+        title: 'Torneo de Lanzamiento Magic: Duskmourn',
+        game: 'Magic: The Gathering',
+        description: 'Torneo de presentación.',
+        date: '2026-07-01T18:00:00Z',
+        entry_fee: 450.00,
+        max_participants: 24,
+        created_at: '2026-06-25T12:00:00Z',
+      },
+    ]
+
+    it('renders the Events tab with correct counts and displays upcoming events', () => {
+      render(<VenueProfileClient venue={mockVenue} initialEvents={mockEvents} />)
+
+      // Verify sub-tab headers exist (rendered for both mobile and desktop)
+      expect(screen.getAllByText(/Eventos \(1\)/i)[0]).toBeInTheDocument()
+      expect(screen.getAllByText(/Comunidad \(1\)/i)[0]).toBeInTheDocument()
+
+      // By default, the events list should be visible since activeRightColTab defaults to 'events'
+      expect(screen.getByText('Torneo de Lanzamiento Magic: Duskmourn')).toBeInTheDocument()
+      expect(screen.getByText('Magic: The Gathering')).toBeInTheDocument()
+      expect(screen.getByText('Torneo de presentación.')).toBeInTheDocument()
+      expect(screen.getByText('$450.00')).toBeInTheDocument()
+      expect(screen.getByText('Cupo: 24')).toBeInTheDocument()
+    })
+
+    it('renders empty state if there are no upcoming events', () => {
+      render(<VenueProfileClient venue={mockVenue} initialEvents={[]} />)
+
+      expect(screen.getAllByText(/Eventos \(0\)/i)[0]).toBeInTheDocument()
+      expect(screen.getByText('No hay eventos programados')).toBeInTheDocument()
+      expect(screen.getByText('Este local no tiene torneos o actividades próximamente.')).toBeInTheDocument()
+    })
   })
 })
