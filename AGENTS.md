@@ -208,3 +208,7 @@ You must strictly adhere to the following proven engineering conventions to prev
 ### 14. Playwright mobile viewport hidden tab element clicks
 * **The problem:** Stacked mobile layouts wrap some sections into navigation tabs (such as the Community review form under the `[ Comunidad ]` tab). E2E walkthroughs using Playwright will hang and timeout if they try to click elements inside hidden tabs on mobile viewports.
 * **The convention:** E2E scripts must check `vp.isMobile` and explicitly trigger the tab button click (e.g. `await page.click('button:has-text("Comunidad")')`) before interacting with elements contained in mobile-hidden containers.
+
+### 15. Leveraging specialized subagents for parallel execution and deep research
+* **The problem:** Complex tasks (such as database refactoring, deep codebase audits, or writing extensive E2E tests) can clutter the main agent's context and hit token limits, or require parallel execution.
+* **The convention:** The primary agent should delegate to specialized subagents (e.g., `research`, `self`, or custom subagents defined via `define_subagent`) to run tasks in parallel or in isolated contexts. This keeps the primary context clean, avoids token overflow, and accelerates task completion.

@@ -48,7 +48,7 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
     schedule: COMPLIANT_EMPTY_SCHEDULE,
     address: 'Roma Norte, CDMX',
     description: 'Café de especialidad con gran ludoteca.',
-    type: 'hibrido' as const,
+    type: 'cafe,tienda',
     instagram: 'orcs_stories',
     discord: 'https://discord.gg/orcs',
     logoUrl: 'https://cf.geekdo-images.com/thumb/logo.jpg',
@@ -84,7 +84,7 @@ describe('VenueProfileClient Component & Interactive Catalog Search', () => {
 
     expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.getByText('Café de especialidad con gran ludoteca.')).toBeInTheDocument()
-    expect(screen.getByText('Híbrido (café y tienda)')).toBeInTheDocument()
+    expect(screen.getByText('Café de juegos • Tienda de juegos y TCG')).toBeInTheDocument()
     expect(screen.getByText('Roma Norte, CDMX')).toBeInTheDocument()
 
     // Verify social links exist

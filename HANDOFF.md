@@ -1,30 +1,35 @@
-# Sprint handoff and continuity memo: Premium Dark Mode Theme Completed
+# Sprint handoff and continuity memo: Multiple Venue Types Completed
 
-We have successfully completed and verified the **Premium Dark Mode Theme** (**Issue #65**), along with a critical **Hydration Mismatch Fix** (**Issue #69**). The codebase is 100% passing all tests and has been fully linted.
+We have successfully completed and verified the **Support Multiple Venue Types Selection & Remove Híbrido** (**Issue #74**). The codebase is 100% passing all tests and has been fully linted.
 
 ---
 
 ## 1. Active sprint status and goal
-*   **Active branch:** `main` (All features merged)
-*   **Sprint status:** **Completed & Verified**
-*   **Milestone goal:** Implement a premium, gorgeous dark mode theme across all core views, including a Sun/Moon theme toggle button in the global header, cookie/localStorage persistence, and Tailwind CSS v4 class-based dark mode variants.
+*   **Active branch:** `feature/issue-74-multiple-types`
+*   **Sprint status:** **In Progress (Milestone 1 Completed)**
+*   **Milestone goal:** Allow owners to select multiple types (e.g. both Café and Tienda) during onboarding via checkboxes, remove the "Híbrido" option, and format multiple types in the UI using bullet points (e.g. `Café de juegos • Tienda de juegos y TCG`).
 
 ---
 
 ## 2. Completed work
 
-1.  **Theme Toggle Button**: Implemented a beautiful, animated Sun/Moon toggle button in [Navbar.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/Navbar.tsx) next to the auth triggers.
-2.  **State & Persistence**: Added client-side state in `Navbar.tsx` that synchronizes with the `html` element's class list (`.dark`) and persists the user's preference in `localStorage.theme`.
-3.  **Flash Prevention**: Injected a blocking inline `<script>` into the `<head>` of [layout.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/layout.tsx) that immediately checks `localStorage.theme` and applies the `.dark` class to prevent a flash of light theme on initial page loads.
-4.  **Hydration Mismatch Fix**: Added `suppressHydrationWarning` to the `<html>` element in `layout.tsx` to prevent console errors when the theme script modifies classes on mount or when browser extensions inject custom attributes (e.g. `crxemulator`).
-5.  **Tailwind CSS styling**: Integrated `dark:` classes across all core components (Navbar, InteractiveMap, QuickViewCard, VenueProfileClient).
-6.  **Unit Tests**: Created [theme.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/theme.test.tsx) to verify the theme toggle button renders, toggles the `.dark` class on `document.documentElement`, and persists the state in `localStorage`.
-7.  **Full Verification**: Verified with `npm run test` (76/76 tests green) and `npm run lint` (clean, 0 errors).
+1.  **Checkbox Onboarding**: Replaced the single type select dropdown with checkboxes in [onboarding/page.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/onboarding/page.tsx) and updated the server-side action [venue.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/actions/venue.ts).
+2.  **Removal of Híbrido**: Removed the "Híbrido" type. Updated all mock datasets (`MOCK_VENUES` in [mockData.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/utils/mockData.ts) and [jest.setup.js](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/jest.setup.js)) to use `'cafe,tienda'` instead.
+3.  **UI Formatting**: Updated [QuickViewCard.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/QuickViewCard.tsx), [VenueProfileClient.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/venue/[slug]/VenueProfileClient.tsx), and the partner dashboard [page.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/dashboard/page.tsx) to format multiple comma-separated types with bullet points.
+4.  **Map Sidebar Filtering**: Updated [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx) to replace the "Híbridos" chip with "Comunidades" and updated the filtering logic so that multiple-type venues show up under all matching category chips.
+5.  **Unit & Integration Tests**: Updated all test files ([onboarding.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/onboarding.test.tsx), [milestone2.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/milestone2.test.tsx), [sidebar.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/sidebar.test.tsx), [quick-view.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/quick-view.test.tsx)) to align with the checkbox-based flow, updated expected text, and verified that multiple filtering works.
+6.  **Full Verification**: Verified with `npm run test` (76/76 tests green) and `npm run lint` (clean, 0 errors).
 
 ---
 
 ## 3. Next steps and recommendations
 
-All active backlog items are fully merged into `main` and verified.
-1.  **TCG & Tournament Features**: Proceed to merge or implement the remaining TCG and tournament listing features.
-2.  **Local Testing**: The local dev server is running; open [http://localhost:3000](http://localhost:3000) to inspect the theme.
+1.  **Implement Map Siting for Communities (Issue #75)**:
+    *   Open [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx).
+    *   Update rendering logic: for venues with type `comunidad` and null `lat`/`lng`, resolve the coordinates of their next upcoming event and render the map pin there.
+    *   If no events are scheduled, exclude them from the map but keep them in the sidebar list.
+2.  **Add Custom Pin Icon for Communities (Issue #75)**:
+    *   Update the map pin marker component to render a distinct outline marker or a "group" SVG icon for communities.
+3.  **Make Event Venue and Registration URL Optional (Issue #76)**:
+    *   Modify the event database schema (or mock database in `mock-supabase.js`) to make `venue_id` and `registration_url` nullable.
+    *   Update the event creation form in the partner dashboard to support optional venues and registration URLs.

@@ -144,7 +144,7 @@ export default async function OwnerDashboard() {
                         <p className="text-xs text-[#3A3A3A]/65 mt-1">{venue.description || 'Sin descripción'}</p>
                         <div className="flex flex-wrap gap-2 mt-2">
                           <span className="inline-block bg-[#8367C7]/10 text-[#8367C7] text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            {venue.type}
+                            {venue.type ? venue.type.split(',').join(' • ') : ''}
                           </span>
                           {venue.business_tax_id && (
                             <span className="inline-block bg-[#3A3A3A]/5 text-[#3A3A3A]/60 font-mono text-[10px] px-2 py-0.5 rounded">

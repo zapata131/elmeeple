@@ -133,6 +133,36 @@ export default function Onboarding() {
     }))
   }
 
+  const handleTypeToggle = (typeVal: string) => {
+    setFormData((prev) => {
+      const currentTypes = prev.type ? prev.type.split(',') : [];
+      let newTypes: string[];
+      if (currentTypes.includes(typeVal)) {
+        newTypes = currentTypes.filter((t) => t !== typeVal);
+      } else {
+        newTypes = [...currentTypes, typeVal];
+      }
+      return {
+        ...prev,
+        type: newTypes.join(',') as any
+      };
+    });
+  };
+
+  const formatTypes = (typeString: string) => {
+    if (!typeString) return '';
+    const labels: Record<string, string> = {
+      cafe: 'Café de juegos',
+      tienda: 'Tienda de juegos y TCG',
+      comunidad: 'Club y comunidad'
+    };
+    return typeString.split(',')
+      .map(t => labels[t] || t)
+      .join(' • ');
+  };
+
+  const isPureCommunity = formData.type === 'comunidad';
+
   const handleCoordinateChange = (lat: number, lng: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -358,7 +388,7 @@ export default function Onboarding() {
               )}
               <div>
                 <p className="text-sm font-extrabold text-[#3A3A3A]">{formData.name}</p>
-                <p className="text-xs text-[#8367C7] font-semibold">{formData.type === 'cafe' ? 'Café de juegos' : formData.type === 'tienda' ? 'Tienda de juegos y TCG' : formData.type === 'hibrido' ? 'Híbrido (café y tienda)' : 'Club y comunidad'}</p>
+                <p className="text-xs text-[#8367C7] font-semibold">{formatTypes(formData.type)}</p>
               </div>
             </div>
             <p className="text-xs text-[#3A3A3A]/85"><span className="font-bold">Propietario:</span> {formData.ownerName}</p>
@@ -490,21 +520,29 @@ export default function Onboarding() {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="type" className="text-xs font-bold text-[#3A3A3A]/85">Tipo de local</label>
-              <select
-                id="type"
-                name="type"
-                required
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full p-3 border border-[#3A3A3A]/20 bg-[#F5F0E9] rounded-xl text-sm text-[#3A3A3A] focus:outline-none focus:border-[#8367C7] transition-colors cursor-pointer"
-              >
-                <option value="cafe">Café de juegos</option>
-                <option value="tienda">Tienda de juegos y TCG</option>
-                <option value="hibrido">Híbrido (café y tienda)</option>
-                <option value="comunidad">Club y comunidad</option>
-              </select>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-[#3A3A3A]/85">Tipo de local (puedes seleccionar más de uno)</label>
+              <div className="flex flex-col gap-2 bg-white/50 dark:bg-black/10 p-3 rounded-xl border border-[#3A3A3A]/10">
+                {[
+                  { value: 'cafe', label: 'Café de juegos' },
+                  { value: 'tienda', label: 'Tienda de juegos y TCG' },
+                  { value: 'comunidad', label: 'Club y comunidad' }
+                ].map((item) => {
+                  const isChecked = (formData.type || '').split(',').includes(item.value);
+                  return (
+                    <label key={item.value} htmlFor={`type-${item.value}`} className="flex items-center gap-2.5 text-sm font-semibold text-[#3A3A3A] dark:text-[#F5F0E9] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        id={`type-${item.value}`}
+                        checked={isChecked}
+                        onChange={() => handleTypeToggle(item.value)}
+                        className="w-4 h-4 rounded text-[#8367C7] border-[#3A3A3A]/20 focus:ring-[#8367C7] cursor-pointer"
+                      />
+                      {item.label}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -681,7 +719,13 @@ export default function Onboarding() {
           <div className="flex flex-col gap-5">
             <div>
               <h2 className="text-xl font-extrabold text-[#3A3A3A]">Paso 2: ubicar en el mapa</h2>
-              <p className="text-xs text-[#3A3A3A]/60 mt-1">Busca tu dirección o haz clic en el mapa para ubicar tu local.</p>
+              {isPureCommunity ? (
+                <p className="text-xs text-[#8367C7] font-bold mt-1 bg-[#8367C7]/10 p-3 rounded-xl border border-[#8367C7]/20 leading-relaxed">
+                  📢 Las comunidades o clubes no requieren una dirección física fija. Te mostrarás en el mapa utilizando la ubicación de tu próximo evento. Si no tienes eventos programados, se listará tu perfil en la página principal pero no aparecerá un pin en el mapa.
+                </p>
+              ) : (
+                <p className="text-xs text-[#3A3A3A]/60 mt-1">Busca tu dirección o haz clic en el mapa para ubicar tu local.</p>
+              )}
             </div>
 
             <form onSubmit={handleAddressSearch} className="flex gap-2">
@@ -729,28 +773,28 @@ export default function Onboarding() {
             <form onSubmit={handleNext} className="flex flex-col gap-4">
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 flex-1">
-                  <label htmlFor="lat" className="text-xs font-bold text-[#3A3A3A]/85">Latitud</label>
+                  <label htmlFor="lat" className="text-xs font-bold text-[#3A3A3A]/85">Latitud {isPureCommunity && '(Opcional)'}</label>
                   <input
                     id="lat"
                     name="lat"
                     type="text"
                     readOnly
-                    required
+                    required={!isPureCommunity}
                     value={formData.lat || ''}
-                    placeholder="Hacer clic en mapa"
+                    placeholder={isPureCommunity ? "Opcional" : "Hacer clic en mapa"}
                     className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#3A3A3A]/5 rounded-xl text-xs font-semibold text-[#3A3A3A] focus:outline-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1 flex-1">
-                  <label htmlFor="lng" className="text-xs font-bold text-[#3A3A3A]/85">Longitud</label>
+                  <label htmlFor="lng" className="text-xs font-bold text-[#3A3A3A]/85">Longitud {isPureCommunity && '(Opcional)'}</label>
                   <input
                     id="lng"
                     name="lng"
                     type="text"
                     readOnly
-                    required
+                    required={!isPureCommunity}
                     value={formData.lng || ''}
-                    placeholder="Hacer clic en mapa"
+                    placeholder={isPureCommunity ? "Opcional" : "Hacer clic en mapa"}
                     className="w-full p-2.5 border border-[#3A3A3A]/20 bg-[#3A3A3A]/5 rounded-xl text-xs font-semibold text-[#3A3A3A] focus:outline-none"
                   />
                 </div>
@@ -760,7 +804,7 @@ export default function Onboarding() {
                 <button type="button" onClick={handleBack} className="w-1/2 py-3 bg-[#F5F0E9] border border-[#3A3A3A]/20 hover:bg-[#EAE2D5] text-[#3A3A3A] font-semibold rounded-xl transition-all duration-200 cursor-pointer text-center text-sm">
                   Atrás
                 </button>
-                <button type="submit" disabled={!formData.lat || !formData.lng} className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
+                <button type="submit" disabled={!isPureCommunity && (!formData.lat || !formData.lng)} className="w-1/2 py-3 bg-[#8367C7] hover:bg-[#6f53b3] disabled:bg-[#3A3A3A]/10 disabled:text-[#3A3A3A]/30 disabled:cursor-not-allowed text-[#F5F0E9] font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer text-center text-sm">
                   Siguiente
                 </button>
               </div>
@@ -855,10 +899,7 @@ export default function Onboarding() {
                   <div>
                     <span className="font-extrabold text-[#3A3A3A] text-sm">{formData.name}</span>
                     <span className="text-[10px] font-extrabold text-[#8367C7] bg-[#8367C7]/10 px-1.5 py-0.5 rounded ml-2">
-                      {formData.type === 'cafe' && 'Café de juegos'}
-                      {formData.type === 'tienda' && 'Tienda de juegos y TCG'}
-                      {formData.type === 'hibrido' && 'Híbrido (café y tienda)'}
-                      {formData.type === 'comunidad' && 'Club y comunidad'}
+                      {formatTypes(formData.type)}
                     </span>
                   </div>
                 </div>

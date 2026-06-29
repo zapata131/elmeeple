@@ -169,12 +169,16 @@ export default function InteractiveMap() {
   // Filter venues based on search query, category, and radius
   const filteredVenues = venues.filter((venue) => {
     // Category Filter
-    if (selectedCategory === 'Cafés' && venue.type !== 'cafe') return false
-    if (selectedCategory === 'Tiendas' && venue.type !== 'tienda') return false
-    if (selectedCategory === 'Híbridos' && venue.type !== 'hibrido') return false
+    const venueTypes = venue.type ? venue.type.split(',') : []
+    if (selectedCategory === 'Cafés' && !venueTypes.includes('cafe')) return false
+    if (selectedCategory === 'Tiendas' && !venueTypes.includes('tienda')) return false
+    if (selectedCategory === 'Comunidades' && !venueTypes.includes('comunidad')) return false
 
     // Radius / Distance Filter
     if (selectedRadius !== 'all') {
+      if (venue.lat === undefined || venue.lng === undefined || venue.lat === null || venue.lng === null) {
+        return false
+      }
       const refLat = mapCenter ? mapCenter[0] : (userLocation ? userLocation[0] : 19.4326)
       const refLng = mapCenter ? mapCenter[1] : (userLocation ? userLocation[1] : -99.1332)
       const distance = calculateDistance(refLat, refLng, venue.lat, venue.lng)
@@ -269,7 +273,7 @@ export default function InteractiveMap() {
 
           {/* Category Filter Chips */}
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {['Todos', 'Cafés', 'Tiendas', 'Híbridos'].map((cat) => (
+            {['Todos', 'Cafés', 'Tiendas', 'Comunidades'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
