@@ -1,35 +1,41 @@
-# Sprint handoff and continuity memo: Multiple Venue Types Completed
+# Sprint handoff and continuity memo: Milestone 5 (Communities & Event Siting) Started
 
-We have successfully completed and verified the **Support Multiple Venue Types Selection & Remove Híbrido** (**Issue #74**). The codebase is 100% passing all tests and has been fully linted.
+We have successfully merged the **Support Multiple Venue Types Selection & Remove Híbrido** (**Issue #74**) and integrated the **Tournaments & Event Listings** (**Issue #63**) features into our active workspace. We are now starting work on **Milestone 5: Communities, Event Siting & Map Positioning** (**Issue #75** and **Issue #76**).
 
 ---
 
 ## 1. Active sprint status and goal
-*   **Active branch:** `feature/issue-74-multiple-types`
-*   **Sprint status:** **In Progress (Milestone 1 Completed)**
-*   **Milestone goal:** Allow owners to select multiple types (e.g. both Café and Tienda) during onboarding via checkboxes, remove the "Híbrido" option, and format multiple types in the UI using bullet points (e.g. `Café de juegos • Tienda de juegos y TCG`).
+*   **Active branch:** `feature/issue-75-communities-onboarding-map`
+*   **Sprint status:** **In Progress (Milestone 5 Started)**
+*   **Milestone goal:** Support informal gaming clubs and communities without fixed addresses by making location details optional during onboarding, positioning them dynamically on the map at their next upcoming event, and making event venue and registration URLs optional.
 
 ---
 
-## 2. Completed work
+## 2. Completed work (Merged)
 
-1.  **Checkbox Onboarding**: Replaced the single type select dropdown with checkboxes in [onboarding/page.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/onboarding/page.tsx) and updated the server-side action [venue.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/actions/venue.ts).
-2.  **Removal of Híbrido**: Removed the "Híbrido" type. Updated all mock datasets (`MOCK_VENUES` in [mockData.ts](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/utils/mockData.ts) and [jest.setup.js](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/jest.setup.js)) to use `'cafe,tienda'` instead.
-3.  **UI Formatting**: Updated [QuickViewCard.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/QuickViewCard.tsx), [VenueProfileClient.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/venue/[slug]/VenueProfileClient.tsx), and the partner dashboard [page.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/dashboard/page.tsx) to format multiple comma-separated types with bullet points.
-4.  **Map Sidebar Filtering**: Updated [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx) to replace the "Híbridos" chip with "Comunidades" and updated the filtering logic so that multiple-type venues show up under all matching category chips.
-5.  **Unit & Integration Tests**: Updated all test files ([onboarding.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/onboarding.test.tsx), [milestone2.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/milestone2.test.tsx), [sidebar.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/sidebar.test.tsx), [quick-view.test.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/__tests__/quick-view.test.tsx)) to align with the checkbox-based flow, updated expected text, and verified that multiple filtering works.
-6.  **Full Verification**: Verified with `npm run test` (76/76 tests green) and `npm run lint` (clean, 0 errors).
+1.  **Multiple Venue Types (Issue #74)**:
+    *   Replaced the single type select dropdown with checkboxes in [onboarding/page.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/app/onboarding/page.tsx).
+    *   Removed the "Híbrido" type and updated all mock datasets to use `'cafe,tienda'` instead.
+    *   Formatted multiple comma-separated types with bullet points (e.g. `Café de juegos • Tienda de juegos y TCG`) in cards, profiles, and dashboards.
+    *   Updated map sidebar category filtering to support multi-type matching.
+2.  **Tournaments & Event Listings (Issue #63)**:
+    *   Created `events` table and integrated it with PostgreSQL Row-Level Security (RLS).
+    *   Implemented server actions (`getEvents`, `createEvent`, `deleteEvent`) and integrated them with the partner dashboard via the `<EventManager />` component.
+    *   Added a responsive **"Eventos"** tab to the storefront profile page (`/venue/[slug]`).
+    *   Added mock events to the mock database for local development and testing.
 
 ---
 
 ## 3. Next steps and recommendations
 
 1.  **Implement Map Siting for Communities (Issue #75)**:
-    *   Open [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx).
+    *   Open [InteractiveMap.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx) and [Map.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/Map.tsx).
     *   Update rendering logic: for venues with type `comunidad` and null `lat`/`lng`, resolve the coordinates of their next upcoming event and render the map pin there.
     *   If no events are scheduled, exclude them from the map but keep them in the sidebar list.
 2.  **Add Custom Pin Icon for Communities (Issue #75)**:
-    *   Update the map pin marker component to render a distinct outline marker or a "group" SVG icon for communities.
+    *   Update the map pin marker component in [Map.tsx](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/src/components/Map.tsx) to render a distinct outline marker or a "group" SVG icon for communities.
 3.  **Make Event Venue and Registration URL Optional (Issue #76)**:
     *   Modify the event database schema (or mock database in `mock-supabase.js`) to make `venue_id` and `registration_url` nullable.
     *   Update the event creation form in the partner dashboard to support optional venues and registration URLs.
+4.  **Remove Discord as Contact Method (Issue #73)**:
+    *   Remove Discord input from onboarding and dashboard forms, and remove the Discord icon from preview cards.

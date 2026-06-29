@@ -13,7 +13,7 @@ You must execute the following checklist on **every single turn** before returni
 * **User Story Mandate**: Every issue created **must** include a comprehensive User Story in the body using the classic Agile framework: `Como [Rol del usuario], Quiero [Funcionalidad], Para [Beneficio/Valor]`.
 
 ### Post-Flight Actions (End of Turn)
-* **Update DESIGN.md**: Record any architectural changes, schema additions, or technical design decisions in the design document.
+* **Update DESIGN.md**: Record any architectural changes, schema additions, visual system tokens, or technical design decisions in the design document accordingly to keep it in sync with the codebase.
 * **Update AGENTS.md**: Document any new development conventions, learnings, or testing rules.
 * **Update HANDOFF.md**: Keep the handoff sprint memo updated in real-time with completed files, active branch, test status, and clear next steps.
 * **Stage, Commit, and Push**: Ensure you stage, commit, and push all modified files (including code, tests, design docs, and handoff files) to the remote branch.
@@ -30,7 +30,7 @@ You must execute the following checklist on **every single turn** before returni
 * **Goal**: Translate broad feature requests into bite-sized, testable execution steps for the Builder.
 * **Constraints**:
   * Do not write implementation code. Write execution plans.
-  * Always reference `DESIGN.md` and `README.md` before planning.
+  * Always reference `DESIGN.md` and `README.md` before planning, and ensure they are updated accordingly.
   * Ensure all plans adhere to the "ShipFast" Stack: Next.js App Router, Supabase, Tailwind CSS, and NextAuth.
 * **Tasks**:
   1. Break the request down into a step-by-step implementation plan.
@@ -105,7 +105,7 @@ graph TD
 * **GitHub Issue-Driven Development**: Always create a new GitHub Issue using the `gh` CLI to track new features or bug fixes before writing code. Include a classic Agile User Story in the description.
 * **Backlog Traceability**: Name every feature branch after its corresponding issue: `feature/issue-<number>-<title>` or `fix/issue-<number>-<title>`. Link the PR to the issue using closing keywords (e.g., `Closes #<issue_number>`).
 * **Living Handoff Memo**: Keep [HANDOFF.md](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/HANDOFF.md) updated in real-time with completed files, active branch, test status, and next steps.
-* **Design Doc Sync**: Codify every major feature release, architectural choice, or retrospective in [DESIGN.md](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/DESIGN.md) immediately.
+* **Design Doc Sync**: Codify every major feature release, architectural choice, visual system token, database schema update, or retrospective in [DESIGN.md](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/DESIGN.md) accordingly and immediately.
 * **Automated Workflow Skills**: Use modular workspace customization skills located in `.agents/skills/`:
   * [github_issue_solve](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/.agents/skills/github_issue_solve/SKILL.md): Automate issue viewing, branch checkout, and TDD planning.
   * [github_issue_complete](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/.agents/skills/github_issue_complete/SKILL.md): Automate verification, document synchronization, commits, and PR creation.

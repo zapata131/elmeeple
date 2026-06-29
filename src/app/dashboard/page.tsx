@@ -7,6 +7,7 @@ import Link from 'next/link'
 import React from 'react'
 import AnnouncementForm from './AnnouncementForm'
 import BggSyncForm from './BggSyncForm'
+import EventManager from './EventManager'
 
 export default async function OwnerDashboard() {
   const session = await getServerSession(authOptions)
@@ -261,7 +262,7 @@ export default async function OwnerDashboard() {
 
                   </div>
 
-                  {/* Right Column: Announcement & BGG Sync */}
+                  {/* Right Column: Announcement, BGG Sync & Events */}
                   <div className="w-full lg:w-96 flex flex-col gap-6 justify-start">
                     {status === 'approved' ? (
                       <>
@@ -271,6 +272,7 @@ export default async function OwnerDashboard() {
                           initialLastSyncedAt={venue.bgg_last_synced_at}
                         />
                         <AnnouncementForm venueId={venue.id} />
+                        <EventManager venueId={venue.id} />
                       </>
                     ) : (
                       <div className="bg-[#3A3A3A]/5 p-6 rounded-2xl border border-dashed border-[#3A3A3A]/15 text-center flex flex-col items-center justify-center h-full py-12">

@@ -49,7 +49,7 @@
 * **Catalog View Toggles (Grid vs List):** Within the storefront dedicated page (`/venue/[slug]`), users can toggle between a visual Grid View (default) and a compact List View. The toggle is rendered next to the game count badge using premium inline vector SVGs (no emojis) styled in brand Malva `#8367C7` for active states and Carbón `#3A3A3A`/50 for inactive states. List View renders a high-density, vertical stack of games featuring smaller 40x40px thumbnails, titles, player counts, and duration badges, minimizing vertical scroll fatigue.
 * **Localized search radius filter:** The homepage map sidebar features a distance-based search radius filter. Users can select from chips (`Sin límite`, `2 km`, `5 km`, `10 km`, `20 km`) to filter venues based on their distance from a reference point. The reference point is determined dynamically: it uses the user's current location (obtained via the browser's Geolocation API on mount) or the center of the map selected by the user via the location search bar. Distances are calculated on the client side using the Haversine formula.
 * **Premium dark mode theme:** A gorgeous, class-based dark mode theme is supported across all views. Theme state is stored in the `html` element's class list (`.dark`), saved in `localStorage.theme`, and toggled via a Sun/Moon button in the navbar header. An inline `<head>` blocking script prevents light-theme flashes during page load. Color tokens map to deep charcoal `#121212`/`#1E1E1E`/`#2D2D2D` backgrounds and light Blanco Roto `#F5F0E9` text.
-
+* **Tournaments & Event Listings:** Store profiles feature a dedicated **"Eventos"** tab. On mobile viewports, this is a top-level tab alongside "Ludoteca" and "Comunidad". On desktop, the page maintains a clean two-column layout where the left column is always the game catalog, and the right column features internal sub-tabs toggling between "Eventos" (active by default) and "Comunidad" (reviews). Events are displayed as cards with game tags, date/time formatted in Spanish, entry fees (or "Gratis"), and participant capacity limits, using custom inline SVGs (no emojis).
 
 
 ### 5. Technical architecture (the "ShipFast" stack)
@@ -59,6 +59,7 @@
   * `venues`: Tracks venue metadata, ownership, unique url `slug` column, `bgg_username`, and `bgg_last_synced_at` (sync timestamp).
   * `venue_games`: Idempotent bulk upsert of games linked to `venues` (`bgg_id`, `name`, `thumbnail`, player counts, playing time). Unique constraint on `(venue_id, bgg_id)`.
   * `reviews`: Community reviews with `rating` (1-5), `comment`, `vibe_tags` text arrays, and `user_email`.
+  * `events`: Stores tournaments and activities published by verified owners, including `venue_id`, `title`, `game`, `description`, `date` (timestamptz), `entry_fee` (numeric), and `max_participants` (integer).
 * **Row-level security (RLS):** Strict security policies enabled on all tables:
   * Public read access (`SELECT`) permitted on all public venue, game, and review tables.
   * Authenticated write access (`INSERT`/`UPDATE`) restricted to validated users or owners using session checks.
