@@ -52,14 +52,18 @@ We have successfully implemented and verified all features under **Milestone 5**
 ## 3. Verification status
 *   **TypeScript Compiler:** 100% green (`npx tsc --noEmit` compiles with 0 errors).
 *   **Unit & Integration Tests:** 100% green (`94/94` tests passed).
+*   **Live Database Seeding**: **Completed**. Upserted CDMX, Monterrey, and Guadalajara mock venues into the live Supabase instance.
+*   **Mock Database Server Cleanup**: **Completed**. Resolved a duplicate key issue in the mock database server by executing a clean restart of the services.
 *   **Visual QA:** Ready for browser walkthrough verification.
 
 ---
 
 ## 4. Next steps
-1.  **Open Pull Request**: Open a pull request against `main` for code review.
-2.  **Visual Walkthrough (Reviewer)**: Run `chrome-devtools` or `browser_subagent` walkthroughs on both desktop and mobile viewports to verify:
+1.  **Verify UI**: Verify that the map and markers render correctly on your screen. If any issues persist, please let us know.
+2.  **Open Pull Request**: Open a pull request against `main` for code review.
+3.  **Visual Walkthrough (Reviewer)**: Run `chrome-devtools` or `browser_subagent` walkthroughs on both desktop and mobile viewports to verify:
     *   Panning the map shows the "Buscar en esta área" button. Clicking it updates results.
     *   Panning to an empty area and clicking "Buscar en esta área" shows the coral banner and the nearest venues fallback.
     *   Zooming out clusters markers that are close together, rendering a purple circle with the venue count, a turquesa ping animation if they have events, and a hover tooltip.
-3.  **Merge & Deploy**: Merge the PR into `main` to trigger the Vercel deployment.
+4.  **Merge & Deploy**: Merge the PR into `main` to trigger the Vercel deployment.
+

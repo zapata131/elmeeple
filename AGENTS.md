@@ -155,6 +155,9 @@ Every feature release must be validated across three distinct testing tiers:
   * *Convention*: Any public database fetch (like `fetchVenues` on the homepage) must implement a graceful catch-block fallback. If the query fails, print a console warning and populate the local state with our static CDMX mock venues (`MOCK_VENUES` array) so the interface remains fully interactive and testable.
 * **BoardGameGeek API 202 Accepted Status Polling**: When querying a BGG collection for the first time, BGG's XML API2 returns a 202 Accepted response while it generates the XML cache, resulting in empty tables if not handled.
   * *Convention*: The server action detects HTTP 202 and returns `isQueued: true` with a retry delay. The frontend sync form (`BggSyncForm`) runs an automatic countdown polling loop (up to 3 times every 5 seconds) with a clean progress spinner to ensure zero friction.
+* **Mock Supabase DELETE Requests**: The mock server (`scripts/mock-supabase.js`) does not implement `DELETE` handlers for all tables (e.g., `venues`). If a client sends a `DELETE` request to an unhandled endpoint, the server returns without calling `res.end()`, causing the HTTP request and client script to hang indefinitely.
+  * *Convention*: Always ensure the mock server has matching HTTP method handlers, or restart the mock server process (`pkill -f "mock-supabase" && node scripts/mock-supabase.js`) to reset its in-memory database state and clear duplicates.
+
 
 ### 6.4 Testing Environment & Performance
 * **Jest Async act() and next/dynamic Warnings**: JSDOM struggles to render Next.js dynamic imports, producing noisy React `act()` warnings and DOM validation errors in test logs.
