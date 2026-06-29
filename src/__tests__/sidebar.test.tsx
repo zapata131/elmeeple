@@ -47,7 +47,7 @@ describe('Left Sidebar Directory Layout', () => {
     expect(searchInput).toBeInTheDocument()
 
     // Check category chips exist
-    expect(screen.getByRole('button', { name: /todos/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^todos$/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /cafés/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /tiendas/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /híbridos/i })).toBeInTheDocument()
@@ -121,7 +121,7 @@ describe('Left Sidebar Directory Layout', () => {
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
 
     // Click "Todos" chip
-    const todosChip = screen.getByRole('button', { name: /todos/i })
+    const todosChip = screen.getByRole('button', { name: /^todos$/i })
     await user.click(todosChip)
 
     // All should show up
@@ -199,5 +199,69 @@ describe('Left Sidebar Directory Layout', () => {
       writable: true,
       configurable: true,
     })
+  })
+
+  it('filters the list of venues by TCG when selecting a TCG filter chip', async () => {
+    render(<Home />)
+    const user = userEvent.setup()
+
+    // Wait for initial venues to load
+    expect(await screen.findByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+    expect(screen.getByText('La Matatena')).toBeInTheDocument()
+
+    // Find TCG chips (Magic, Pokémon, Yu-Gi-Oh!)
+    const magicChip = screen.getByRole('button', { name: 'Magic' })
+    const pokemonChip = screen.getByRole('button', { name: 'Pokémon' })
+    const yugiohChip = screen.getByRole('button', { name: 'Yu-Gi-Oh!' })
+
+    expect(magicChip).toBeInTheDocument()
+    expect(pokemonChip).toBeInTheDocument()
+    expect(yugiohChip).toBeInTheDocument()
+
+    // Click 'Magic' chip
+    await user.click(magicChip)
+
+    // Only El Duende (has Magic) should be visible. Orcs Stories and La Matatena should be hidden.
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+    expect(screen.queryByText('Orcs Stories')).not.toBeInTheDocument()
+    expect(screen.queryByText('La Matatena')).not.toBeInTheDocument()
+
+    // Click 'Pokémon' chip
+    await user.click(pokemonChip)
+
+    // Only La Matatena (has Pokémon) should be visible
+    expect(screen.getByText('La Matatena')).toBeInTheDocument()
+    expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
+    expect(screen.queryByText('Orcs Stories')).not.toBeInTheDocument()
+
+    // Click 'Todos' TCG chip or Pokémon again to clear (if we click Pokémon again it should clear)
+    const allTcgChip = screen.getByRole('button', { name: 'Todos TCG' })
+    await user.click(allTcgChip)
+
+    // All should be visible again
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+    expect(screen.getByText('La Matatena')).toBeInTheDocument()
+  })
+
+  it('renders TCG badges and Torneos Oficiales badge on venue cards in the sidebar', async () => {
+    render(<Home />)
+    
+    // Wait for venues to load
+    expect(await screen.findByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+    expect(screen.getByText('La Matatena')).toBeInTheDocument()
+
+    // Verify TCG badges exist
+    // El Duende should have "Magic: The Gathering" and "Torneos Oficiales"
+    expect(screen.getByText('Magic: The Gathering')).toBeInTheDocument()
+    expect(screen.getAllByText(/Torneos Oficiales/)[0]).toBeInTheDocument()
+
+    // Orcs Stories should have "Yu-Gi-Oh!" and "Torneos Oficiales"
+    expect(screen.getAllByText('Yu-Gi-Oh!').length).toBeGreaterThan(1)
+
+    // La Matatena should have "Pokémon"
+    expect(screen.getAllByText('Pokémon').length).toBeGreaterThan(1)
   })
 })

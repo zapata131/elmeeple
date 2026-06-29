@@ -317,11 +317,56 @@ export default function VenueProfileClient({ venue }: VenueProfileClientProps) {
             <h2 className="text-xs font-extrabold text-[#8367C7] tracking-wider">Acerca del establecimiento</h2>
             <p className="text-sm text-[#3A3A3A]/85 leading-relaxed">{venue.description}</p>
             <div className="flex flex-wrap gap-1.5 mt-1">
-              {(venue.tags || []).map((tag) => (
-                <span key={tag} className="px-2.5 py-1 text-xs font-extrabold bg-[#3A3A3A]/5 text-[#3A3A3A]/80 rounded-lg">
-                  {tag}
+              {/* Torneos Oficiales (WPN/OTS) Badge */}
+              {venue.tags?.some(tag => ['torneos oficiales', 'torneos', 'wpn', 'ots'].includes(tag.toLowerCase())) && (
+                <span className="inline-flex items-center gap-0.5 px-2.5 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 text-xs font-black rounded-lg uppercase tracking-wider">
+                  ★ Torneos Oficiales
                 </span>
-              ))}
+              )}
+              
+              {/* Magic Badge */}
+              {venue.tags?.some(tag => ['magic: the gathering', 'magic', 'mtg'].includes(tag.toLowerCase())) && (
+                <span className="inline-flex items-center px-2.5 py-1 bg-[#8367C7]/10 text-[#8367C7] border border-[#8367C7]/15 text-xs font-extrabold rounded-lg">
+                  Magic: The Gathering
+                </span>
+              )}
+
+              {/* Pokémon Badge */}
+              {venue.tags?.some(tag => ['pokémon', 'pokemon', 'pokémon tcg'].includes(tag.toLowerCase())) && (
+                <span className="inline-flex items-center px-2.5 py-1 bg-[#73D8D4]/15 text-[#3d8c89] border border-[#73D8D4]/25 text-xs font-extrabold rounded-lg">
+                  Pokémon
+                </span>
+              )}
+
+              {/* Yu-Gi-Oh! Badge */}
+              {venue.tags?.some(tag => ['yu-gi-oh!', 'yugioh', 'yu-gi-oh! tcg'].includes(tag.toLowerCase())) && (
+                <span className="inline-flex items-center px-2.5 py-1 bg-rose-500/10 text-rose-700 border border-rose-500/20 text-xs font-extrabold rounded-lg">
+                  Yu-Gi-Oh!
+                </span>
+              )}
+
+              {/* Lorcana Badge */}
+              {venue.tags?.some(tag => ['lorcana', 'disney lorcana'].includes(tag.toLowerCase())) && (
+                <span className="inline-flex items-center px-2.5 py-1 bg-indigo-500/10 text-indigo-700 border border-indigo-500/20 text-xs font-extrabold rounded-lg">
+                  Lorcana
+                </span>
+              )}
+
+              {/* One Piece Badge */}
+              {venue.tags?.some(tag => ['one piece', 'onepiece', 'one piece card game'].includes(tag.toLowerCase())) && (
+                <span className="inline-flex items-center px-2.5 py-1 bg-sky-500/10 text-sky-700 border border-sky-500/20 text-xs font-extrabold rounded-lg">
+                  One Piece
+                </span>
+              )}
+
+              {/* General Tags (Filtered) */}
+              {(venue.tags || [])
+                .filter(tag => !['magic: the gathering', 'magic', 'mtg', 'pokémon', 'pokemon', 'pokémon tcg', 'yu-gi-oh!', 'yugioh', 'yu-gi-oh! tcg', 'lorcana', 'disney lorcana', 'one piece', 'onepiece', 'one piece card game', 'torneos oficiales', 'torneos', 'wpn', 'ots'].includes(tag.toLowerCase()))
+                .map((tag) => (
+                  <span key={tag} className="px-2.5 py-1 text-xs font-extrabold bg-[#3A3A3A]/5 text-[#3A3A3A]/80 rounded-lg">
+                    {tag}
+                  </span>
+                ))}
             </div>
             <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/75 font-bold bg-[#3A3A3A]/5 p-3 rounded-xl mt-2">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>

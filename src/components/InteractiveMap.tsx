@@ -54,6 +54,7 @@ export default function InteractiveMap() {
   const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [selectedRadius, setSelectedRadius] = useState<number | 'all'>('all')
+  const [selectedTcg, setSelectedTcg] = useState<string>('all')
 
   // Request user location on component mount
   useEffect(() => {
@@ -179,6 +180,30 @@ export default function InteractiveMap() {
       const refLng = mapCenter ? mapCenter[1] : (userLocation ? userLocation[1] : -99.1332)
       const distance = calculateDistance(refLat, refLng, venue.lat, venue.lng)
       if (distance > selectedRadius) return false
+    }
+
+    // TCG Filter
+    if (selectedTcg !== 'all') {
+      const hasTcg = venue.tags?.some((tag) => {
+        const lowerTag = tag.toLowerCase()
+        if (selectedTcg === 'magic') {
+          return lowerTag.includes('magic') || lowerTag.includes('mtg')
+        }
+        if (selectedTcg === 'pokemon') {
+          return lowerTag.includes('pokémon') || lowerTag.includes('pokemon')
+        }
+        if (selectedTcg === 'yugioh') {
+          return lowerTag.includes('yu-gi-oh') || lowerTag.includes('yugioh')
+        }
+        if (selectedTcg === 'lorcana') {
+          return lowerTag.includes('lorcana')
+        }
+        if (selectedTcg === 'onepiece') {
+          return lowerTag.includes('one piece') || lowerTag.includes('onepiece')
+        }
+        return false
+      })
+      if (!hasTcg) return false
     }
 
     // Search Filter
@@ -309,6 +334,33 @@ export default function InteractiveMap() {
               ))}
             </div>
           </div>
+
+          {/* TCG Filter Chips */}
+          <div className="flex flex-col gap-1.5 mt-2 border-t border-[#3A3A3A]/5 pt-2">
+            <div className="text-[10px] uppercase tracking-wider text-[#3A3A3A]/50 font-black">Juegos de cartas (TCG)</div>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {[
+                { label: 'Todos TCG', value: 'all' },
+                { label: 'Magic', value: 'magic' },
+                { label: 'Pokémon', value: 'pokemon' },
+                { label: 'Yu-Gi-Oh!', value: 'yugioh' },
+                { label: 'Lorcana', value: 'lorcana' },
+                { label: 'One Piece', value: 'onepiece' }
+              ].map((t) => (
+                <button
+                  key={t.label}
+                  onClick={() => setSelectedTcg(t.value)}
+                  className={`px-3 py-1 text-xs font-bold rounded-full border transition-all duration-150 cursor-pointer whitespace-nowrap ${
+                    selectedTcg === t.value
+                      ? 'bg-[#8367C7] border-[#8367C7] text-[#F5F0E9] shadow-sm'
+                      : 'bg-white border-[#3A3A3A]/20 text-[#3A3A3A] hover:border-[#8367C7]/50'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Scrollable Venue List */}
@@ -359,8 +411,47 @@ export default function InteractiveMap() {
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-[#3A3A3A]/70 truncate mb-1.5">{venue.address}</p>
+                    <p className="text-xs text-[#3A3A3A]/70 truncate mb-1">{venue.address}</p>
                     
+                    {/* TCG & Official Tournament Badges */}
+                    <div className="flex flex-wrap gap-1 mb-1.5">
+                      {venue.tags?.some(tag => ['torneos oficiales', 'torneos', 'wpn', 'ots'].includes(tag.toLowerCase())) && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-500/10 text-amber-700 border border-amber-500/20 text-[8px] font-black rounded uppercase tracking-wider">
+                          ★ Torneos Oficiales
+                        </span>
+                      )}
+                      
+                      {venue.tags?.some(tag => ['magic: the gathering', 'magic', 'mtg'].includes(tag.toLowerCase())) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 bg-[#8367C7]/10 text-[#8367C7] border border-[#8367C7]/15 text-[8px] font-extrabold rounded">
+                          Magic: The Gathering
+                        </span>
+                      )}
+
+                      {venue.tags?.some(tag => ['pokémon', 'pokemon', 'pokémon tcg'].includes(tag.toLowerCase())) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 bg-[#73D8D4]/15 text-[#3d8c89] border border-[#73D8D4]/25 text-[8px] font-extrabold rounded">
+                          Pokémon
+                        </span>
+                      )}
+
+                      {venue.tags?.some(tag => ['yu-gi-oh!', 'yugioh', 'yu-gi-oh! tcg'].includes(tag.toLowerCase())) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 bg-rose-500/10 text-rose-700 border border-rose-500/20 text-[8px] font-extrabold rounded">
+                          Yu-Gi-Oh!
+                        </span>
+                      )}
+
+                      {venue.tags?.some(tag => ['lorcana', 'disney lorcana'].includes(tag.toLowerCase())) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 bg-indigo-500/10 text-indigo-700 border border-indigo-500/20 text-[8px] font-extrabold rounded">
+                          Lorcana
+                        </span>
+                      )}
+
+                      {venue.tags?.some(tag => ['one piece', 'onepiece', 'one piece card game'].includes(tag.toLowerCase())) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 bg-sky-500/10 text-sky-700 border border-sky-500/20 text-[8px] font-extrabold rounded">
+                          One Piece
+                        </span>
+                      )}
+                    </div>
+
                     {/* Game Match Badge */}
                     {searchMode === 'games' && searchQuery.trim() !== '' && (
                       <div className="mb-2">
@@ -388,14 +479,17 @@ export default function InteractiveMap() {
                     )}
 
                     <div className="flex flex-wrap gap-1">
-                      {venue.tags.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 text-[10px] font-bold bg-[#F5F0E9] text-[#8367C7] rounded-md border border-[#8367C7]/10"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {venue.tags
+                        .filter(tag => !['magic: the gathering', 'magic', 'mtg', 'pokémon', 'pokemon', 'pokémon tcg', 'yu-gi-oh!', 'yugioh', 'yu-gi-oh! tcg', 'lorcana', 'disney lorcana', 'one piece', 'onepiece', 'one piece card game', 'torneos oficiales', 'torneos', 'wpn', 'ots'].includes(tag.toLowerCase()))
+                        .slice(0, 3)
+                        .map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-0.5 text-[10px] font-bold bg-[#F5F0E9] text-[#8367C7] rounded-md border border-[#8367C7]/10"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                     </div>
                   </div>
                 </button>

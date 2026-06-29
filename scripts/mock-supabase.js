@@ -41,7 +41,9 @@ let venues = [
     venue_tags: [
       { tags: { name: "Eurogames" } },
       { tags: { name: "TCGs" } },
-      { tags: { name: "Café" } }
+      { tags: { name: "Café" } },
+      { tags: { name: "Yu-Gi-Oh!" } },
+      { tags: { name: "Torneos Oficiales" } }
     ]
   },
   {
@@ -76,7 +78,8 @@ let venues = [
     venue_tags: [
       { tags: { name: "TCGs" } },
       { tags: { name: "Magic: The Gathering" } },
-      { tags: { name: "Torneos" } }
+      { tags: { name: "Torneos" } },
+      { tags: { name: "Torneos Oficiales" } }
     ]
   },
   {
@@ -144,7 +147,8 @@ let venues = [
     bgg_last_synced_at: null,
     venue_tags: [
       { tags: { name: "Eurogames" } },
-      { tags: { name: "Café" } }
+      { tags: { name: "Café" } },
+      { tags: { name: "Pokémon" } }
     ]
   }
 ];

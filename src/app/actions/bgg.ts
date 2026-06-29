@@ -12,7 +12,7 @@ export async function syncBggCollection(venueId: string, bggUsername: string) {
   try {
     // 1. Fetch XML collection from BGG
     const apiKey = process.env.BGG_API_KEY
-    let url = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1`
+    const url = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1`
     
     const headers: Record<string, string> = {}
     if (apiKey) {
