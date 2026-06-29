@@ -85,9 +85,9 @@ export const MOCK_VENUES: Venue[] = [
     id: '4',
     name: 'La Matatena',
     slug: 'la-matatena',
-    lat: 20.6736,
-    lng: -103.3672,
-    address: 'Colonia Americana, Guadalajara',
+    lat: 20.6698,
+    lng: -103.3648,
+    address: 'Av. Chapultepec Sur 450, Col Americana, Guadalajara',
     tags: ['Eurogames', 'Familiar', 'Café'],
     schedule: {
       mon: null,
@@ -102,6 +102,75 @@ export const MOCK_VENUES: Venue[] = [
     type: 'cafe',
     instagram: 'lamatatena_gdl',
     logoUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop',
+    venue_games: []
+  },
+  {
+    id: '7',
+    name: 'El Calabozo',
+    slug: 'el-calabozo',
+    lat: 25.6421,
+    lng: -100.3235,
+    address: 'Av. Lázaro Cárdenas 2420, Residencial San Agustín, San Pedro Garza García, N.L.',
+    tags: ['Ludoteca', 'Eurogames', 'Café'],
+    schedule: {
+      mon: { open: '16:00', close: '23:00' },
+      tue: { open: '16:00', close: '23:00' },
+      wed: { open: '16:00', close: '23:00' },
+      thu: { open: '16:00', close: '23:00' },
+      fri: { open: '16:00', close: '23:00' },
+      sat: { open: '13:00', close: '23:00' },
+      sun: { open: '13:00', close: '21:00' }
+    },
+    description: 'Excelente comida, café de especialidad y una extensa colección de juegos de mesa en la zona metropolitana de Monterrey.',
+    type: 'cafe,tienda',
+    instagram: 'elcalabozo_mty',
+    logoUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop',
+    venue_games: []
+  },
+  {
+    id: '8',
+    name: 'Comic Castle',
+    slug: 'comic-castle',
+    lat: 25.6291,
+    lng: -100.2895,
+    address: 'Av. Eugenio Garza Sada 3755, Contry, Monterrey, N.L.',
+    tags: ['Comics', 'TCGs', 'Tienda'],
+    schedule: {
+      mon: { open: '11:00', close: '20:00' },
+      tue: { open: '11:00', close: '20:00' },
+      wed: { open: '11:00', close: '20:00' },
+      thu: { open: '11:00', close: '20:00' },
+      fri: { open: '11:00', close: '21:00' },
+      sat: { open: '10:00', close: '20:00' },
+      sun: { open: '11:00', close: '18:00' }
+    },
+    description: 'La tienda líder en cómics, novelas gráficas y juegos de mesa en Monterrey.',
+    type: 'tienda',
+    instagram: 'comiccastlemty',
+    logoUrl: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop',
+    venue_games: []
+  },
+  {
+    id: '9',
+    name: 'El Reino',
+    slug: 'el-reino',
+    lat: 20.6720,
+    lng: -103.3685,
+    address: 'Av. La Paz 2285, Col Americana, Guadalajara, Jal.',
+    tags: ['TCGs', 'Torneos', 'Tienda'],
+    schedule: {
+      mon: { open: '12:00', close: '21:00' },
+      tue: { open: '12:00', close: '21:00' },
+      wed: { open: '12:00', close: '21:00' },
+      thu: { open: '12:00', close: '21:00' },
+      fri: { open: '12:00', close: '22:00' },
+      sat: { open: '10:00', close: '21:00' },
+      sun: { open: '11:00', close: '18:00' }
+    },
+    description: 'Tu tienda especializada en juegos de mesa, TCGs, miniaturas y pasatiempos en Guadalajara.',
+    type: 'tienda',
+    instagram: 'elreino_gdl',
+    logoUrl: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop',
     venue_games: []
   },
   {

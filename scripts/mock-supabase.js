@@ -129,8 +129,8 @@ let venues = [
       sat: { open: "12:00", close: "23:00" },
       sun: { open: "12:00", close: "20:00" }
     },
-    lat: 20.6736,
-    lng: -103.3672,
+    lat: 20.6698,
+    lng: -103.3648,
     type: "cafe",
     instagram: "lamatatena_gdl",
     logo_url: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop",
@@ -145,6 +145,108 @@ let venues = [
     venue_tags: [
       { tags: { name: "Eurogames" } },
       { tags: { name: "Café" } }
+    ]
+  },
+  {
+    id: "7",
+    name: "El Calabozo",
+    slug: "el-calabozo",
+    owner_name: "El Calabozo Owner",
+    owner_email: "calabozo@example.com",
+    description: "Excelente comida, café de especialidad y una extensa colección de juegos de mesa en la zona metropolitana de Monterrey.",
+    schedule: {
+      mon: { open: "16:00", close: "23:00" },
+      tue: { open: "16:00", close: "23:00" },
+      wed: { open: "16:00", close: "23:00" },
+      thu: { open: "16:00", close: "23:00" },
+      fri: { open: "16:00", close: "23:00" },
+      sat: { open: "13:00", close: "23:00" },
+      sun: { open: "13:00", close: "21:00" }
+    },
+    lat: 25.6421,
+    lng: -100.3235,
+    type: "cafe,tienda",
+    instagram: "elcalabozo_mty",
+    logo_url: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop",
+    verification_status: "approved",
+    verified: true,
+    business_tax_id: "RFC-776655-7E",
+    verification_proof: "data:image/jpeg;base64,mockcroppedlogo7",
+    contact_email: "calabozo@example.com",
+    contact_phone: "+528112345678",
+    bgg_last_synced_at: null,
+    venue_tags: [
+      { tags: { name: "Ludoteca" } },
+      { tags: { name: "Eurogames" } },
+      { tags: { name: "Café" } }
+    ]
+  },
+  {
+    id: "8",
+    name: "Comic Castle",
+    slug: "comic-castle",
+    owner_name: "Comic Castle Owner",
+    owner_email: "comiccastle@example.com",
+    description: "La tienda líder en cómics, novelas gráficas y juegos de mesa en Monterrey.",
+    schedule: {
+      mon: { open: "11:00", close: "20:00" },
+      tue: { open: "11:00", close: "20:00" },
+      wed: { open: "11:00", close: "20:00" },
+      thu: { open: "11:00", close: "20:00" },
+      fri: { open: "11:00", close: "21:00" },
+      sat: { open: "10:00", close: "20:00" },
+      sun: { open: "11:00", close: "18:00" }
+    },
+    lat: 25.6291,
+    lng: -100.2895,
+    type: "tienda",
+    instagram: "comiccastlemty",
+    logo_url: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop",
+    verification_status: "approved",
+    verified: true,
+    business_tax_id: "RFC-665544-8F",
+    verification_proof: "data:image/jpeg;base64,mockcroppedlogo8",
+    contact_email: "comiccastle@example.com",
+    contact_phone: "+528187654321",
+    bgg_last_synced_at: null,
+    venue_tags: [
+      { tags: { name: "Comics" } },
+      { tags: { name: "TCGs" } },
+      { tags: { name: "Tienda" } }
+    ]
+  },
+  {
+    id: "9",
+    name: "El Reino",
+    slug: "el-reino",
+    owner_name: "El Reino Owner",
+    owner_email: "elreino@example.com",
+    description: "Tu tienda especializada en juegos de mesa, TCGs, miniaturas y pasatiempos en Guadalajara.",
+    schedule: {
+      mon: { open: "12:00", close: "21:00" },
+      tue: { open: "12:00", close: "21:00" },
+      wed: { open: "12:00", close: "21:00" },
+      thu: { open: "12:00", close: "21:00" },
+      fri: { open: "12:00", close: "22:00" },
+      sat: { open: "10:00", close: "21:00" },
+      sun: { open: "11:00", close: "18:00" }
+    },
+    lat: 20.6720,
+    lng: -103.3685,
+    type: "tienda",
+    instagram: "elreino_gdl",
+    logo_url: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=150&h=150&fit=crop",
+    verification_status: "approved",
+    verified: true,
+    business_tax_id: "RFC-554433-9G",
+    verification_proof: "data:image/jpeg;base64,mockcroppedlogo9",
+    contact_email: "elreino@example.com",
+    contact_phone: "+523387654321",
+    bgg_last_synced_at: null,
+    venue_tags: [
+      { tags: { name: "TCGs" } },
+      { tags: { name: "Torneos" } },
+      { tags: { name: "Tienda" } }
     ]
   },
   {
