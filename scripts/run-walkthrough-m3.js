@@ -74,8 +74,8 @@ async function run() {
       report.screenshots.push({ name: `Login Page (${vp.name})`, path: loginPath });
 
       // Log in as Owner (partner)
-      console.log(`[${vp.name}] Logging in as Owner (owner@example.com)...`);
-      await ownerPage.fill('input[id="email"]', 'owner@example.com');
+      console.log(`[${vp.name}] Logging in as Owner (partner@example.com)...`);
+      await ownerPage.fill('input[id="email"]', 'partner@example.com');
       await ownerPage.fill('input[id="password"]', 'password123');
       await ownerPage.click('button[type="submit"]');
       
@@ -84,7 +84,7 @@ async function run() {
       
       // Navigate to /dashboard
       console.log(`[${vp.name}] Navigating to Owner Dashboard...`);
-      await ownerPage.goto('http://localhost:3000/dashboard?email=owner@example.com', { waitUntil: 'networkidle' });
+      await ownerPage.goto('http://localhost:3000/dashboard?email=partner@example.com', { waitUntil: 'networkidle' });
       
       // Wait for BGG form
       await ownerPage.waitForSelector('input[placeholder*="Usuario de BGG"]', { timeout: 5000 });

@@ -144,7 +144,7 @@ export default function Onboarding() {
       }
       return {
         ...prev,
-        type: newTypes.join(',') as any
+        type: newTypes.join(',')
       };
     });
   };

@@ -139,10 +139,10 @@ async function run() {
 
       // --- STEP 4: OWNER DASHBOARD & ANNOUNCEMENT ---
       console.log(`[${vp.name}] Logging out and logging in as Owner...`);
-      // We can just go to /login and log in as owner@example.com
+      // We can just go to /login and log in as partner@example.com
       await page.goto('http://localhost:3000/login', { waitUntil: 'networkidle' });
-      await page.fill('input[id="email"]', 'owner@example.com');
-      await page.fill('input[id="password"]', 'ownerpassword');
+      await page.fill('input[id="email"]', 'partner@example.com');
+      await page.fill('input[id="password"]', 'password123');
       await page.click('button[type="submit"]');
       
       // Wait for Map redirect
@@ -150,7 +150,7 @@ async function run() {
       
       // Navigate to /dashboard
       console.log(`[${vp.name}] Navigating to Owner Dashboard...`);
-      await page.goto('http://localhost:3000/dashboard?email=owner@example.com', { waitUntil: 'networkidle' });
+      await page.goto('http://localhost:3000/dashboard?email=partner@example.com', { waitUntil: 'networkidle' });
       
       // Wait for dashboard content
       await page.waitForSelector('text=Portal del Propietario', { timeout: 5000 });
