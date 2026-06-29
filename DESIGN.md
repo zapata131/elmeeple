@@ -48,6 +48,16 @@
 * **Secure trust badge for sensitive uploads:** To mitigate user friction and anxiety when uploading sensitive legal or fiscal documents (such as the operating permit in Step 5), we render a brand-cohesive secure trust badge (`data-testid="secure-trust-badge"`). This badge features a clean, premium vector SVG lock icon (no emojis) styled in emerald green (`text-emerald-600`), a soft emerald background (`bg-emerald-500/10 border-emerald-500/25`), and highly legible copywriting in Spanish clarifying that the document is encrypted and only visible to the administration of El Meeple.
 * **Catalog View Toggles (Grid vs List):** Within the storefront dedicated page (`/venue/[slug]`), users can toggle between a visual Grid View (default) and a compact List View. The toggle is rendered next to the game count badge using premium inline vector SVGs (no emojis) styled in brand Malva `#8367C7` for active states and Carbón `#3A3A3A`/50 for inactive states. List View renders a high-density, vertical stack of games featuring smaller 40x40px thumbnails, titles, player counts, and duration badges, minimizing vertical scroll fatigue.
 * **Localized search radius filter:** The homepage map sidebar features a distance-based search radius filter. Users can select from chips (`Sin límite`, `2 km`, `5 km`, `10 km`, `20 km`) to filter venues based on their distance from a reference point. The reference point is determined dynamically: it uses the user's current location (obtained via the browser's Geolocation API on mount) or the center of the map selected by the user via the location search bar. Distances are calculated on the client side using the Haversine formula.
+* **TCG Filtering and Specialized Badges (Issue #64):**
+  * **TCG Filter Chips:** The homepage sidebar includes a dedicated filter section for Trading Card Games (TCGs): `Todos TCG`, `Magic`, `Pokémon`, `Yu-Gi-Oh!`, `Lorcana`, and `One Piece`. Selecting a chip filters the map pins and sidebar list in real-time.
+  * **Specialized Badges:** Venue cards in the sidebar, the Floating Quick View Card, and the storefront profile page render high-contrast, brand-aligned pills for active TCGs and official tournament statuses:
+    * *Torneos Oficiales (WPN/OTS):* Amber background (`bg-amber-500/10`), amber text (`text-amber-700`), and a custom checkmark badge (`★ Torneos Oficiales`).
+    * *Magic: The Gathering:* Soft purple (`bg-[#8367C7]/10 text-[#8367C7]`).
+    * *Pokémon:* Soft turquoise (`bg-[#73D8D4]/15 text-[#3d8c89]`).
+    * *Yu-Gi-Oh!:* Soft rose (`bg-rose-500/10 text-rose-700`).
+    * *Lorcana:* Soft indigo (`bg-indigo-500/10 text-indigo-700`).
+    * *One Piece:* Soft sky blue (`bg-sky-500/10 text-sky-700`).
+  * **Tag Deduplication:** To ensure a clean UI, specialized TCG and tournament tags are automatically filtered out from the general tags list on all cards.
 
 
 ### 5. Technical architecture (the "ShipFast" stack)

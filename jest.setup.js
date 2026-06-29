@@ -79,7 +79,9 @@ jest.mock('@/utils/supabase/client', () => {
       venue_tags: [
         { tags: { name: 'Eurogames' } },
         { tags: { name: 'TCGs' } },
-        { tags: { name: 'Café' } }
+        { tags: { name: 'Café' } },
+        { tags: { name: 'Yu-Gi-Oh!' } },
+        { tags: { name: 'Torneos Oficiales' } }
       ],
       schedule: {
         mon: null,
@@ -110,7 +112,8 @@ jest.mock('@/utils/supabase/client', () => {
       venue_tags: [
         { tags: { name: 'TCGs' } },
         { tags: { name: 'Magic: The Gathering' } },
-        { tags: { name: 'Torneos' } }
+        { tags: { name: 'Torneos' } },
+        { tags: { name: 'Torneos Oficiales' } }
       ],
       schedule: {
         mon: { open: '11:00', close: '21:00' },
@@ -161,6 +164,33 @@ jest.mock('@/utils/supabase/client', () => {
         { id: 'g5', name: 'Carcassonne', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 2, max_players: 5, playing_time: 45 },
         { id: 'g6', name: 'Dixit', thumbnail: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=150&fit=crop', min_players: 3, max_players: 12, playing_time: 30 }
       ]
+    },
+    {
+      id: '4',
+      name: 'La Matatena',
+      lat: 20.6736,
+      lng: -103.3672,
+      venue_tags: [
+        { tags: { name: 'Eurogames' } },
+        { tags: { name: 'Familiar' } },
+        { tags: { name: 'Café' } },
+        { tags: { name: 'Pokémon' } }
+      ],
+      schedule: {
+        mon: null,
+        tue: { open: '15:00', close: '23:00' },
+        wed: { open: '15:00', close: '23:00' },
+        thu: { open: '15:00', close: '23:00' },
+        fri: { open: '15:00', close: '23:00' },
+        sat: { open: '12:00', close: '23:00' },
+        sun: { open: '12:00', close: '20:00' }
+      },
+      description: 'Café de juegos y punto de encuentro cultural en el corazón de Guadalajara, con una colección curada de juegos modernos.',
+      type: 'cafe',
+      instagram: 'lamatatena_gdl',
+      logo_url: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop',
+      verified: true,
+      venue_games: []
     }
   ]
 

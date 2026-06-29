@@ -8,7 +8,7 @@ export const MOCK_VENUES: Venue[] = [
     lat: 19.4165,
     lng: -99.1620,
     address: 'Roma Norte, CDMX',
-    tags: ['Eurogames', 'TCGs', 'Café'],
+    tags: ['Eurogames', 'TCGs', 'Café', 'Yu-Gi-Oh!', 'Torneos Oficiales'],
     schedule: {
       mon: null,
       tue: { open: '14:00', close: '22:00' },
@@ -35,7 +35,7 @@ export const MOCK_VENUES: Venue[] = [
     lat: 19.3750,
     lng: -99.1780,
     address: 'Coyoacán, CDMX',
-    tags: ['TCGs', 'Magic: The Gathering', 'Torneos'],
+    tags: ['TCGs', 'Magic: The Gathering', 'Torneos', 'Torneos Oficiales'],
     schedule: {
       mon: { open: '11:00', close: '21:00' },
       tue: { open: '11:00', close: '21:00' },
@@ -88,7 +88,7 @@ export const MOCK_VENUES: Venue[] = [
     lat: 20.6736,
     lng: -103.3672,
     address: 'Colonia Americana, Guadalajara',
-    tags: ['Eurogames', 'Familiar', 'Café'],
+    tags: ['Eurogames', 'Familiar', 'Café', 'Pokémon'],
     schedule: {
       mon: null,
       tue: { open: '15:00', close: '23:00' },
