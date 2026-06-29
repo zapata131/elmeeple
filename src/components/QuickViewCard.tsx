@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { createClient } from '@/utils/supabase/client'
 import { toggleFavorite } from '@/app/actions/favorite'
-import Link from 'next/link'
 
 export interface DailySchedule {
   open: string
@@ -178,7 +177,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
   return (
     <div
       data-testid="quick-view-card"
-      className="bg-[#F5F0E9] text-[#3A3A3A] p-5 rounded-2xl shadow-2xl border border-[#3A3A3A]/10 flex flex-col gap-3 w-full md:max-w-sm backdrop-blur-md bg-opacity-95 animate-in slide-in-from-bottom duration-300"
+      className="bg-[#F5F0E9] dark:bg-[#1E1E1E] text-[#3A3A3A] dark:text-[#F5F0E9] p-5 rounded-2xl shadow-2xl border border-[#3A3A3A]/10 dark:border-[#F5F0E9]/10 flex flex-col gap-3 w-full md:max-w-sm backdrop-blur-md bg-opacity-95 animate-in slide-in-from-bottom duration-300"
     >
       {/* Card Header */}
       <div className="flex justify-between items-start gap-3">
@@ -189,7 +188,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
             <img
               src={venue.logoUrl}
               alt={`Logo ${venue.name}`}
-              className="w-12 h-12 rounded-xl object-cover border border-[#3A3A3A]/10 flex-shrink-0"
+              className="w-12 h-12 rounded-xl object-cover border border-[#3A3A3A]/10 dark:border-[#F5F0E9]/10 flex-shrink-0"
             />
           ) : (
             <div className="w-12 h-12 rounded-xl bg-[#8367C7]/10 text-[#8367C7] flex items-center justify-center flex-shrink-0">
@@ -206,14 +205,14 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-extrabold text-[#3A3A3A] leading-tight">
+              <h2 className="text-xl font-extrabold text-[#3A3A3A] dark:text-[#F5F0E9] leading-tight">
                 {venue.name}
               </h2>
               {avgRating && (
-                <div className="flex items-center gap-0.5 text-xs text-amber-500 font-black bg-amber-500/10 px-1.5 py-0.5 rounded-lg border border-amber-500/15 flex-shrink-0">
+                <div className="flex items-center gap-0.5 text-xs text-amber-500 font-black bg-amber-500/10 px-1.5 py-0.5 rounded-lg border border-amber-500/15 dark:border-amber-500/25 flex-shrink-0">
                   <span>★</span>
                   <span>{avgRating}</span>
-                  <span className="text-[10px] text-[#3A3A3A]/50 font-semibold">({reviewsList.length})</span>
+                  <span className="text-[10px] text-[#3A3A3A]/50 dark:text-[#F5F0E9]/50 font-semibold">({reviewsList.length})</span>
                 </div>
               )}
             </div>
@@ -226,7 +225,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         <button
           onClick={onClose}
           aria-label="close-card"
-          className="text-[#3A3A3A]/40 hover:text-[#FF9E8A] transition-colors duration-200 p-1 rounded-full hover:bg-[#3A3A3A]/5 cursor-pointer flex-shrink-0"
+          className="text-[#3A3A3A]/40 dark:text-[#F5F0E9]/40 hover:text-[#FF9E8A] transition-colors duration-200 p-1 rounded-full hover:bg-[#3A3A3A]/5 dark:hover:bg-[#F5F0E9]/5 cursor-pointer flex-shrink-0"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -244,7 +243,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
       {/* Render Venue Type Badge and Favorite Button */}
       <div className="flex items-center justify-between gap-2">
         {typeLabel && (
-          <span className="px-2.5 py-0.5 text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md tracking-wide border border-[#8367C7]/10">
+          <span className="px-2.5 py-0.5 text-xs font-extrabold bg-[#8367C7]/15 text-[#8367C7] rounded-md tracking-wide border border-[#8367C7]/10 dark:border-[#8367C7]/20">
             {typeLabel}
           </span>
         )}
@@ -257,7 +256,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
             className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all border cursor-pointer flex items-center gap-1.5 ${
               isFavorite
                 ? 'bg-yellow-500/15 border-yellow-500/40 text-yellow-700'
-                : 'bg-white hover:bg-[#3A3A3A]/5 border-[#3A3A3A]/15 text-[#3A3A3A]/70'
+                : 'bg-white dark:bg-[#2D2D2D] hover:bg-[#3A3A3A]/5 dark:hover:bg-[#F5F0E9]/5 border-[#3A3A3A]/15 dark:border-[#F5F0E9]/15 text-[#3A3A3A]/70 dark:text-[#F5F0E9]/70'
             }`}
           >
             {isFavorite ? (
@@ -267,7 +266,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
               </>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-[#3A3A3A]/60 dark:text-[#F5F0E9]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.195-.397.683-.397.878 0l2.082 5.006 5.404.434c.834.066 1.17 1.115.57 1.729l-4.117 3.527 1.257 5.273c.193 1.11-.964 1.98-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.6-.614-.265-1.663.57-1.729l5.404-.434 2.082-5.005Z" /></svg>
                 Guardar en favoritos
               </>
             )}
@@ -276,11 +275,11 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
       </div>
 
       {/* Divider */}
-      <div className="border-b border-[#3A3A3A]/10 my-1"></div>
+      <div className="border-b border-[#3A3A3A]/10 dark:border-b-[#F5F0E9]/10 my-1"></div>
 
       {/* Details Body */}
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-[#3A3A3A]/80 leading-relaxed">
+        <p className="text-sm text-[#3A3A3A]/80 dark:text-[#F5F0E9]/80 leading-relaxed">
           {venue.description}
         </p>
 
@@ -289,7 +288,7 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
           {(venue.tags || []).map((tag) => (
             <span
               key={tag}
-              className="px-2.5 py-1 text-xs font-bold bg-[#3A3A3A]/5 text-[#3A3A3A]/85 rounded-lg"
+              className="px-2.5 py-1 text-xs font-bold bg-[#3A3A3A]/5 dark:bg-[#2D2D2D] text-[#3A3A3A]/85 dark:text-[#F5F0E9]/85 rounded-lg border border-transparent dark:border-[#F5F0E9]/5"
             >
               {tag}
             </span>
@@ -297,21 +296,21 @@ export default function QuickViewCard({ venue, onClose }: QuickViewCardProps) {
         </div>
 
         {/* Schedule Info */}
-        <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/70 font-semibold bg-[#3A3A3A]/5 p-2.5 rounded-xl">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+        <div className="flex items-center gap-2 text-xs text-[#3A3A3A]/70 dark:text-[#F5F0E9]/70 font-semibold bg-[#3A3A3A]/5 dark:bg-[#2D2D2D] p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#3A3A3A]/60 dark:text-[#F5F0E9]/60"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
           <span className="leading-snug">{formattedSchedule}</span>
         </div>
 
         {/* Announcements Bulletin Board */}
         {announcements.length > 0 && (
-          <div className="border-t border-[#3A3A3A]/10 pt-3.5 flex flex-col gap-2.5">
+          <div className="border-t border-[#3A3A3A]/10 dark:border-t-[#F5F0E9]/10 pt-3.5 flex flex-col gap-2.5">
             <span className="text-[10px] font-extrabold text-[#8367C7] tracking-wider">Anuncios recientes</span>
             <div className="flex flex-col gap-2.5 max-h-36 overflow-y-auto pr-1">
               {announcements.map((ann) => (
-                <div key={ann.id} className="bg-[#8367C7]/5 p-3 rounded-xl border border-[#8367C7]/10 flex flex-col gap-1.5">
-                  <span className="font-extrabold text-xs text-[#3A3A3A]">{ann.title}</span>
-                  <p className="text-[11px] text-[#3A3A3A]/80 leading-relaxed">{ann.content}</p>
-                  <span className="text-[8px] text-[#3A3A3A]/45 self-end">
+                <div key={ann.id} className="bg-[#8367C7]/5 dark:bg-[#8367C7]/10 p-3 rounded-xl border border-[#8367C7]/10 dark:border-[#8367C7]/20 flex flex-col gap-1.5">
+                  <span className="font-extrabold text-xs text-[#3A3A3A] dark:text-[#F5F0E9]">{ann.title}</span>
+                  <p className="text-[11px] text-[#3A3A3A]/80 dark:text-[#F5F0E9]/80 leading-relaxed">{ann.content}</p>
+                  <span className="text-[8px] text-[#3A3A3A]/45 dark:text-[#F5F0E9]/45 self-end">
                     {new Date(ann.created_at).toLocaleDateString()}
                   </span>
                 </div>
