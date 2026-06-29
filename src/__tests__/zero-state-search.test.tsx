@@ -84,4 +84,32 @@ describe('Zero State Search Card', () => {
     expect(screen.getByText('El Duende')).toBeInTheDocument()
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
   })
+
+  it('shows the nearest-venues fallback and warning banner when venues are outside the map bounds', async () => {
+    // Override the react-leaflet mock for this test to return empty bounds
+    const mockUseMapEvents = jest.spyOn(require('react-leaflet'), 'useMapEvents')
+    mockUseMapEvents.mockReturnValue({
+      setView: jest.fn(),
+      flyTo: jest.fn(),
+      getBounds: () => ({
+        getSouthWest: () => ({ lat: 0, lng: 0 }),
+        getNorthEast: () => ({ lat: 1, lng: 1 }),
+      }),
+      getZoom: () => 13,
+    })
+
+    render(<Home />)
+
+    // Wait for the fallback warning banner to appear
+    expect(await screen.findByText('No hay locales en esta área.')).toBeInTheDocument()
+    expect(screen.getByText('Mostrando los locales más cercanos:')).toBeInTheDocument()
+    
+    // The closest venues (all of them since they are the only ones) should be listed
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
+    expect(screen.getByText('El Duende')).toBeInTheDocument()
+
+    // Restore the spy
+    mockUseMapEvents.mockRestore()
+  })
 })

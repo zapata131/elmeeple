@@ -92,6 +92,37 @@ export default function InteractiveMap() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [selectedRadius, setSelectedRadius] = useState<number | 'all'>('all')
   const [mapBounds, setMapBounds] = useState<[number, number, number, number] | null>(null)
+  const [searchBounds, setSearchBounds] = useState<[number, number, number, number] | null>(null)
+  const [pendingCenterUpdate, setPendingCenterUpdate] = useState(false)
+
+  // Sync search bounds on mapCenter change (geolocation or location search)
+  useEffect(() => {
+    if (mapCenter) {
+      setPendingCenterUpdate(true)
+    }
+  }, [mapCenter])
+
+  const handleBoundsChange = (bounds: [number, number, number, number]) => {
+    setMapBounds(bounds)
+    if (pendingCenterUpdate || !searchBounds) {
+      setSearchBounds(bounds)
+      setPendingCenterUpdate(false)
+    }
+  }
+
+  const handleSearchThisArea = () => {
+    if (mapBounds) {
+      setSearchBounds(mapBounds)
+    }
+  }
+
+  const showSearchButton =
+    searchBounds &&
+    mapBounds &&
+    (searchBounds[0] !== mapBounds[0] ||
+      searchBounds[1] !== mapBounds[1] ||
+      searchBounds[2] !== mapBounds[2] ||
+      searchBounds[3] !== mapBounds[3])
 
   // Request user location on component mount
   useEffect(() => {
@@ -215,8 +246,8 @@ export default function InteractiveMap() {
   }, [])
 
 
-  // Filter venues based on search query, category, and radius
-  const filteredVenues = venues.filter((venue) => {
+  // Filter venues based on search query, category, and radius (without bounds)
+  const allFilteredVenues = venues.filter((venue) => {
     // Category Filter
     const venueTypes = venue.type ? venue.type.split(',') : []
     if (selectedCategory === 'Cafés' && !venueTypes.includes('cafe')) return false
@@ -234,16 +265,9 @@ export default function InteractiveMap() {
       if (distance > selectedRadius) return false
     }
 
-    // Visible Map Area Filter (Always filter by visible area on the map by default)
-    if (mapBounds && venue.lat !== null && venue.lng !== null && venue.lat !== undefined && venue.lng !== undefined) {
-      const [south, west, north, east] = mapBounds
-      const inBounds = venue.lat >= south && venue.lat <= north && venue.lng >= west && venue.lng <= east
-      if (!inBounds) return false
-    }
-
     // Search Filter
     if (searchQuery.trim() !== '') {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase().trim()
       if (searchMode === 'venues') {
         const matchesName = venue.name.toLowerCase().includes(query)
         const matchesAddress = venue.address ? venue.address.toLowerCase().includes(query) : false
@@ -264,6 +288,35 @@ export default function InteractiveMap() {
     return true
   })
 
+  // Filter by visible map bounds
+  const filteredVenues = allFilteredVenues.filter((venue) => {
+    if (searchBounds && venue.lat !== null && venue.lng !== null && venue.lat !== undefined && venue.lng !== undefined) {
+      const [south, west, north, east] = searchBounds
+      return venue.lat >= south && venue.lat <= north && venue.lng >= west && venue.lng <= east
+    }
+    return true
+  })
+
+  // Calculate center of the current map viewport
+  const viewCenterLat = mapBounds ? (mapBounds[0] + mapBounds[2]) / 2 : (mapCenter ? mapCenter[0] : 19.4326)
+  const viewCenterLng = mapBounds ? (mapBounds[1] + mapBounds[3]) / 2 : (mapCenter ? mapCenter[1] : -99.1332)
+
+  const hasResults = filteredVenues.length > 0
+  
+  const fallbackVenues = !hasResults
+    ? [...allFilteredVenues]
+        .filter((v) => v.lat !== null && v.lng !== null && v.lat !== undefined && v.lng !== undefined)
+        .map((v) => ({
+          venue: v,
+          distance: calculateDistance(viewCenterLat, viewCenterLng, v.lat!, v.lng!)
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 5)
+        .map((x) => x.venue)
+    : []
+
+  const displayVenues = hasResults ? filteredVenues : fallbackVenues
+
   const handleSelectVenue = (venue: Venue) => {
     setSelectedVenue(venue)
   }
@@ -274,12 +327,25 @@ export default function InteractiveMap() {
       <div className="absolute inset-0 w-full h-full z-0">
         <Map
           center={mapCenter}
-          venues={filteredVenues}
+          venues={displayVenues}
           onSelectVenue={setSelectedVenue}
           selectedVenue={selectedVenue}
-          onBoundsChange={setMapBounds}
+          onBoundsChange={handleBoundsChange}
         />
       </div>
+
+      {/* Floating "Search this area" button */}
+      {showSearchButton && (
+        <button
+          onClick={handleSearchThisArea}
+          className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[999] bg-white dark:bg-[#2D2D2D] text-[#3A3A3A] dark:text-[#F5F0E9] px-4 py-2.5 rounded-full shadow-xl border border-[#3A3A3A]/10 dark:border-[#F5F0E9]/10 font-bold text-xs flex items-center gap-2 hover:bg-[#3A3A3A]/5 dark:hover:bg-[#F5F0E9]/5 active:scale-95 transition-all cursor-pointer"
+        >
+          <svg className="w-3.5 h-3.5 text-[#8367C7] stroke-current" fill="none" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+          Buscar en esta área
+        </button>
+      )}
 
       {/* Left Sidebar (Desktop) / Top Search Header (Mobile) */}
       <div
@@ -387,7 +453,18 @@ export default function InteractiveMap() {
             </div>
           ) : (
             <>
-              {filteredVenues.map((venue) => (
+              {!hasResults && (
+                <div className="px-3.5 py-3.5 bg-[#FF9E8A]/10 border border-[#FF9E8A]/20 rounded-xl text-xs font-semibold text-[#3A3A3A] dark:text-[#F5F0E9] flex flex-col gap-1.5 mb-1">
+                  <span className="flex items-center gap-1.5 text-[#3A3A3A] dark:text-[#F5F0E9] font-bold">
+                    <svg className="w-4 h-4 text-[#FF9E8A] fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    No hay locales en esta área.
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400 font-normal">Mostrando los locales más cercanos:</span>
+                </div>
+              )}
+              {displayVenues.map((venue) => (
                 <button
                   key={venue.id}
                   onClick={() => handleSelectVenue(venue)}
