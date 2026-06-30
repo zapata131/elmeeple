@@ -1,18 +1,16 @@
 import '@testing-library/jest-dom'
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, screen, act, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Home from '@/app/page'
-import LocationSearch from '@/components/LocationSearch'
 
 // Share mock functions to inspect calls
 const mockFlyTo = jest.fn()
 const mockSetView = jest.fn()
 
-// Override the global next/dynamic mock to render the Map component synchronously in this test
+// Override next/dynamic to render Map synchronously
 jest.mock('next/dynamic', () => ({
   __esModule: true,
   default: () => {
-    // Synchronously require the Map component using a relative path so Jest resolves it correctly
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Map = require('../components/Map').default
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,7 +20,7 @@ jest.mock('next/dynamic', () => ({
   },
 }))
 
-// Mock react-leaflet so that it doesn't break in JSDOM, and expose interactive markers
+// Mock react-leaflet
 jest.mock('react-leaflet', () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-map-container">{children}</div>
@@ -54,28 +52,19 @@ jest.mock('react-leaflet', () => ({
   }),
 }))
 
-const mockSuggestions = [
+const mockLocationSuggestions = [
   {
     place_id: 1,
     display_name: 'Roma Norte, Ciudad de México, México',
     lat: '19.4150',
     lon: '-99.1650',
   },
-  {
-    place_id: 2,
-    display_name: 'Roma Sur, Ciudad de México, México',
-    lat: '19.3050',
-    lon: '-99.1650',
-  },
 ]
 
-describe('Location Geocoder Component (Unit)', () => {
-  let mockOnSelectLocation: jest.Mock
-
+describe('Unified Smart Search & Autocomplete Suggestions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.useFakeTimers()
-    mockOnSelectLocation = jest.fn()
     global.fetch = jest.fn()
   })
 
@@ -83,27 +72,42 @@ describe('Location Geocoder Component (Unit)', () => {
     jest.useRealTimers()
   })
 
-  it('renders the location search input', () => {
-    render(<LocationSearch onSelectLocation={mockOnSelectLocation} />)
-    expect(screen.getByPlaceholderText(/buscar dirección o zona/i)).toBeInTheDocument()
+  it('renders a single search input with unified placeholder and no separate location input', async () => {
+    render(<Home />)
+    
+    // Wait for the venues list to load
+    await screen.findByText('Orcs Stories')
+
+    const searchInput = screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')
+    expect(searchInput).toBeInTheDocument()
+
+    // The old "Buscar dirección o zona..." input should NOT be present
+    expect(screen.queryByPlaceholderText('Buscar dirección o zona...')).not.toBeInTheDocument()
   })
 
-  it('queries Nominatim API and displays suggestions after debounce', async () => {
+  it('queries Nominatim API and displays categorized suggestions (Locations, Venues, Games) after debounce', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => mockSuggestions,
+      json: async () => mockLocationSuggestions,
     })
 
-    render(<LocationSearch onSelectLocation={mockOnSelectLocation} />)
-    const input = screen.getByPlaceholderText(/buscar dirección o zona/i)
+    render(<Home />)
+    await screen.findByText('Orcs Stories')
 
-    await user.type(input, 'Roma')
+    const searchInput = screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')
+    
+    // Type "Roma" which matches:
+    // - Nominatim location: "Roma Norte..."
+    // - Venue: "Orcs Stories" (in Roma Norte) - wait, it matches "Roma Norte" in the address, but does it match venue name?
+    // Let's type "Catan" which matches:
+    // - Game: "Catan" (available in Orcs Stories and Ravenfolks)
+    await user.type(searchInput, 'Catan')
 
-    // Before debounce timer fires, fetch should not be called
+    // Before debounce, fetch should not be called
     expect(global.fetch).not.toHaveBeenCalled()
 
-    // Fast-forward debounce time (e.g. 500ms)
+    // Fast-forward debounce time (500ms)
     act(() => {
       jest.advanceTimersByTime(500)
     })
@@ -114,94 +118,107 @@ describe('Location Geocoder Component (Unit)', () => {
       )
     })
 
-    // Suggestions should be rendered
-    const suggestion1 = await screen.findByText('Roma Norte, Ciudad de México, México')
-    const suggestion2 = await screen.findByText('Roma Sur, Ciudad de México, México')
-    expect(suggestion1).toBeInTheDocument()
-    expect(suggestion2).toBeInTheDocument()
+    // Dropdown should be visible with categorized suggestions
+    // "Catan" should be under "Juegos" category
+    expect(screen.getByText('Juegos')).toBeInTheDocument()
+    expect(screen.getByText('Catan')).toBeInTheDocument()
   })
 
-  it('triggers onSelectLocation when a suggestion is clicked and clears suggestions', async () => {
+  it('triggers map navigation and updates search query when selecting a location suggestion', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => mockSuggestions,
-    })
-
-    render(<LocationSearch onSelectLocation={mockOnSelectLocation} />)
-    const input = screen.getByPlaceholderText(/buscar dirección o zona/i)
-
-    await user.type(input, 'Roma')
-    act(() => {
-      jest.advanceTimersByTime(500)
-    })
-
-    const suggestion1 = await screen.findByText('Roma Norte, Ciudad de México, México')
-    await user.click(suggestion1)
-
-    // Verify callback was called with correct coordinates and display name
-    expect(mockOnSelectLocation).toHaveBeenCalledWith(19.4150, -99.1650, 'Roma Norte, Ciudad de México, México')
-
-    // Suggestions should be cleared
-    expect(screen.queryByText('Roma Norte, Ciudad de México, México')).not.toBeInTheDocument()
-  })
-
-  it('does not query if search term is less than 3 characters', async () => {
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
-    render(<LocationSearch onSelectLocation={mockOnSelectLocation} />)
-    const input = screen.getByPlaceholderText(/buscar dirección o zona/i)
-
-    await user.type(input, 'Ro')
-    act(() => {
-      jest.advanceTimersByTime(500)
-    })
-
-    expect(global.fetch).not.toHaveBeenCalled()
-  })
-})
-
-describe('Homepage Location Search Integration', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
-    global.fetch = jest.fn()
-  })
-
-  afterEach(() => {
-    jest.useRealTimers()
-  })
-
-  it('renders the Location Search input inside the Left Sidebar', () => {
-    render(<Home />)
-    const input = screen.getByPlaceholderText(/buscar dirección o zona/i)
-    expect(input).toBeInTheDocument()
-    // It should be within the sidebar layout
-    const sidebar = screen.getByTestId('venue-list').parentElement
-    expect(sidebar).toContainElement(input)
-  })
-
-  it('integrates with the map to flyTo the searched location when clicked', async () => {
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockSuggestions,
+      json: async () => mockLocationSuggestions,
     })
 
     render(<Home />)
-    const input = screen.getByPlaceholderText(/buscar dirección o zona/i)
+    await screen.findByText('Orcs Stories')
 
-    await user.type(input, 'Roma')
+    const searchInput = screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')
+    await user.type(searchInput, 'Roma')
+
     act(() => {
       jest.advanceTimersByTime(500)
     })
 
-    const suggestion1 = await screen.findByText('Roma Norte, Ciudad de México, México')
-    await user.click(suggestion1)
+    const locationSuggestion = await screen.findByText('Roma Norte, Ciudad de México, México')
+    await user.click(locationSuggestion)
 
-    // The Map component's controller should listen to mapCenter changes and trigger map.flyTo()
+    // The map should flyTo the coordinates
     expect(mockFlyTo).toHaveBeenCalledWith([19.4150, -99.1650], 13, {
       animate: true,
       duration: 1.5,
     })
+
+    // The search input should be updated with the location name
+    expect(searchInput).toHaveValue('Roma Norte, Ciudad de México, México')
+
+    // Dropdown should be closed
+    expect(screen.queryByText('Ubicaciones')).not.toBeInTheDocument()
+  })
+
+  it('selects a venue and opens Quick View Card when selecting a venue suggestion', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    })
+
+    render(<Home />)
+    await screen.findByText('Orcs Stories')
+
+    const searchInput = screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')
+    await user.type(searchInput, 'Orcs')
+
+    act(() => {
+      jest.advanceTimersByTime(500)
+    })
+
+    // "Orcs Stories" should appear as a venue suggestion under "Locales"
+    expect(screen.getByText('Locales')).toBeInTheDocument()
+    const dropdown = screen.getByTestId('search-suggestions')
+    const venueSuggestion = within(dropdown).getByRole('button', { name: /orcs stories/i })
+    await user.click(venueSuggestion)
+
+    // Quick View Card should be opened
+    expect(await screen.findByTestId('quick-view-card')).toBeInTheDocument()
+
+    // Input should be updated with venue name
+    expect(searchInput).toHaveValue('Orcs Stories')
+
+    // Dropdown should be closed
+    expect(screen.queryByText('Locales')).not.toBeInTheDocument()
+  })
+
+  it('filters list and shows game badge when selecting a game suggestion', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    ;(global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    })
+
+    render(<Home />)
+    await screen.findByText('Orcs Stories')
+
+    const searchInput = screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')
+    await user.type(searchInput, 'Catan')
+
+    act(() => {
+      jest.advanceTimersByTime(500)
+    })
+
+    const dropdown = screen.getByTestId('search-suggestions')
+    const gameSuggestion = within(dropdown).getByRole('button', { name: /^catan$/i })
+    await user.click(gameSuggestion)
+
+    // Input should be updated with game name
+    expect(searchInput).toHaveValue('Catan')
+
+    // List should show Catan badge
+    const badges = screen.getAllByText('Tiene Catan')
+    expect(badges.length).toBe(2)
+
+    // Dropdown should be closed
+    expect(screen.queryByText('Juegos')).not.toBeInTheDocument()
   })
 })

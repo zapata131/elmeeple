@@ -89,7 +89,7 @@ describe('Left Sidebar Directory Layout', () => {
     await user.type(searchInput, 'Orcs')
 
     // Only "Orcs Stories" should match
-    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /seleccionar orcs stories/i })).toBeInTheDocument()
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
     expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
 

@@ -148,7 +148,8 @@ Every feature release must be validated across three distinct testing tiers:
 * **Tailwind CSS v4 Class Compilation**: Ad-hoc classes that are not part of the standard Tailwind CSS colors (e.g., `text-gray-350`) fail to compile under Tailwind CSS v4, silently falling back to default text colors.
   * *Convention*: Never invent non-standard Tailwind colors. For lighter elements or opacity states, always use standard classes (e.g. `text-gray-300`) or leverage our customized theme color opacity tokens (e.g. `text-brand-dark/20` or `text-brand-primary/10`).
 * **Dynamic Event-Siting for Communities**: Communities (venues of type `comunidad`) do not have a fixed physical location (`lat`/`lng` are null). On the interactive map, their temporary coordinates are dynamically resolved on the client side by parsing their upcoming events, finding the next event's physical host coordinates, and placing the community pin there. If no events are scheduled, they remain in the sidebar list but are excluded from rendering map markers. On the map, they render using a custom community icon styled in brand Turquesa `#73D8D4` with a group SVG (no emojis).
-
+* **Map Constructor Namespace Collisions**: Importing a custom React component named `Map` (e.g. `import Map from '@/components/Map'`) overrides the global `Map` constructor namespace.
+  * *Convention*: Never invoke `new Map()` inside files that import a custom `Map` component, as it will crash with `TypeError: ...has is not a function`. Instead, use a plain JavaScript object (e.g. `{}`) or explicitly reference `new globalThis.Map()`.
 
 ### 6.3 Database & APIs
 * **Resilient Database Fallbacks**: If the database is not configured (e.g., placeholder `.env.local`), the app must not crash or get stuck in an infinite loading state.

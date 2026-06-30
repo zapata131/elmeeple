@@ -205,7 +205,7 @@ To improve usability and align with standard map interfaces (such as Google Maps
 
 1. **Unified Search Bar**:
    * *Decision:* Replace the dual-input text fields (Location + Keyword) and the manual mode toggle with a single, unified search input in the sidebar.
-   * *Rationale:* Reduces cognitive load (Hick's Law) and eliminates the friction where users get 0 results because they forgot to toggle the search mode.
+   * *Rationale:* Reduces cognitive load (Hick's Law) and eliminates the friction where users get 0 results because they forgot to toggle the search mode. (Fully implemented and verified in Milestone 6).
 
 2. **Smart Matching Logic**:
    * *Decision:* The search query matches against venue names, tags, addresses, and game catalogs (including BGG alternate names) simultaneously.
@@ -213,4 +213,4 @@ To improve usability and align with standard map interfaces (such as Google Maps
 
 3. **Autocomplete Suggestions Dropdown**:
    * *Decision:* As the user types, a clean, glassmorphic dropdown renders categorized suggestions (Locations, Games, and Venues) using premium inline SVGs (no emojis).
-   * *Rationale:* Guides the user's intent (Jakob's Law) and provides instant tactile feedback. Selecting a suggestion triggers context-specific actions (panning the map, filtering the list, or opening a venue profile).
+   * *Rationale:* Guides the user's intent (Jakob's Law) and provides instant tactile feedback. Selecting a suggestion triggers context-specific actions (panning the map, filtering the list, or opening a venue profile). (Fully implemented and verified in Milestone 6).

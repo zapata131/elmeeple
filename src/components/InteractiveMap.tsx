@@ -1,11 +1,10 @@
 'use client'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import QuickViewCard, { Venue } from '@/components/QuickViewCard'
-import LocationSearch from '@/components/LocationSearch'
 
 // Helper function to map lat/lng coordinates to a friendly address description
 function getFriendlyAddress(lat: number, lng: number): string {
@@ -87,6 +86,10 @@ export default function InteractiveMap() {
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Todos')
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
   const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [selectedRadius, setSelectedRadius] = useState<number | 'all'>('all')
@@ -244,6 +247,111 @@ export default function InteractiveMap() {
     fetchVenues()
   }, [])
 
+  // Fetch unified autocomplete suggestions
+  useEffect(() => {
+    const query = searchQuery.trim()
+    if (query.length < 3) {
+      setSuggestions([])
+      return
+    }
+
+    // 1. Local suggestions (Venues and Games)
+    const matchedVenues = venues
+      .filter((v) => v.name.toLowerCase().includes(query.toLowerCase()))
+      .slice(0, 3)
+      .map((v) => ({
+        type: 'venue',
+        id: `venue-${v.id}`,
+        display_name: v.name,
+        venue: v,
+      }))
+
+    const matchedGamesObj: { [key: string]: any } = {}
+    venues.forEach((v) => {
+      (v.venue_games || []).forEach((g: any) => {
+        if (
+          g.name?.toLowerCase().includes(query.toLowerCase()) ||
+          g.alternate_names?.toLowerCase().includes(query.toLowerCase())
+        ) {
+          if (!matchedGamesObj[g.name]) {
+            matchedGamesObj[g.name] = g
+          }
+        }
+      })
+    })
+    const matchedGames = Object.values(matchedGamesObj)
+      .slice(0, 3)
+      .map((g: any) => ({
+        type: 'game',
+        id: `game-${g.id}`,
+        display_name: g.name,
+      }))
+
+    setSuggestions([...matchedVenues, ...matchedGames])
+
+    // 2. Remote Location suggestions (with debounce)
+    const fetchLocations = async () => {
+      setIsSearchingLocation(true)
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=3`
+        )
+        if (response.ok) {
+          const data = await response.json()
+          const locationSuggestions = data.map((loc: any) => ({
+            type: 'location',
+            id: `loc-${loc.place_id}`,
+            display_name: loc.display_name,
+            lat: parseFloat(loc.lat),
+            lon: parseFloat(loc.lon),
+          }))
+          
+          setSuggestions((prev) => {
+            const filteredPrev = prev.filter((item) => item.type !== 'location')
+            return [...filteredPrev, ...locationSuggestions]
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching location suggestions:', error)
+      } finally {
+        setIsSearchingLocation(false)
+      }
+    }
+
+    const delayDebounceFn = setTimeout(() => {
+      fetchLocations()
+    }, 500)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchQuery, venues])
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelectSuggestion = (suggestion: any) => {
+    if (suggestion.type === 'location') {
+      setMapCenter([suggestion.lat, suggestion.lon])
+      setSearchQuery(suggestion.display_name)
+    } else if (suggestion.type === 'venue') {
+      handleSelectVenue(suggestion.venue)
+      if (suggestion.venue.lat && suggestion.venue.lng) {
+        setMapCenter([suggestion.venue.lat, suggestion.venue.lng])
+      }
+      setSearchQuery(suggestion.venue.name)
+    } else if (suggestion.type === 'game') {
+      setSearchQuery(suggestion.display_name)
+    }
+    setShowDropdown(false)
+  }
+
 
   // Filter venues based on search query, category, and radius (without bounds)
   const allFilteredVenues = venues.filter((venue) => {
@@ -352,15 +460,79 @@ export default function InteractiveMap() {
 
         {/* Search and Category Filters */}
         <div className="p-4 md:px-6 md:py-4 flex flex-col gap-3 border-b border-[#3A3A3A]/5 dark:border-[#F5F0E9]/5 text-sm">
-          <LocationSearch onSelectLocation={(lat, lon) => setMapCenter([lat, lon])} />
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Buscar locales, juegos, direcciones..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white dark:bg-[#2D2D2D] text-[#3A3A3A] dark:text-[#F5F0E9] border border-[#3A3A3A]/25 dark:border-[#F5F0E9]/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8367C7]/50 focus:border-[#8367C7] text-sm shadow-inner"
-            />
+          <div ref={searchRef} className="relative w-full">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                placeholder="Buscar locales, juegos, direcciones..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setShowDropdown(true)
+                }}
+                onFocus={() => setShowDropdown(true)}
+                className="w-full px-10 py-2.5 bg-white dark:bg-[#2D2D2D] text-[#3A3A3A] dark:text-[#F5F0E9] border border-[#3A3A3A]/25 dark:border-[#F5F0E9]/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8367C7]/50 focus:border-[#8367C7] text-sm shadow-inner"
+              />
+              {/* Search Pin Icon */}
+              <svg className="absolute left-3.5 w-4 h-4 text-[#3A3A3A]/40 stroke-current" fill="none" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              {isSearchingLocation && (
+                <span className="absolute right-3.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8367C7] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8367C7]"></span>
+                </span>
+              )}
+            </div>
+
+            {/* Suggestions Dropdown */}
+            {showDropdown && suggestions.length > 0 && (
+              <div data-testid="search-suggestions" className="absolute left-0 right-0 mt-1.5 bg-white/95 dark:bg-[#2D2D2D]/95 backdrop-blur-md border border-[#3A3A3A]/10 dark:border-[#F5F0E9]/10 rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto divide-y divide-[#3A3A3A]/5 dark:divide-[#F5F0E9]/5 animate-in fade-in slide-in-from-top-1 duration-150">
+                {['location', 'venue', 'game'].map((type) => {
+                  const items = suggestions.filter((s) => s.type === type)
+                  if (items.length === 0) return null
+
+                  const categoryLabel =
+                    type === 'location' ? 'Ubicaciones' : type === 'venue' ? 'Locales' : 'Juegos'
+
+                  return (
+                    <div key={type} className="p-2">
+                      <div className="px-2.5 py-1.5 text-[10px] uppercase tracking-wider font-black text-[#3A3A3A]/40 dark:text-[#F5F0E9]/40">
+                        {categoryLabel}
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        {items.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => handleSelectSuggestion(item)}
+                            className="w-full text-left px-2.5 py-2 text-xs text-[#3A3A3A] dark:text-[#F5F0E9] hover:bg-[#8367C7]/10 dark:hover:bg-[#8367C7]/20 rounded-lg transition-colors duration-150 font-medium flex items-center gap-2 cursor-pointer border border-transparent"
+                          >
+                            {type === 'location' && (
+                              <svg className="w-3.5 h-3.5 text-[#8367C7] flex-shrink-0 stroke-current" fill="none" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                              </svg>
+                            )}
+                            {type === 'venue' && (
+                              <svg className="w-3.5 h-3.5 text-[#8367C7] flex-shrink-0 stroke-current" fill="none" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                              </svg>
+                            )}
+                            {type === 'game' && (
+                              <svg className="w-3.5 h-3.5 text-[#8367C7] flex-shrink-0 fill-current" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M256 54.99c-27 0-46.418 14.287-57.633 32.23-10.03 16.047-14.203 34.66-15.017 50.962-30.608 15.135-64.515 30.394-91.815 45.994-14.32 8.183-26.805 16.414-36.203 25.26C45.934 218.28 39 228.24 39 239.99c0 5 2.44 9.075 5.19 12.065 2.754 2.99 6.054 5.312 9.812 7.48 7.515 4.336 16.99 7.95 27.412 11.076 15.483 4.646 32.823 8.1 47.9 9.577-14.996 25.84-34.953 49.574-52.447 72.315C56.65 378.785 39 403.99 39 431.99c0 4-.044 7.123.31 10.26.355 3.137 1.256 7.053 4.41 10.156 3.155 3.104 7.017 3.938 10.163 4.28 3.146.345 6.315.304 10.38.304h111.542c8.097 0 14.026.492 20.125-3.43 6.1-3.92 8.324-9.275 12.67-17.275l.088-.16.08-.166s9.723-19.77 21.324-39.388c5.8-9.808 12.097-19.576 17.574-26.498 2.74-3.46 5.304-6.204 7.15-7.754.564-.472.82-.56 1.184-.76.363.2.62.288 1.184.76 1.846 1.55 4.41 4.294 7.15 7.754 5.477 6.922 11.774 16.69 17.574 26.498 11.6 19.618 21.324 39.387 21.324 39.387l.08.165.088.16c4.346 8 6.55 13.323 12.61 17.254 6.058 3.93 11.974 3.45 19.957 3.45H448c4 0 7.12.043 10.244-.304 3.123-.347 6.998-1.21 10.12-4.332 3.12-3.122 3.984-6.997 4.33-10.12.348-3.122.306-6.244.306-10.244 0-28-17.65-53.205-37.867-79.488-17.493-22.74-37.45-46.474-52.447-72.315 15.077-1.478 32.417-4.93 47.9-9.576 10.422-3.125 19.897-6.74 27.412-11.075 3.758-2.168 7.058-4.49 9.81-7.48 2.753-2.99 5.192-7.065 5.192-12.065 0-11.75-6.934-21.71-16.332-30.554-9.398-8.846-21.883-17.077-36.203-25.26-27.3-15.6-61.207-30.86-91.815-45.994-.814-16.3-4.988-34.915-15.017-50.96C302.418 69.276 283 54.99 256 54.99z" />
+                              </svg>
+                            )}
+                            <span className="truncate">{item.display_name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Category Filter Chips */}

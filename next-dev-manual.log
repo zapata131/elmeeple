@@ -1,0 +1,106 @@
+
+> elmeeple@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.0.0.2:3000
+- Environments: .env.local
+✓ Ready in 241ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/joseluiszapata/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/joseluiszapata/Documents/GitHub/elmeeple/package-lock.json
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+ GET / 200 in 256ms (next.js: 123ms, application-code: 133ms)
+ GET /api/auth/session 200 in 573ms (next.js: 559ms, application-code: 14ms)
+ GET / 200 in 38ms (next.js: 4ms, application-code: 33ms)
+ GET /api/auth/session 200 in 8ms (next.js: 4ms, application-code: 5ms)
+ GET / 200 in 19ms (next.js: 1185µs, application-code: 17ms)
+ GET /api/auth/session 200 in 7ms (next.js: 1376µs, application-code: 5ms)
+ GET /venue/club-de-rol-la-torre 200 in 417ms (next.js: 264ms, application-code: 153ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 5ms)
+ GET /venue/club-de-rol-la-torre 200 in 53ms (next.js: 6ms, application-code: 47ms)
+ GET /api/auth/session 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET / 200 in 17ms (next.js: 3ms, application-code: 14ms)
+✓ Compiled in 425ms
+ GET / 200 in 618ms (next.js: 478ms, application-code: 140ms)
+ GET /venue/club-de-rol-la-torre 404 in 616ms (next.js: 393ms, application-code: 224ms)
+✓ Compiled in 217ms
+ GET /venue/club-de-rol-la-torre 200 in 423ms (next.js: 278ms, application-code: 145ms)
+ GET /venue/club-de-rol-la-torre 200 in 29ms (next.js: 13ms, application-code: 17ms)
+ GET / 200 in 440ms (next.js: 139ms, application-code: 301ms)
+ GET / 200 in 99ms (next.js: 10ms, application-code: 89ms)
+ GET / 200 in 60ms (next.js: 2ms, application-code: 58ms)
+ GET / 200 in 45ms (next.js: 2ms, application-code: 43ms)
+ GET /venue/club-de-rol-la-torre 200 in 477ms (next.js: 247ms, application-code: 230ms)
+ GET / 200 in 60ms (next.js: 1729µs, application-code: 58ms)
+ GET / 200 in 48ms (next.js: 3ms, application-code: 45ms)
+ GET / 200 in 52ms (next.js: 3ms, application-code: 49ms)
+ GET / 200 in 40ms (next.js: 1062µs, application-code: 39ms)
+ GET / 200 in 55ms (next.js: 3ms, application-code: 52ms)
+ GET / 200 in 54ms (next.js: 2ms, application-code: 52ms)
+ GET / 200 in 53ms (next.js: 1210µs, application-code: 52ms)
+ GET / 200 in 54ms (next.js: 1499µs, application-code: 52ms)
+ GET / 200 in 46ms (next.js: 4ms, application-code: 42ms)
+ GET / 200 in 42ms (next.js: 1065µs, application-code: 41ms)
+ GET / 200 in 44ms (next.js: 1202µs, application-code: 43ms)
+ GET /api/auth/session 200 in 67ms (next.js: 54ms, application-code: 12ms)
+ GET / 200 in 101ms (next.js: 1829µs, application-code: 99ms)
+ GET / 200 in 101ms (next.js: 990µs, application-code: 100ms)
+ GET / 200 in 97ms (next.js: 994µs, application-code: 96ms)
+ GET / 200 in 96ms (next.js: 59ms, application-code: 38ms)
+ GET / 200 in 37ms (next.js: 1091µs, application-code: 36ms)
+ GET / 200 in 31ms (next.js: 915µs, application-code: 30ms)
+ GET / 200 in 32ms (next.js: 1228µs, application-code: 30ms)
+ GET / 200 in 32ms (next.js: 754µs, application-code: 31ms)
+ GET / 200 in 25ms (next.js: 726µs, application-code: 24ms)
+ GET / 200 in 26ms (next.js: 870µs, application-code: 25ms)
+ GET / 200 in 31ms (next.js: 1042µs, application-code: 29ms)
+ GET / 200 in 29ms (next.js: 1043µs, application-code: 28ms)
+ GET / 200 in 29ms (next.js: 1006µs, application-code: 28ms)
+ GET / 200 in 22ms (next.js: 956µs, application-code: 21ms)
+ GET / 200 in 35ms (next.js: 962µs, application-code: 34ms)
+ GET / 200 in 36ms (next.js: 810µs, application-code: 35ms)
+ GET / 200 in 37ms (next.js: 1217µs, application-code: 36ms)
+ GET / 200 in 39ms (next.js: 2ms, application-code: 37ms)
+ GET / 200 in 30ms (next.js: 807µs, application-code: 30ms)
+ GET / 200 in 30ms (next.js: 1238µs, application-code: 29ms)
+ GET / 200 in 30ms (next.js: 1776µs, application-code: 28ms)
+ GET / 200 in 25ms (next.js: 1574µs, application-code: 23ms)
+ GET / 200 in 17ms (next.js: 1669µs, application-code: 16ms)
+ GET / 200 in 9ms (next.js: 1288µs, application-code: 8ms)
+[browser] Unexpected import of module [project]/Documents/GitHub/elmeeple/src/components/Map.tsx [app-client] (ecmascript, next/dynamic entry) from module [project]/Documents/GitHub/elmeeple/src/components/InteractiveMap.tsx [app-client] (ecmascript), which was deleted by an HMR update (.next/dev/static/chunks/Documents_GitHub_elmeeple_src_1tkk0__._.js:15:16)
+✓ Compiled in 51ms
+ GET / 200 in 214ms (next.js: 80ms, application-code: 134ms)
+ GET / 200 in 49ms (next.js: 23ms, application-code: 27ms)
+ GET /venue/club-de-rol-la-torre 200 in 67ms (next.js: 10ms, application-code: 57ms)
+ GET / 200 in 246ms (next.js: 100ms, application-code: 146ms)
+ GET /venue/club-de-rol-la-torre 200 in 33ms (next.js: 1106µs, application-code: 32ms)
+ GET /venue/club-de-rol-la-torre 200 in 21ms (next.js: 1950µs, application-code: 19ms)
+ GET /api/auth/session 200 in 60ms (next.js: 52ms, application-code: 8ms)
+✓ Compiled in 19ms
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'appendChild')
+    at Map (src/components/Map.tsx:325:9)
+    at InteractiveMap (src/components/InteractiveMap.tsx:431:9)
+    at Home (src/app/page.tsx:10:9)
+  323 |         style={{ height: '100%', width: '100%' }}
+  324 |       >
+> 325 |         <TileLayer
+      |         ^
+  326 |           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStree...
+  327 |           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+  328 |         />
+[browser] Uncaught Error: Map container is being reused by another instance
+    at MapContainerComponent (<anonymous>)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 18ms
+ GET / 200 in 44ms (next.js: 3ms, application-code: 41ms)
+ POST /api/auth/_log 200 in 7ms (next.js: 2ms, application-code: 5ms)
+[browser] Encountered a script tag while rendering React component. Scripts inside React components are never executed when rendering on the client. Consider using template tag instead (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template). 
+    at Set.forEach (<anonymous>) (<anonymous>)
+ GET /api/auth/session 200 in 7ms (next.js: 769µs, application-code: 6ms)
