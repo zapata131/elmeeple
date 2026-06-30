@@ -209,7 +209,7 @@ To improve usability and align with standard map interfaces (such as Google Maps
 
 2. **Smart Matching Logic**:
    * *Decision:* The search query matches against venue names, tags, addresses, and game catalogs (including BGG alternate names) simultaneously.
-   * *Rationale:* Minimizes user steps and supports organic, unstructured search terms. If a venue matches because of a game, we render a brand-purple match badge (e.g., `Tiene Scythe`) to clarify the match context. (Fully implemented and verified in Milestone 6).
+   * *Rationale:* Minimizes user steps and supports organic, unstructured search terms. If a venue matches because of a game, we render a brand-purple match badge with dynamic labels based on the venue's type (e.g. `Para jugar: Catan`, `En venta: Catan`, or `Ludoteca y Venta: Catan`) to clarify whether the game is for playing, buying, or both. (Fully implemented and verified in Milestone 6).
 
 3. **Autocomplete Suggestions Dropdown**:
    * *Decision:* As the user types, a clean, glassmorphic dropdown renders categorized suggestions (Locations, Games, and Venues) using premium inline SVGs (no emojis).

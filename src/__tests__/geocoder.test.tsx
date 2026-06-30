@@ -214,9 +214,9 @@ describe('Unified Smart Search & Autocomplete Suggestions', () => {
     // Input should be updated with game name
     expect(searchInput).toHaveValue('Catan')
 
-    // List should show Catan badge
-    const badges = screen.getAllByText('Tiene Catan')
-    expect(badges.length).toBe(2)
+    // List should show correct badges based on venue types
+    expect(screen.getByText('Ludoteca y Venta: Catan')).toBeInTheDocument()
+    expect(screen.getByText('Para jugar: Catan')).toBeInTheDocument()
 
     // Dropdown should be closed
     expect(screen.queryByText('Juegos')).not.toBeInTheDocument()

@@ -306,8 +306,8 @@ describe('Left Sidebar Directory Layout', () => {
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
     expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
 
-    // It should display the "Tiene Scythe" badge
-    expect(screen.getByText('Tiene Scythe')).toBeInTheDocument()
+    // It should display the "Ludoteca y Venta: Scythe" badge
+    expect(screen.getByText('Ludoteca y Venta: Scythe')).toBeInTheDocument()
   })
 
   it('filters the list of venues when searching by game alternate names', async () => {
@@ -326,8 +326,8 @@ describe('Left Sidebar Directory Layout', () => {
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
 
-    // It should display the "Tiene Catan" badge for both
-    const badges = screen.getAllByText('Tiene Catan')
-    expect(badges.length).toBe(2)
+    // It should display the correct badges based on venue types
+    expect(screen.getByText('Ludoteca y Venta: Catan')).toBeInTheDocument()
+    expect(screen.getByText('Para jugar: Catan')).toBeInTheDocument()
   })
 })

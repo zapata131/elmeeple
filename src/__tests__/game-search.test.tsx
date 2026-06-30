@@ -64,8 +64,8 @@ describe('Global Game Search in Unified Smart Search', () => {
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
     expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
 
-    // It must render the custom meeple game match badge (without raw emojis, e.g., "Tiene Scythe")
-    const matchBadge = screen.getByText(/tiene scythe/i)
+    // It must render the custom meeple game match badge (without raw emojis, e.g., "Ludoteca y Venta: Scythe")
+    const matchBadge = screen.getByText(/ludoteca y venta: scythe/i)
     expect(matchBadge).toBeInTheDocument()
     expect(matchBadge.textContent).not.toMatch(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/) // Assert no emojis
 
@@ -74,7 +74,7 @@ describe('Global Game Search in Unified Smart Search', () => {
     expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
     expect(screen.getByText('El Duende')).toBeInTheDocument()
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
-    expect(screen.queryByText(/tiene/i)).not.toBeInTheDocument()
+    expect(screen.queryByText('Ludoteca y Venta: Scythe')).not.toBeInTheDocument()
   })
 
   it('filters venues by game alternate names in the unified search', async () => {
@@ -93,8 +93,8 @@ describe('Global Game Search in Unified Smart Search', () => {
     expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
 
-    // Both should show the "Tiene Catan" badge
-    const badges = screen.getAllByText('Tiene Catan')
-    expect(badges.length).toBe(2)
+    // It should display the correct badges based on venue types
+    expect(screen.getByText('Ludoteca y Venta: Catan')).toBeInTheDocument()
+    expect(screen.getByText('Para jugar: Catan')).toBeInTheDocument()
   })
 })
