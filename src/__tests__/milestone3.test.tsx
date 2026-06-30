@@ -482,12 +482,8 @@ describe('Milestone 3: BGG Sync Ludoteca & Community Reviews', () => {
       // Wait for venues to load
       await screen.findByText('Orcs Stories')
 
-      // Toggle to game search mode
-      const gamesToggle = screen.getByRole('button', { name: /buscar juegos/i })
-      await user.click(gamesToggle)
-
       // Type game title 'Catan' in the search bar
-      const searchInput = screen.getByPlaceholderText(/buscar juegos/i)
+      const searchInput = screen.getByPlaceholderText(/buscar locales/i)
       await user.type(searchInput, 'Catan')
 
       // Orcs Stories has Catan, so it should remain visible or marked. El Duende does not, so it should be filtered out.

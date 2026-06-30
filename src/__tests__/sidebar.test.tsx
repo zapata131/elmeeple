@@ -289,4 +289,45 @@ describe('Left Sidebar Directory Layout', () => {
     // Restore original mock
     ;(global as any).mockSupabaseInstance = originalInstance
   })
+
+  it('filters the list of venues and displays "Tiene [Juego]" badge when searching for a game', async () => {
+    render(<Home />)
+    const user = userEvent.setup()
+    const searchInput = screen.getByPlaceholderText(/buscar locales/i)
+
+    // Wait for initial venues to load
+    await screen.findByText('Orcs Stories')
+
+    // Type "Scythe" (a game in Orcs Stories)
+    await user.type(searchInput, 'Scythe')
+
+    // Only "Orcs Stories" should match
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
+    expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
+
+    // It should display the "Tiene Scythe" badge
+    expect(screen.getByText('Tiene Scythe')).toBeInTheDocument()
+  })
+
+  it('filters the list of venues when searching by game alternate names', async () => {
+    render(<Home />)
+    const user = userEvent.setup()
+    const searchInput = screen.getByPlaceholderText(/buscar locales/i)
+
+    // Wait for initial venues to load
+    await screen.findByText('Orcs Stories')
+
+    // Type "Colonos" (alternate name for Catan: "Catan, Los Colonos de Catan")
+    await user.type(searchInput, 'Colonos')
+
+    // Both "Orcs Stories" and "Ravenfolks" have Catan
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
+    expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
+
+    // It should display the "Tiene Catan" badge for both
+    const badges = screen.getAllByText('Tiene Catan')
+    expect(badges.length).toBe(2)
+  })
 })

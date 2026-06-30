@@ -169,7 +169,7 @@ Every feature release must be validated across three distinct testing tiers:
 * **Playwright Mobile Viewport Hidden Tab Element Clicks**: Stacked mobile layouts wrap some sections into navigation tabs. E2E walkthroughs using Playwright will hang and timeout if they try to click elements inside hidden tabs on mobile viewports.
   * *Convention*: E2E scripts must check `vp.isMobile` and explicitly trigger the tab button click (e.g. `await page.click('button:has-text("Comunidad")')`) before interacting with elements contained in mobile-hidden containers.
 * **Mocking Supabase `.or()` filters**: When updating Server Actions to use complex Supabase query filters (such as `.or()`), ensure that `or: jest.fn().mockReturnThis()` is mocked on both `mockQueryBuilder` and `mockQueryBuilderServer` inside `jest.setup.js` to avoid `TypeError: ...or is not a function` runtime crashes in other unrelated integration tests.
-
+* **Refactoring Legacy Tests for Unified Search UI changes**: When transitioning from separate search modes with toggle buttons to a single unified smart search, remove obsolete toggle interaction steps from legacy test suites (e.g., `game-search.test.tsx` and `milestone3.test.tsx`) and update placeholder queries to match the new unified search input.
 
 ### 6.5 Agent Capabilities
 * **Jetski Path-Writing Security Validator**: If an autonomous subagent attempts to create or edit files in a directory containing `/brain/<parent-id>/` (such as a shared git worktree), the Jetski high-level file tools (`write_to_file`, `replace_file_content`) may throw a security exception.

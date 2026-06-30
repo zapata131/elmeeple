@@ -9,7 +9,7 @@ describe('Home Page', () => {
 
   it('renders the map search controls and category chips', () => {
     render(<Home />)
-    expect(screen.getByPlaceholderText('Buscar locales...')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Todos' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Cafés' })).toBeInTheDocument()
   })

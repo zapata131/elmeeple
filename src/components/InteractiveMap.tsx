@@ -86,7 +86,6 @@ export default function InteractiveMap() {
   const [loading, setLoading] = useState(true)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchMode, setSearchMode] = useState<'venues' | 'games'>('venues')
   const [selectedCategory, setSelectedCategory] = useState('Todos')
   const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
@@ -268,21 +267,17 @@ export default function InteractiveMap() {
     // Search Filter
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim()
-      if (searchMode === 'venues') {
-        const matchesName = venue.name.toLowerCase().includes(query)
-        const matchesAddress = venue.address ? venue.address.toLowerCase().includes(query) : false
-        const matchesTags = venue.tags.some(tag => tag.toLowerCase().includes(query))
-        return matchesName || matchesAddress || matchesTags
-      } else {
-        const matchesGames = venue.venue_games
-          ? (venue.venue_games as any[]).some(
-              (g: any) =>
-                g.name?.toLowerCase().includes(query) ||
-                g.alternate_names?.toLowerCase().includes(query)
-            )
-          : false
-        return matchesGames
-      }
+      const matchesName = venue.name.toLowerCase().includes(query)
+      const matchesAddress = venue.address ? venue.address.toLowerCase().includes(query) : false
+      const matchesTags = venue.tags.some(tag => tag.toLowerCase().includes(query))
+      const matchesGames = venue.venue_games
+        ? (venue.venue_games as any[]).some(
+            (g: any) =>
+              g.name?.toLowerCase().includes(query) ||
+              g.alternate_names?.toLowerCase().includes(query)
+          )
+        : false
+      return matchesName || matchesAddress || matchesTags || matchesGames
     }
 
     return true
@@ -361,41 +356,11 @@ export default function InteractiveMap() {
           <div className="relative">
             <input
               type="text"
-              placeholder={searchMode === 'venues' ? 'Buscar locales...' : 'Buscar juegos de mesa...'}
+              placeholder="Buscar locales, juegos, direcciones..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2.5 bg-white dark:bg-[#2D2D2D] text-[#3A3A3A] dark:text-[#F5F0E9] border border-[#3A3A3A]/25 dark:border-[#F5F0E9]/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8367C7]/50 focus:border-[#8367C7] text-sm shadow-inner"
             />
-          </div>
-
-          {/* Search Mode Toggle */}
-          <div className="grid grid-cols-2 p-1 bg-[#3A3A3A]/5 dark:bg-[#F5F0E9]/5 rounded-xl border border-[#3A3A3A]/10 dark:border-[#F5F0E9]/10 text-xs font-semibold">
-            <button
-              onClick={() => {
-                setSearchMode('venues')
-                setSearchQuery('')
-              }}
-              className={`py-1.5 px-3 rounded-lg transition-all duration-150 cursor-pointer text-center ${
-                searchMode === 'venues'
-                  ? 'bg-[#8367C7] text-[#F5F0E9] font-bold shadow-sm'
-                  : 'text-[#3A3A3A]/60 dark:text-[#F5F0E9]/60 hover:text-[#3A3A3A] dark:hover:text-[#F5F0E9] hover:bg-[#3A3A3A]/5 dark:hover:bg-[#F5F0E9]/5'
-              }`}
-            >
-              Buscar locales
-            </button>
-            <button
-              onClick={() => {
-                setSearchMode('games')
-                setSearchQuery('')
-              }}
-              className={`py-1.5 px-3 rounded-lg transition-all duration-150 cursor-pointer text-center ${
-                searchMode === 'games'
-                  ? 'bg-[#8367C7] text-[#F5F0E9] font-bold shadow-sm'
-                  : 'text-[#3A3A3A]/60 dark:text-[#F5F0E9]/60 hover:text-[#3A3A3A] dark:hover:text-[#F5F0E9] hover:bg-[#3A3A3A]/5 dark:hover:bg-[#F5F0E9]/5'
-              }`}
-            >
-              Buscar juegos
-            </button>
           </div>
 
           {/* Category Filter Chips */}
@@ -503,13 +468,15 @@ export default function InteractiveMap() {
                     </div>
                     <p className="text-xs text-[#3A3A3A]/70 dark:text-[#F5F0E9]/70 truncate mb-1.5">{venue.address}</p>
                     
-                    {/* Game Match Badge */}
-                    {searchMode === 'games' && searchQuery.trim() !== '' && (
+                    {searchQuery.trim() !== '' && (
                       <div className="mb-2">
                         {(() => {
-                          const query = searchQuery.toLowerCase()
+                          const query = searchQuery.toLowerCase().trim()
                           const matchingGames = (venue.venue_games || [])
-                            .filter((g: any) => g.name?.toLowerCase().includes(query))
+                            .filter((g: any) =>
+                              g.name?.toLowerCase().includes(query) ||
+                              g.alternate_names?.toLowerCase().includes(query)
+                            )
                             .map((g: any) => g.name)
                           
                           if (matchingGames.length === 0) return null

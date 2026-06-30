@@ -1,31 +1,35 @@
-# Sprint handoff and continuity memo: Milestone 6, Unified Smart Search Started
+# Sprint handoff and continuity memo: Milestone 6, Unified Smart Search (Backend Completed)
 
-We have successfully completed Milestone 5, seeded the database, and created the new backlog issues for **Milestone 6 (Unified Smart Search)**. We are now transitioning to the implementation phase.
+We have successfully implemented the backend filtering logic for the **Unified Smart Search (Issue #78)**. We are now preparing to implement the frontend autocomplete suggestions dropdown (Issue #79).
 
 ---
 
 ## 1. Active sprint status and goal
-*   **Active branch:** `feature/issue-78-unified-smart-search-backend` (To be created)
-*   **Sprint status:** **In Progress (Planning Completed)**
+*   **Active branch:** `feature/issue-78-unified-smart-search-backend`
+*   **Sprint status:** **In Progress (Backend Completed, 94/94 Tests Passing)**
 *   **Sprint goals:**
-    1. Refactor search filtering logic on the homepage to support a single, smart search matching venues, tags, addresses, and games simultaneously (Issue #78).
-    2. Implement a unified search input and an autocomplete suggestions dropdown in the homepage sidebar using premium inline SVGs and glassmorphic styling (Issue #79).
+    1. Refactor search filtering logic on the homepage to support a single, smart search matching venues, tags, addresses, and games simultaneously (Issue #78) — **COMPLETED**.
+    2. Implement a unified search input and an autocomplete suggestions dropdown in the homepage sidebar using premium inline SVGs and glassmorphic styling (Issue #79) — **NEXT**.
 
 ---
 
-## 2. Completed work (Milestone 5 Handoff & Planning)
-1.  **Milestone 5 Merge Ready**: All features (dynamic community coordinates, BGG weight/complexity integration, area search bounds, and clustering) are verified with 94/94 passing tests.
-2.  **Backlog Creation**: Created GitHub Issues [#78](https://github.com/zapata131/elmeeple/issues/78) and [#79](https://github.com/zapata131/elmeeple/issues/79) for the unified search refactor.
-3.  **Design Sync**: Updated [DESIGN.md](file:///Users/joseluiszapata/Documents/GitHub/elmeeple/DESIGN.md) with our four core user personas (Sofía, Alejandro, Carlos, Laura) and documented the architectural decisions for the unified smart search under section 9.7.
+## 2. Completed work (Milestone 6 - Issue #78)
+1.  **Smart Filtering Backend**:
+    - Refactored the filtering logic in `src/components/InteractiveMap.tsx` to remove the `searchMode` state.
+    - Updated `allFilteredVenues` to evaluate queries against name, tags, address, and `venue_games` (including `alternate_names`) in a single pass.
+    - Updated the game match badge (`Tiene [Juego]`) to render dynamically for any matching game query.
+2.  **TDD & Test Suite Refactoring**:
+    - Added new test cases in `src/__tests__/sidebar.test.tsx` and `src/__tests__/game-search.test.tsx` verifying smart search by game name and alternate game name.
+    - Refactored legacy tests (`milestone3.test.tsx`, `game-search.test.tsx`, `map.test.tsx`, `page.test.tsx`) to remove obsolete search mode toggle buttons and assert the new placeholder `'Buscar locales, juegos, direcciones...'`.
+    - Verified all 94 unit/integration tests pass successfully.
 
 ---
 
-## 3. Next steps (Milestone 6 Execution)
-1.  **Checkout Feature Branch**: Create and switch to `feature/issue-78-unified-smart-search-backend`.
-2.  **TDD - Write Tests First**:
-    *   Add test cases to `src/__tests__/sidebar.test.tsx` and `src/__tests__/zero-state-search.test.tsx` simulating searches for games, venue names, and addresses within a single query.
-    *   Verify that the "Tiene [Juego]" badge is asserted when a game query is inputted.
-3.  **Implement Smart Filtering Backend**:
-    *   Refactor the filtering logic in `src/components/InteractiveMap.tsx` to remove the `searchMode` state.
-    *   Update `allFilteredVenues` to evaluate queries against name, tags, address, and `venue_games` (including `alternate_names`) in a single pass.
-4.  **Verify & Review**: Run unit and integration tests (`npm run test -- --runInBand --forceExit`) to ensure all existing and new tests pass.
+## 3. Next steps (Milestone 6 - Issue #79)
+1.  **E2E Validation**: Wait for Playwright E2E tests to complete.
+2.  **Open Pull Request**: Commit all changes and open a PR for `feature/issue-78-unified-smart-search-backend` against `main`.
+3.  **Implement Unified Autocomplete UI (Issue #79)**:
+    - Create a feature branch `feature/issue-79-unified-smart-search-frontend`.
+    - Design and implement the autocomplete suggestions dropdown (showing Locations, Games, and Venues suggestions) below the unified search input with glassmorphism.
+    - Integrate selection actions: panning the map for locations, filtering for games, and opening QuickViewCard for venues.
+    - Verify with unit and E2E tests.

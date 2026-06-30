@@ -20,6 +20,6 @@ describe('Home Page with Map Integration', () => {
   it('renders the floating Navbar and search controls', () => {
     render(<Home />)
     expect(screen.getByText('El Meeple')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Buscar locales...')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Buscar locales, juegos, direcciones...')).toBeInTheDocument()
   })
 })

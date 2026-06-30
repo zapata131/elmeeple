@@ -46,46 +46,8 @@ jest.mock('react-leaflet', () => ({
   }),
 }))
 
-describe('Global Game Search & Mode Toggle', () => {
-  it('renders the search mode toggle with "Buscar Locales" and "Buscar Juegos"', async () => {
-    render(<Home />)
-    
-    // Wait for the list to load
-    await screen.findByText('Orcs Stories')
-
-    // Verify search mode toggle options exist
-    const venuesToggle = screen.getByRole('button', { name: /buscar locales/i })
-    const gamesToggle = screen.getByRole('button', { name: /buscar juegos/i })
-    
-    expect(venuesToggle).toBeInTheDocument()
-    expect(gamesToggle).toBeInTheDocument()
-    
-    // Default mode should be "Buscar Locales" (active class styling)
-    expect(venuesToggle).toHaveClass('bg-[#8367C7]')
-    expect(gamesToggle).not.toHaveClass('bg-[#8367C7]')
-  })
-
-  it('toggles search modes on click', async () => {
-    render(<Home />)
-    const user = userEvent.setup()
-    
-    await screen.findByText('Orcs Stories')
-
-    const venuesToggle = screen.getByRole('button', { name: /buscar locales/i })
-    const gamesToggle = screen.getByRole('button', { name: /buscar juegos/i })
-
-    // Click "Buscar Juegos"
-    await user.click(gamesToggle)
-    expect(gamesToggle).toHaveClass('bg-[#8367C7]')
-    expect(venuesToggle).not.toHaveClass('bg-[#8367C7]')
-
-    // Click "Buscar Locales" back
-    await user.click(venuesToggle)
-    expect(venuesToggle).toHaveClass('bg-[#8367C7]')
-    expect(gamesToggle).not.toHaveClass('bg-[#8367C7]')
-  })
-
-  it('filters venues correctly in "Buscar Juegos" mode and displays the game match badge', async () => {
+describe('Global Game Search in Unified Smart Search', () => {
+  it('filters venues correctly by game name and displays the game match badge', async () => {
     render(<Home />)
     const user = userEvent.setup()
     
@@ -93,10 +55,6 @@ describe('Global Game Search & Mode Toggle', () => {
     await screen.findByText('Orcs Stories')
     
     const searchInput = screen.getByPlaceholderText(/buscar locales/i)
-    const gamesToggle = screen.getByRole('button', { name: /buscar juegos/i })
-
-    // Switch to game search mode
-    await user.click(gamesToggle)
 
     // Type a game name available only in "Orcs Stories" (Scythe)
     await user.type(searchInput, 'Scythe')
@@ -119,25 +77,24 @@ describe('Global Game Search & Mode Toggle', () => {
     expect(screen.queryByText(/tiene/i)).not.toBeInTheDocument()
   })
 
-  it('does not filter by game name in "Buscar Locales" mode', async () => {
+  it('filters venues by game alternate names in the unified search', async () => {
     render(<Home />)
     const user = userEvent.setup()
     
     await screen.findByText('Orcs Stories')
     
     const searchInput = screen.getByPlaceholderText(/buscar locales/i)
-    const venuesToggle = screen.getByRole('button', { name: /buscar locales/i })
 
-    // Verify we are in venues mode
-    expect(venuesToggle).toHaveClass('bg-[#8367C7]')
+    // Type "Colonos" (alternate name for Catan: "Catan, Los Colonos de Catan")
+    await user.type(searchInput, 'Colonos')
 
-    // Type "Scythe" (a game name). Since we are in venue search mode, this should NOT match game catalog names.
-    await user.type(searchInput, 'Scythe')
-
-    // None of the venues have "Scythe" in their venue name/address/tags, so nothing should match
-    expect(screen.queryByText('Orcs Stories')).not.toBeInTheDocument()
+    // Both "Orcs Stories" and "Ravenfolks" have Catan
+    expect(screen.getByText('Orcs Stories')).toBeInTheDocument()
+    expect(screen.getByText('Ravenfolks')).toBeInTheDocument()
     expect(screen.queryByText('El Duende')).not.toBeInTheDocument()
-    expect(screen.queryByText('Ravenfolks')).not.toBeInTheDocument()
-    expect(screen.getByText(/no se encontraron resultados/i)).toBeInTheDocument()
+
+    // Both should show the "Tiene Catan" badge
+    const badges = screen.getAllByText('Tiene Catan')
+    expect(badges.length).toBe(2)
   })
 })
