@@ -6,9 +6,36 @@
 * **Value proposition:** We centralize venue discovery to drive foot traffic for owners and provide a seamless "where to play" map for hobbyists and community organizers.
 * **Business model:** Freemium B2B SaaS (Free basic map pins initially, leading to premium subscriptions for advanced store tools and event promotion in the future).
 
-### 2. Target audience
-* **Primary (Supply):** Board game cafés, TCG retail store owners, and local community organizers.
-* **Secondary (Demand):** Board game hobbyists, TCG players, and tourists looking for local gaming spaces.
+### 2. Target audience & user personas
+Our platform serves two distinct sides of the tabletop gaming ecosystem: the players (demand) and the venues/organizers (supply).
+
+#### 2.1 Demand Personas (Players)
+
+*   **Sofía – The Casual Board Gamer**
+    *   **Profile**: 27 years old, marketing specialist, plays board games socially with friends on weekends.
+    *   **Goals**: Find a cozy café with a good selection of gateway/party games (e.g., *Catan*, *Dixit*, *Codenames*) and quality food/drinks. Verify if a café has a specific game before visiting.
+    *   **Pain Points**: Standard directories (Google Maps, Yelp) don't list a venue's board game catalog. She hates arriving at a café only to find they don't have the games she wants or that the library is in poor condition.
+    *   **How El Meeple helps**: She uses the global game search on the homepage to find cafés that have her favorite games, and checks the "Comunidad" reviews for vibe ratings.
+
+*   **Alejandro – The Competitive TCG/Tournament Player**
+    *   **Profile**: 22 years old, university student, plays *Magic: The Gathering* and *Disney Lorcana* competitively.
+    *   **Goals**: Find local retail stores that sell singles/boosters and host weekly tournaments. Keep track of upcoming tournament schedules, entry fees, and registration details.
+    *   **Pain Points**: Tournament schedules are scattered across Facebook groups, Instagram stories, and Discord servers. It is difficult to find active competitive communities in a new city.
+    *   **How El Meeple helps**: He filters the map by "Tiendas" or "Comunidades" and browses the "Eventos" tab on venue profiles to view upcoming tournaments and register.
+
+#### 2.2 Supply Personas (Partners & Organizers)
+
+*   **Carlos – The Board Game Café Owner**
+    *   **Profile**: 42 years old, entrepreneur, owner of a board game café with 300+ games in Madrid.
+    *   **Goals**: Drive foot traffic during weekdays and promote weekend tournaments. Showcase his game library to prospective customers with minimal maintenance effort.
+    *   **Pain Points**: Manually updating a website or PDF with his game catalog is tedious and constantly goes out of date. Paying for premium event ticketing platforms eats into his thin margins.
+    *   **How El Meeple helps**: He syncs his entire catalog in seconds using his BoardGameGeek username and publishes weekly events directly to his store profile for free.
+
+*   **Laura – The Community Organizer**
+    *   **Profile**: 29 years old, software engineer, founder of an informal board game club.
+    *   **Goals**: Organize weekly meetups, attract new players, and partner with local board game cafés to host events.
+    *   **Pain Points**: Her club has no fixed physical address, meaning she cannot list it on Google Maps or Yelp, making it invisible to players searching locally.
+    *   **How El Meeple helps**: She registers her club as a "Comunidad" on El Meeple. Her club's pin is dynamically positioned on the map at the coordinates of her next hosted event at a partner café, giving her club physical visibility.
 
 ### 3. MVP feature scope
 * **Map-first interface:** A responsive, location-based interactive map serves as the default homepage, automatically centering on your city.
@@ -173,3 +200,17 @@ To support informal gaming clubs and communities alongside physical stores and c
    * *Rationale:* This allows communities to host events at established partner venues (creating cross-promotion), in public spaces, or online. It also removes friction by not forcing external registration URLs for casual, open-invite events.
 
 
+### 9.7 Unified Smart Search & Autocomplete Design Decisions (Milestone 6)
+To improve usability and align with standard map interfaces (such as Google Maps and Airbnb), we introduced the following design decisions:
+
+1. **Unified Search Bar**:
+   * *Decision:* Replace the dual-input text fields (Location + Keyword) and the manual mode toggle with a single, unified search input in the sidebar.
+   * *Rationale:* Reduces cognitive load (Hick's Law) and eliminates the friction where users get 0 results because they forgot to toggle the search mode.
+
+2. **Smart Matching Logic**:
+   * *Decision:* The search query matches against venue names, tags, addresses, and game catalogs (including BGG alternate names) simultaneously.
+   * *Rationale:* Minimizes user steps and supports organic, unstructured search terms. If a venue matches because of a game, we render a brand-purple match badge (e.g., `Tiene Scythe`) to clarify the match context.
+
+3. **Autocomplete Suggestions Dropdown**:
+   * *Decision:* As the user types, a clean, glassmorphic dropdown renders categorized suggestions (Locations, Games, and Venues) using premium inline SVGs (no emojis).
+   * *Rationale:* Guides the user's intent (Jakob's Law) and provides instant tactile feedback. Selecting a suggestion triggers context-specific actions (panning the map, filtering the list, or opening a venue profile).
